@@ -1,0 +1,28 @@
+# DeluxeCombatAddon64 v0.0.0-beta by @tbm00
+# https://github.com/tbm00/DeluxeCombatAddon64
+
+enabled: true
+
+# Global prefix for chat messages
+chat:
+  prefix: "&8[&f-&8] &7"
+
+# Prevents respawn anchor usage if player or nearby players have pvp disabled
+fixes:
+  anchorExplosionPvpCheck: false
+
+togglePvpCommand:
+  disabledInWorlds: []
+    #- "world_nether"
+  disabledAfterJoin:
+    enabled: true
+    time: 300 # in seconds
+    blockedMessage: "&cYou just connected to the server, you must wait <time_left> to disable pvp!"
+  disabledAfterCombat:
+    enabled: true
+    time: 120 # in seconds
+    blockedMessage: "&cYou were just in combat, you must wait <time_left> to disable pvp!"
+  disabledAfterMurder:
+    enabled: true
+    time: 600 # in seconds
+    blockedMessage: "&cYou just killed someone, you must wait <time_left> to disable pvp!"
