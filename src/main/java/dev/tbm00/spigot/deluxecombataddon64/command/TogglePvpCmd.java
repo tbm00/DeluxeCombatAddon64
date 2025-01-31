@@ -12,6 +12,8 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
+import net.md_5.bungee.api.chat.TextComponent;
+
 import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
 import dev.tbm00.spigot.deluxecombataddon64.EntryManager;
 import dev.tbm00.spigot.deluxecombataddon64.hook.DCHook;
@@ -34,7 +36,7 @@ public class TogglePvpCmd implements TabExecutor {
 
     public boolean onCommand(CommandSender sender, Command consoleCommand, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(configHandler.getChatPrefix() + ChatColor.RED + "This command can only be run by a player!");
+            sendMessage(sender, "&cThis command can only be run by a player!");
             return false;
         }
 
@@ -49,7 +51,7 @@ public class TogglePvpCmd implements TabExecutor {
                 else if (args[1].equalsIgnoreCase("off")||args[1].equalsIgnoreCase("disable"))
                     newStatus = "disable";
                 else {
-                    sender.sendMessage(configHandler.getChatPrefix() + ChatColor.RED + "Second argument must be 'on' or 'off'!");
+                    sendMessage(sender, "&cSecond argument must be 'on' or 'off'!");
                     return false;
                 }
             }
@@ -58,68 +60,70 @@ public class TogglePvpCmd implements TabExecutor {
     }
 
     private boolean handleTogglePvpSelf(Player target) {
-        target.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "1: " + ChatColor.YELLOW + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-        target.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "1: " + ChatColor.YELLOW + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+        sendMessage(target, "&f1: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+        sendMessage(target, "&f1: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
 
-        // Check if command should be prevented
-        if (preventUsage(target)) return true;
+        // Check if command should be prevented because of world
+        if (preventUsageWorlds(target)) return true;
 
         // Disable newbie protection (grace) if applied
         boolean currentGraceStatus = dcHook.hasProtection(target);
         if (currentGraceStatus) {
             boolean disabledGrace = sudoCommand(target, "grace disable");
             if (disabledGrace) {
-                target.sendMessage(configHandler.getChatPrefix() + "You &cdisabled &7your newbie protection (aka grace period)!");
-                target.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                target.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
-                //target.sendMessage(configHandler.getChatPrefix() + "Your newbie protection has been disabled!");
+                sendMessage(target, "You &cdisabled &7your newbie protection (aka grace period)!");
+                sendMessage(target, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+                sendMessage(target, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                //sendMessage(target, "Your newbie protection has been disabled!");
                 return true;
             } else {
-                target.sendMessage(configHandler.getChatPrefix() + ChatColor.RED + "Error disabling your newbie protection!");
+                sendMessage(target, "&cError disabling your newbie protection!");
                 return false;
             }
         }
+
+        // Check if command should be prevented for all other reasons
+        if (preventUsage(target)) return true;
 
         // Switch pvp status
         boolean currentPvpStatus = dcHook.hasPvPEnabled(target);
         if (currentPvpStatus) { // if enabled, disable it
             dcHook.togglePvP(target, false);
-            target.sendMessage(configHandler.getChatPrefix() + "You &cdisabled &7your PVP!");
-            target.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-            target.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+            sendMessage(target, "You &cdisabled &7your PVP!");
+            sendMessage(target, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+            sendMessage(target, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
             return true;
-        } else {
-            // if disabled, enable it
+        } else { // if disabled, enable it
             dcHook.togglePvP(target, true);
-            target.sendMessage(configHandler.getChatPrefix() + "You &aenabled &7your PVP!");
-            target.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-            target.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+            sendMessage(target, "You &aenabled &7your PVP!");
+            sendMessage(target, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+            sendMessage(target, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
             return true;
         }
     }
 
     private boolean handleTogglePvpOthers(CommandSender sender, Player target, String newStatus) {
-        sender.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "1: " + ChatColor.YELLOW + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-        sender.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "1: " + ChatColor.YELLOW + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+        sendMessage(sender, "&f1: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+        sendMessage(sender, "&f1: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
 
         if (newStatus!=null) {
             if (newStatus.equalsIgnoreCase("enable")) {
                 dcHook.togglePvP(target, true);
-                sender.sendMessage(configHandler.getChatPrefix() + "You enabled " + target.getName() + "'s PVP!");
-                sender.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                sender.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                sendMessage(sender, "You enabled " + target.getName() + "'s PVP!");
+                sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+                sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
                 return true;
             }
             if (newStatus.equalsIgnoreCase("disable")) {
                 dcHook.togglePvP(target, false);
-                sender.sendMessage(configHandler.getChatPrefix() + "You disabled " + target.getName() + "'s PVP!");
-                sender.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                sender.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                sendMessage(sender, "You disabled " + target.getName() + "'s PVP!");
+                sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+                sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
                 return true;
             }
             else {
-                dcHook.togglePvP(target, false);
-                sender.sendMessage(configHandler.getChatPrefix() + ChatColor.RED + "Error changing " + target.getName() + "'s PVP!");
+                //dcHook.togglePvP(target, false);
+                sendMessage(sender, "&cError changing " + target.getName() + "'s PVP!");
                 return false;
             }
         } else {
@@ -128,13 +132,13 @@ public class TogglePvpCmd implements TabExecutor {
             if (currentGraceStatus) {
                 boolean disabledGrace = sudoCommand(target, "grace disable");
                 if (disabledGrace) {
-                    sender.sendMessage(configHandler.getChatPrefix() + "You disabled " + target.getName() + "'s newbie protection (aka grace period)!");
-                    sender.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                    sender.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
-                    //target.sendMessage(configHandler.getChatPrefix() + "Your newbie protection has been disabled!");
+                    sendMessage(sender, "You disabled " + target.getName() + "'s newbie protection (aka grace period)!");
+                    sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+                    sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                    sendMessage(target, "&cYour newbie protection has been disabled!");
                     return true;
                 } else {
-                    sender.sendMessage(configHandler.getChatPrefix() + ChatColor.RED + "Error disabling " + target.getName() + "'s newbie protection!");
+                    sendMessage(sender, "&cError disabling " + target.getName() + "'s newbie protection!");
                     return false;
                 }
             }
@@ -143,31 +147,32 @@ public class TogglePvpCmd implements TabExecutor {
             boolean currentPvpStatus = dcHook.hasPvPEnabled(target);
             if (currentPvpStatus) { // if enabled, disable it
                 dcHook.togglePvP(target, false);
-                sender.sendMessage(configHandler.getChatPrefix() + "You disabled " + target.getName() + "'s PVP!");
-                sender.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                sender.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                sendMessage(sender, "You disabled " + target.getName() + "'s PVP!");
+                sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+                sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
                 return true;
-            } else {
-                // if disabled, enable it
+            } else { // if disabled, enable it
                 dcHook.togglePvP(target, true);
-                sender.sendMessage(configHandler.getChatPrefix() + "You enabled " + target.getName() + "'s PVP!");
-                sender.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                sender.sendMessage(configHandler.getChatPrefix() + ChatColor.WHITE + "2: " + ChatColor.YELLOW + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                sendMessage(sender, "You enabled " + target.getName() + "'s PVP!");
+                sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+                sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
                 return true;
             }
         }
     }
 
-    private boolean preventUsage(Player target) {
+    private boolean preventUsageWorlds(Player target) {
         // Prevent Usage if in Disable World
         if (configHandler.getDisabledWorlds().contains(target.getWorld().getName())) {
-            target.sendMessage(configHandler.getChatPrefix() + ChatColor.RED + "You cannot toggle pvp in this world!");
+            sendMessage(target, "&cYou cannot toggle pvp in this world!");
             return true;
-        }
+        } return false;
+    }
 
+    private boolean preventUsage(Player target) {
         // Prevent Usage if in Combat
         if (dcHook.isInCombat(target)) {
-            target.sendMessage(configHandler.getChatPrefix() + ChatColor.RED + "You cannot toggle pvp during combat!");
+            sendMessage(target, "&cYou cannot toggle pvp during combat!");
             return true;
         }
 
@@ -185,7 +190,15 @@ public class TogglePvpCmd implements TabExecutor {
             }
         }
         Integer current_map_time = entryManager.getTickTime(target.getName());
+        if (current_map_time==null) {
+            entryManager.saveEntry(target.getName(), (current_play_time));
+            current_map_time=current_play_time;
+        }
+        sendMessage(target, "current_map_time: " + current_map_time);
+        sendMessage(target, "current_play_time: " + current_play_time);
         if (current_map_time>current_play_time) {
+            int time_difference = (current_map_time-current_play_time)/20;
+            sendMessage(target, "&4You cannot toggle pvp after recently joining the server or engaging in combat... &cYou can toggle pvp in &6" + getFormattedTime(time_difference));
             return true;
         } else return false;
     }
@@ -197,6 +210,54 @@ public class TogglePvpCmd implements TabExecutor {
             javaPlugin.logRed("Caught exception sudoing command: " + target.getName() + " : /" + command + ": " + e.getMessage());
             return false;
         }
+    }
+
+    private String getFormattedTime(int totalSeconds) {
+        final int SECONDS_IN_WEEK = 604800;
+        final int SECONDS_IN_DAY = 86400;
+        final int SECONDS_IN_HOUR = 3600;
+        final int SECONDS_IN_MINUTE = 60;
+
+        // Calculate each time unit
+        int weeks = totalSeconds / SECONDS_IN_WEEK;
+        totalSeconds %= SECONDS_IN_WEEK;
+
+        int days = totalSeconds / SECONDS_IN_DAY;
+        totalSeconds %= SECONDS_IN_DAY;
+
+        int hours = totalSeconds / SECONDS_IN_HOUR;
+        totalSeconds %= SECONDS_IN_HOUR;
+
+        int minutes = totalSeconds / SECONDS_IN_MINUTE;
+        int seconds = totalSeconds % SECONDS_IN_MINUTE;
+
+        // Build the formatted string
+        StringBuilder formattedTime = new StringBuilder();
+        if (weeks > 0) {
+            formattedTime.append(weeks).append(" week");
+            if (weeks > 1) formattedTime.append("s");
+            formattedTime.append(", ");
+        } if (days > 0) {
+            formattedTime.append(days).append(" day");
+            if (days > 1) formattedTime.append("s");
+            formattedTime.append(", ");
+        } if (hours > 0) {
+            formattedTime.append(hours).append(" hour");
+            if (hours > 1) formattedTime.append("s");
+            formattedTime.append(", ");
+        } if (minutes > 0) {
+            formattedTime.append(minutes).append(" minute");
+            if (minutes > 1) formattedTime.append("s");
+            formattedTime.append(", ");
+        } if (seconds > 0) {
+            formattedTime.append(seconds).append(" second");
+            if (seconds != 1) formattedTime.append("s");
+        }
+        return formattedTime.toString();
+    }
+
+    private void sendMessage(CommandSender target, String string) {
+        target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getChatPrefix() + string)));
     }
 
     private Player getPlayer(String arg) {

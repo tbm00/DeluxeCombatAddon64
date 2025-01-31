@@ -9,7 +9,7 @@ chat:
 
 # Prevents respawn anchor usage if player or nearby players have pvp disabled
 fixes:
-  anchorExplosionPvpCheck: false
+  anchorExplosionPvpCheck: true
 
 togglePvpCommand:
   disabledInWorlds: []

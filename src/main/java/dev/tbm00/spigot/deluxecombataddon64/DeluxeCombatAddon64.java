@@ -2,7 +2,6 @@ package dev.tbm00.spigot.deluxecombataddon64;
 
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.ChatColor;
 
@@ -45,7 +44,7 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                     getServer().getPluginManager().registerEvents(new PreventUsage(this, configHandler, dcHook), this);
                 
             } else {
-                getLogger().severe("Either itemEntries is disabled or there was an error in config... disabling plugin!");
+                logYellow("Either config.enabled is false, or there was an error in config... disabling plugin!");
                 disablePlugin();
             }
         } else {

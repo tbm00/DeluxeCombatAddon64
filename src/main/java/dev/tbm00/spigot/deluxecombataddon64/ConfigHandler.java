@@ -7,7 +7,6 @@ import java.util.Set;
 import org.bukkit.configuration.ConfigurationSection;
 
 public class ConfigHandler {
-    private final DeluxeCombatAddon64 javaPlugin;
     private static boolean enabled = false;
     
     // "chat"
@@ -29,8 +28,9 @@ public class ConfigHandler {
     private String disabledAfterMurderMessage = null;
 
     public ConfigHandler(DeluxeCombatAddon64 javaPlugin) {
-        this.javaPlugin = javaPlugin;
         try {
+            enabled = javaPlugin.getConfig().contains("enabled") ? javaPlugin.getConfig().getBoolean("enabled") : false;
+
             // Load Chat
             ConfigurationSection chatSection = javaPlugin.getConfig().getConfigurationSection("chat");
             if (chatSection != null) {

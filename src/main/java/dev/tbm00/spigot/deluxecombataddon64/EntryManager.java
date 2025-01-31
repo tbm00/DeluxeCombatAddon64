@@ -3,13 +3,10 @@ package dev.tbm00.spigot.deluxecombataddon64;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 public class EntryManager {
-    private final DeluxeCombatAddon64 javaPlugin;
     private Map<String, Integer> entries;
 
     public EntryManager(DeluxeCombatAddon64 javaPlugin) {
-        this.javaPlugin = javaPlugin;
         this.entries = new ConcurrentHashMap<>();
     }
 
