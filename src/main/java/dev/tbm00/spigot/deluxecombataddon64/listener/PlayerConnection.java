@@ -21,7 +21,7 @@ public class PlayerConnection implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        int additional_time = configHandler.isDisabledAfterJoin() ? configHandler.getDisabledAfterJoinTicks() : 0;
-        entryManager.updateMapTime(player, additional_time);
+        int additional_time = configHandler.isPreventedAfterJoin() ? configHandler.getPreventedAfterJoinTicks() : 0;
+        entryManager.setMapTime(player, "JOIN", additional_time);
     }
 }

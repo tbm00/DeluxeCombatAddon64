@@ -8,29 +8,37 @@ fixes:
   anchorExplosionPvpCheck: true
 
 togglePvpCommand:
+  enabled: true
   chat:
-    prefix: "&8[&f-&8] &7"
-    enabledMessage: "You &aenabled &7your pvp!"
-    enabledByOtherMessage: "Your pvp has been &aenabled&7!"
-    disabledMessage: "You &cdisabled &7your pvp!"
-    disabledByOtherMessage: "Your pvp has been &cdisabled&7!"
-    disabledGraceMessage: "You &cdisabled &7your newbie protection (aka grace period)!"
-    disabledGraceByOtherMessage: "&cYour newbie protection has been disabled!"
-    preventedToggleWorldsMessage: "&cYou cannot toggle pvp in this world!"
+    prefix: "&8[&f-&8] &f"
+    enabledMessage: "You &a&nenabled&r &fyour pvp!"
+    enabledByOtherMessage: "Your pvp has been &aenabled&f!"
+    disabledMessage: "You &c&ndisabled&r &fyour pvp!"
+    disabledByOtherMessage: "Your pvp has been &cdisabled&f!"
+    disabledGraceMessage: "You &c&ndisabled&r &fyour newbie protection, your PVP is &a&nenabled&r!"
+    disabledGraceByOtherMessage: "&fYour newbie protection has been &ndisabled&r&f, your PVP is &a&nenabled&r!"
+    preventedToggleInWorldsMessage: "&cYou cannot toggle pvp in this world!"
     preventedToggleInCombatMessage: "&cYou cannot toggle pvp during combat!"
-    preventedToggleTimerMessage: "&cYou can toggle pvp in &6<time_left>&c!"
-  disabledInWorlds: []
+    preventedToggleAfterCombatMessage: "&cYou cannot toggle pvp after recent combat -- try again in &6<time_left>&c!"
+    preventedToggleAfterMurderMessage: "&cYou cannot toggle pvp for <initial_time> after killing someone -- try again in &6<time_left>&c!"
+    preventedToggleAfterJoinMessage: "&cYou cannot toggle pvp after recently connecting -- try again in &6<time_left>&c!"
+    preventedToggleAfterToggleMessage: "&cYou cannot toggle pvp after recently toggling -- try again in &6<time_left>&c!"
+    preventedToggleAfterBonusMessage: "&cYou cannot toggle pvp -- try again in &6<time_left>&c!"
+  preventedInWorlds: []
     #- "world_nether"
-  disabledInCombat: true
-  disabledAfterJoin:
+  preventedInCombat: true
+  preventedAfterCombat:
     enabled: true
-    time: 120 # in seconds
-  disabledAfterCombat:
+    time: 30 # seconds
+  preventedAfterMurder:
     enabled: true
-    time: 120 # in seconds
-  disabledAfterMurder:
+    time: 300 # seconds
+  preventedAfterJoin:
     enabled: true
-    time: 600 # in seconds
-  commandCooldown:
+    time: 120 # seconds
+  preventedAfterEnable:
     enabled: true
-    time: 120 # in seconds
+    time: 120 # seconds
+  preventedAfterDisable:
+    enabled: true
+    time: 15 # seconds

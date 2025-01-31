@@ -28,9 +28,9 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
         if (getConfig().getBoolean("enabled")) {
             configHandler = new ConfigHandler(this);
             if (configHandler.isEnabled()) {
+                
                 setupHooks();
-
-                if (configHandler.isDisabledAfterCombat() || configHandler.isDisabledAfterJoin()) {
+                if (configHandler.isTogglePvpCommandEnabled()) {
                     // Connect LogManager
                     entryManager = new EntryManager(this);
 

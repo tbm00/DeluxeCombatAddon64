@@ -60,14 +60,13 @@ public class TogglePvpCmd implements TabExecutor {
     }
 
     private boolean handleTogglePvpSelf(Player target) {
-
         // Check if command should be prevented because of world
         if (preventUsageWorlds(target)) return true;
 
         // Disable newbie protection (grace) if applied
         boolean currentGraceStatus = dcHook.hasProtection(target);
         if (currentGraceStatus) {
-            boolean disabledGrace = sudoCommand(target, "grace disable");
+            boolean disabledGrace = runCommand("grace disable " + target.getName());
             if (disabledGrace) {
                 sendMessage(target, configHandler.getDisabledGraceMessage());
                 return true;
@@ -85,12 +84,12 @@ public class TogglePvpCmd implements TabExecutor {
         if (currentPvpStatus) { // if enabled, disable it
             dcHook.togglePvP(target, false);
             sendMessage(target, configHandler.getDisabledMessage());
-            if (configHandler.getCommandCooldown()) entryManager.updateMapTime(target, configHandler.getCommandCooldownTicks());
+            if (configHandler.isPreventedAfterDisable()) entryManager.setMapTime(target, "TOGGLE", configHandler.getPreventedAfterDisableTicks());
             return true;
         } else { // if disabled, enable it
             dcHook.togglePvP(target, true);
             sendMessage(target, configHandler.getEnabledMessage());
-            if (configHandler.getCommandCooldown()) entryManager.updateMapTime(target, configHandler.getCommandCooldownTicks());
+            if (configHandler.isPreventedAfterEnable()) entryManager.setMapTime(target, "TOGGLE", configHandler.getPreventedAfterEnableTicks());
             return true;
         }
     }
@@ -117,7 +116,7 @@ public class TogglePvpCmd implements TabExecutor {
             // Disable newbie protection (grace) if applied
             boolean currentGraceStatus = dcHook.hasProtection(target);
             if (currentGraceStatus) {
-                boolean disabledGrace = sudoCommand(target, "grace disable");
+                boolean disabledGrace = runCommand("grace disable " + target.getName());
                 if (disabledGrace) {
                     sendMessage(sender, "You disabled " + target.getName() + "'s newbie protection (aka grace period)!");
                     sendMessage(target, configHandler.getDisabledGraceByOtherMessage());
@@ -146,20 +145,20 @@ public class TogglePvpCmd implements TabExecutor {
 
     private boolean preventUsageWorlds(Player target) {
         // Prevent Usage if in Disable World
-        if (configHandler.getDisabledWorlds().contains(target.getWorld().getName())) {
-            sendMessage(target, configHandler.getPreventedToggleWorldsMessage());
+        if (configHandler.getPreventedWorlds().contains(target.getWorld().getName())) {
+            sendMessage(target, configHandler.getPreventedToggleInWorldsMessage());
             return true;
         } return false;
     }
 
     private boolean preventUsage(Player target) {
         // Prevent Usage if in Combat
-        if (dcHook.isInCombat(target) && configHandler.getDisabledInCombat()) {
+        if (dcHook.isInCombat(target) && configHandler.getPreventedInCombat()) {
             sendMessage(target, configHandler.getPreventedToggleInCombatMessage());
             return true;
         }
 
-        // Prevent Usage if recently in Combat, Murderer, or Joined
+        // Prevent Usage if recently in Combat, Murder, Join, Toggle, or Bonus
         int current_play_time;
         try {
             current_play_time = target.getStatistic(Statistic.valueOf("PLAY_ONE_MINUTE"));
@@ -172,24 +171,30 @@ public class TogglePvpCmd implements TabExecutor {
                 current_play_time = 0;
             }
         }
-        Integer current_map_time = entryManager.getTickTime(target.getName());
-        if (current_map_time==null) {
-            entryManager.saveEntry(target.getName(), (current_play_time));
-            current_map_time=current_play_time;
-        }
-        if (current_map_time>current_play_time) {
-            int time_difference = (current_map_time-current_play_time)/20;
-            String string = configHandler.getPreventedToggleTimerMessage().replace("<time_left>", getFormattedTime(time_difference));
+
+        String tickAndType = entryManager.getHighestTickAndType(target.getName());
+        String[] pair = tickAndType.split("\\ ");
+        String preventedMessage = configHandler.getPreventedMessage(pair[1]);
+        Integer highest_map_time = Integer.parseInt(pair[0]);
+
+        if (highest_map_time==null || highest_map_time==0) {
+            entryManager.saveEntry(target.getName(), "BONUS", current_play_time);
+            return false;
+        } else if (highest_map_time>current_play_time) {
+            int time_difference = (highest_map_time-current_play_time)/20;
+            String string = preventedMessage.replace("<time_left>", getFormattedTime(time_difference));
+            string.replace("<initial_time>", getFormattedTime(highest_map_time));
             sendMessage(target, string);
             return true;
         } else return false;
     }
 
-    private boolean sudoCommand(Player target, String command) {
+    private boolean runCommand(String command) {
+        ConsoleCommandSender console = javaPlugin.getServer().getConsoleSender();
         try {
-            return Bukkit.dispatchCommand(target, command);
+            return Bukkit.dispatchCommand(console, command);
         } catch (Exception e) {
-            javaPlugin.logRed("Caught exception sudoing command: " + target.getName() + " : /" + command + ": " + e.getMessage());
+            javaPlugin.logRed("Caught exception sudoing command: " + command + ": " + e.getMessage());
             return false;
         }
     }
