@@ -3,26 +3,27 @@
 
 enabled: true
 
-# Global prefix for chat messages
-chat:
-  prefix: "&8[&f-&8] &7"
-
 # Prevents respawn anchor usage if player or nearby players have pvp disabled
 fixes:
   anchorExplosionPvpCheck: true
 
 togglePvpCommand:
+  chat:
+    prefix: "&8[&f-&8] &7"
+    enabledMessage: "You &aenabled &7your pvp!"
+    disabledMessage: "You &cdisabled &7your pvp!"
+    disabledGraceMessage: "You &cdisabled &7your newbie protection (aka grace period)!"
+    preventedToggleWorldsMessage: "&cYou cannot toggle pvp in this world!"
+    preventedToggleInCombatMessage: "&cYou cannot toggle pvp during combat!"
+    preventedToggleAfterMessage: "&4You cannot toggle pvp after recently joining the server or engaging in combat... &cYou can toggle pvp in &6<time_left>&c!"
   disabledInWorlds: []
     #- "world_nether"
   disabledAfterJoin:
     enabled: true
     time: 300 # in seconds
-    blockedMessage: "&cYou just connected to the server, you must wait <time_left> to disable pvp!"
   disabledAfterCombat:
     enabled: true
     time: 120 # in seconds
-    blockedMessage: "&cYou were just in combat, you must wait <time_left> to disable pvp!"
   disabledAfterMurder:
     enabled: true
     time: 600 # in seconds
-    blockedMessage: "&cYou just killed someone, you must wait <time_left> to disable pvp!"

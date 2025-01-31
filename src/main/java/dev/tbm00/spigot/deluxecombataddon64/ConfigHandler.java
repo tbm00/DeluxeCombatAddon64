@@ -8,34 +8,29 @@ import org.bukkit.configuration.ConfigurationSection;
 
 public class ConfigHandler {
     private static boolean enabled = false;
-    
-    // "chat"
-    private String chatPrefix = null;
 
     // "fixes"
     private boolean checkAnchorExplosions = false;
     
     // "togglePvpCommand"
+    private String chatPrefix = null;
+    private String enabledMessage = null;
+    private String disabledMessage = null;
+    private String disabledGraceMessage = null;
+    private String preventedToggleWorldsMessage = null;
+    private String preventedToggleInCombatMessage = null;
+    private String preventedToggleAfterMessage = null;
     private Set<String> disabledWorlds = new HashSet<>();
     private boolean disabledAfterJoin = false;
     private int disabledAfterJoinTicks = 0;
-    private String disabledAfterJoinMessage = null;
     private boolean disabledAfterCombat = false;
     private int disabledAfterCombatTicks = 0;
-    private String disabledAfterCombatMessage = null;
     private boolean disabledAfterMurder = false;
     private int disabledAfterMurderTicks = 0;
-    private String disabledAfterMurderMessage = null;
 
     public ConfigHandler(DeluxeCombatAddon64 javaPlugin) {
         try {
             enabled = javaPlugin.getConfig().contains("enabled") ? javaPlugin.getConfig().getBoolean("enabled") : false;
-
-            // Load Chat
-            ConfigurationSection chatSection = javaPlugin.getConfig().getConfigurationSection("chat");
-            if (chatSection != null) {
-                loadChat(chatSection);
-            }
 
             // Load Fixes
             ConfigurationSection fixSection = javaPlugin.getConfig().getConfigurationSection("fixes");
@@ -55,45 +50,53 @@ public class ConfigHandler {
         }
     }
 
-    private void loadChat(ConfigurationSection chatSection) {
-        chatPrefix = chatSection.contains("prefix") ? chatSection.getString("prefix") : null;
-    }
-
     private void loadFixes(ConfigurationSection fixSection) {
         checkAnchorExplosions = fixSection.contains("anchorExplosionPvpCheck") ? fixSection.getBoolean("anchorExplosionPvpCheck") : false;
     }
 
     private void loadTogglePvp(ConfigurationSection togglePvpSection) {
+        // Load Chat
+        ConfigurationSection chatSection = togglePvpSection.getConfigurationSection("chat");
+        if (chatSection != null) {
+            chatPrefix = chatSection.contains("prefix") ? chatSection.getString("prefix") : null;
+            enabledMessage = chatSection.contains("enabledMessage") ? chatSection.getString("enabledMessage") : null;
+            disabledMessage = chatSection.contains("disabledMessage") ? chatSection.getString("disabledMessage") : null;
+            disabledGraceMessage = chatSection.contains("disabledGraceMessage") ? chatSection.getString("disabledGraceMessage") : null;
+            preventedToggleWorldsMessage = chatSection.contains("preventedToggleWorldsMessage") ? chatSection.getString("preventedToggleWorldsMessage") : null;
+            preventedToggleInCombatMessage = chatSection.contains("preventedToggleInCombatMessage") ? chatSection.getString("preventedToggleInCombatMessage") : null;
+            preventedToggleAfterMessage = chatSection.contains("preventedToggleAfterMessage") ? chatSection.getString("preventedToggleAfterMessage") : null;
+        }
+        
+        // Load Disabled Worlds
         List<String> worldsHolder = togglePvpSection.contains("disabledInWorlds") ? togglePvpSection.getStringList("disabledInWorlds") : null;
         disabledWorlds.addAll(worldsHolder);
 
+        // Load disabledAfterJoin
         ConfigurationSection afterJoinSec = togglePvpSection.contains("disabledAfterJoin") ? togglePvpSection.getConfigurationSection("disabledAfterJoin") : null;
         if (afterJoinSec != null) { 
             disabledAfterJoin = afterJoinSec.contains("enabled") ? afterJoinSec.getBoolean("enabled") : false;
             if (disabledAfterJoin) {
                 disabledAfterJoinTicks = afterJoinSec.contains("time") ? afterJoinSec.getInt("time")*20 : 0;
-                disabledAfterJoinMessage = afterJoinSec.contains("message") ? afterJoinSec.getString("message") : null;
             }
         }
 
+        // Load disabledAfterCombat
         ConfigurationSection afterCombatSec = togglePvpSection.contains("disabledAfterCombat") ? togglePvpSection.getConfigurationSection("disabledAfterCombat") : null;
         if (afterCombatSec != null) {
             disabledAfterCombat = afterCombatSec.contains("enabled") ? afterCombatSec.getBoolean("enabled") : false;
             if (disabledAfterCombat) {
                 disabledAfterCombatTicks = afterCombatSec.contains("time") ? afterCombatSec.getInt("time")*20 : 0;
-                disabledAfterCombatMessage = afterCombatSec.contains("message") ? afterCombatSec.getString("message") : null;
             }
         }
 
+        // Load disabledAfterMurder
         ConfigurationSection afterMurderSec = togglePvpSection.contains("disabledAfterMurder") ? togglePvpSection.getConfigurationSection("disabledAfterMurder") : null;
         if (afterMurderSec != null) {
             disabledAfterMurder = afterMurderSec.contains("enabled") ? afterMurderSec.getBoolean("enabled") : false;
             if (disabledAfterMurder) {
                 disabledAfterMurderTicks = afterMurderSec.contains("time") ? afterMurderSec.getInt("time")*20 : 0;
-                disabledAfterMurderMessage = afterMurderSec.contains("message") ? afterMurderSec.getString("message") : null;
             }
         }
-
     }
 
     public boolean isEnabled() {
@@ -103,6 +106,30 @@ public class ConfigHandler {
     public String getChatPrefix() {
         return chatPrefix;
     }
+
+    public String getEnabledMessage() {
+        return enabledMessage;
+    }
+    
+    public String getDisabledMessage() {
+        return disabledMessage;
+    }
+    
+    public String getDisabledGraceMessage() {
+        return disabledGraceMessage;
+    }
+    
+    public String getPreventedToggleWorldsMessage() {
+        return preventedToggleWorldsMessage;
+    }
+    
+    public String getPreventedToggleInCombatMessage() {
+        return preventedToggleInCombatMessage;
+    }
+    
+    public String getPreventedToggleAfterMessage() {
+        return preventedToggleAfterMessage;
+    }    
 
     public boolean getCheckAnchorExplosions() {
         return checkAnchorExplosions;
@@ -119,10 +146,6 @@ public class ConfigHandler {
     public int getDisabledAfterJoinTicks() {
         return disabledAfterJoinTicks;
     }
-
-    public String getDisabledAfterJoinMessage() {
-        return disabledAfterJoinMessage;
-    }
     
     public boolean isDisabledAfterCombat() {
         return disabledAfterCombat;
@@ -132,9 +155,6 @@ public class ConfigHandler {
         return disabledAfterCombatTicks;
     }
 
-    public String getDisabledAfterCombatMessage() {
-        return disabledAfterCombatMessage;
-    }
 
     public boolean isDisabledAfterMurder() {
         return disabledAfterMurder;
@@ -142,9 +162,5 @@ public class ConfigHandler {
 
     public int getDisabledAfterMurderTicks() {
         return disabledAfterMurderTicks;
-    }
-
-    public String getDisabledAfterMurderMessage() {
-        return disabledAfterMurderMessage;
     }
 }

@@ -60,8 +60,8 @@ public class TogglePvpCmd implements TabExecutor {
     }
 
     private boolean handleTogglePvpSelf(Player target) {
-        sendMessage(target, "&f1: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-        sendMessage(target, "&f1: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+        //sendMessage(target, "&f1: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+        //sendMessage(target, "&f1: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
 
         // Check if command should be prevented because of world
         if (preventUsageWorlds(target)) return true;
@@ -71,13 +71,13 @@ public class TogglePvpCmd implements TabExecutor {
         if (currentGraceStatus) {
             boolean disabledGrace = sudoCommand(target, "grace disable");
             if (disabledGrace) {
-                sendMessage(target, "You &cdisabled &7your newbie protection (aka grace period)!");
-                sendMessage(target, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                sendMessage(target, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                sendMessage(target, configHandler.getDisabledGraceMessage());
+                //sendMessage(target, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+                //sendMessage(target, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
                 //sendMessage(target, "Your newbie protection has been disabled!");
                 return true;
             } else {
-                sendMessage(target, "&cError disabling your newbie protection!");
+                sendMessage(target, "&cError occured while disabling your newbie protection!");
                 return false;
             }
         }
@@ -89,36 +89,36 @@ public class TogglePvpCmd implements TabExecutor {
         boolean currentPvpStatus = dcHook.hasPvPEnabled(target);
         if (currentPvpStatus) { // if enabled, disable it
             dcHook.togglePvP(target, false);
-            sendMessage(target, "You &cdisabled &7your PVP!");
-            sendMessage(target, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-            sendMessage(target, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+            sendMessage(target, configHandler.getDisabledMessage());
+            //sendMessage(target, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+            //sendMessage(target, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
             return true;
         } else { // if disabled, enable it
             dcHook.togglePvP(target, true);
-            sendMessage(target, "You &aenabled &7your PVP!");
-            sendMessage(target, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-            sendMessage(target, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+            sendMessage(target, configHandler.getEnabledMessage());
+            //sendMessage(target, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+            //sendMessage(target, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
             return true;
         }
     }
 
     private boolean handleTogglePvpOthers(CommandSender sender, Player target, String newStatus) {
-        sendMessage(sender, "&f1: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-        sendMessage(sender, "&f1: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+        //sendMessage(sender, "&f1: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+        //sendMessage(sender, "&f1: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
 
         if (newStatus!=null) {
             if (newStatus.equalsIgnoreCase("enable")) {
                 dcHook.togglePvP(target, true);
                 sendMessage(sender, "You enabled " + target.getName() + "'s PVP!");
-                sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                //sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+                //sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
                 return true;
             }
             if (newStatus.equalsIgnoreCase("disable")) {
                 dcHook.togglePvP(target, false);
                 sendMessage(sender, "You disabled " + target.getName() + "'s PVP!");
-                sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                //sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+                //sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
                 return true;
             }
             else {
@@ -133,8 +133,8 @@ public class TogglePvpCmd implements TabExecutor {
                 boolean disabledGrace = sudoCommand(target, "grace disable");
                 if (disabledGrace) {
                     sendMessage(sender, "You disabled " + target.getName() + "'s newbie protection (aka grace period)!");
-                    sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                    sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                    //sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+                    //sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
                     sendMessage(target, "&cYour newbie protection has been disabled!");
                     return true;
                 } else {
@@ -148,14 +148,14 @@ public class TogglePvpCmd implements TabExecutor {
             if (currentPvpStatus) { // if enabled, disable it
                 dcHook.togglePvP(target, false);
                 sendMessage(sender, "You disabled " + target.getName() + "'s PVP!");
-                sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                //sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+                //sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
                 return true;
             } else { // if disabled, enable it
                 dcHook.togglePvP(target, true);
                 sendMessage(sender, "You enabled " + target.getName() + "'s PVP!");
-                sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                //sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
+                //sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
                 return true;
             }
         }
@@ -164,7 +164,7 @@ public class TogglePvpCmd implements TabExecutor {
     private boolean preventUsageWorlds(Player target) {
         // Prevent Usage if in Disable World
         if (configHandler.getDisabledWorlds().contains(target.getWorld().getName())) {
-            sendMessage(target, "&cYou cannot toggle pvp in this world!");
+            sendMessage(target, configHandler.getPreventedToggleWorldsMessage());
             return true;
         } return false;
     }
@@ -172,7 +172,7 @@ public class TogglePvpCmd implements TabExecutor {
     private boolean preventUsage(Player target) {
         // Prevent Usage if in Combat
         if (dcHook.isInCombat(target)) {
-            sendMessage(target, "&cYou cannot toggle pvp during combat!");
+            sendMessage(target, configHandler.getPreventedToggleInCombatMessage());
             return true;
         }
 
@@ -194,11 +194,10 @@ public class TogglePvpCmd implements TabExecutor {
             entryManager.saveEntry(target.getName(), (current_play_time));
             current_map_time=current_play_time;
         }
-        sendMessage(target, "current_map_time: " + current_map_time);
-        sendMessage(target, "current_play_time: " + current_play_time);
         if (current_map_time>current_play_time) {
             int time_difference = (current_map_time-current_play_time)/20;
-            sendMessage(target, "&4You cannot toggle pvp after recently joining the server or engaging in combat... &cYou can toggle pvp in &6" + getFormattedTime(time_difference));
+            String string = configHandler.getPreventedToggleAfterMessage().replace("<time_left>", getFormattedTime(time_difference));
+            sendMessage(target, string);
             return true;
         } else return false;
     }
@@ -257,7 +256,8 @@ public class TogglePvpCmd implements TabExecutor {
     }
 
     private void sendMessage(CommandSender target, String string) {
-        target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getChatPrefix() + string)));
+        if (!string.isBlank())
+            target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getChatPrefix() + string)));
     }
 
     private Player getPlayer(String arg) {
