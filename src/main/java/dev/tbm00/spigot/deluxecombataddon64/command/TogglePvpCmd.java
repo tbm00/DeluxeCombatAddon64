@@ -66,7 +66,7 @@ public class TogglePvpCmd implements TabExecutor {
         // Disable newbie protection (grace) if applied
         boolean currentGraceStatus = dcHook.hasProtection(target);
         if (currentGraceStatus) {
-            boolean disabledGrace = runCommand("grace disable " + target.getName());
+            boolean disabledGrace = sudoCommand(target, "grace disable");
             if (disabledGrace) {
                 sendMessage(target, configHandler.getDisabledGraceMessage());
                 return true;
@@ -194,7 +194,16 @@ public class TogglePvpCmd implements TabExecutor {
         try {
             return Bukkit.dispatchCommand(console, command);
         } catch (Exception e) {
-            javaPlugin.logRed("Caught exception sudoing command: " + command + ": " + e.getMessage());
+            javaPlugin.logRed("Caught exception running command " + command + ": " + e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean sudoCommand(Player target, String command) {
+        try {
+            return Bukkit.dispatchCommand(target, command);
+        } catch (Exception e) {
+            javaPlugin.logRed("Caught exception sudoing command: " + target.getName() + " : /" + command + ": " + e.getMessage());
             return false;
         }
     }
