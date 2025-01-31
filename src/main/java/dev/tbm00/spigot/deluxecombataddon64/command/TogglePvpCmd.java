@@ -60,8 +60,6 @@ public class TogglePvpCmd implements TabExecutor {
     }
 
     private boolean handleTogglePvpSelf(Player target) {
-        //sendMessage(target, "&f1: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-        //sendMessage(target, "&f1: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
 
         // Check if command should be prevented because of world
         if (preventUsageWorlds(target)) return true;
@@ -72,9 +70,6 @@ public class TogglePvpCmd implements TabExecutor {
             boolean disabledGrace = sudoCommand(target, "grace disable");
             if (disabledGrace) {
                 sendMessage(target, configHandler.getDisabledGraceMessage());
-                //sendMessage(target, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                //sendMessage(target, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
-                //sendMessage(target, "Your newbie protection has been disabled!");
                 return true;
             } else {
                 sendMessage(target, "&cError occured while disabling your newbie protection!");
@@ -90,39 +85,29 @@ public class TogglePvpCmd implements TabExecutor {
         if (currentPvpStatus) { // if enabled, disable it
             dcHook.togglePvP(target, false);
             sendMessage(target, configHandler.getDisabledMessage());
-            //sendMessage(target, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-            //sendMessage(target, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
             return true;
         } else { // if disabled, enable it
             dcHook.togglePvP(target, true);
             sendMessage(target, configHandler.getEnabledMessage());
-            //sendMessage(target, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-            //sendMessage(target, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
             return true;
         }
     }
 
     private boolean handleTogglePvpOthers(CommandSender sender, Player target, String newStatus) {
-        //sendMessage(sender, "&f1: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-        //sendMessage(sender, "&f1: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
-
         if (newStatus!=null) {
             if (newStatus.equalsIgnoreCase("enable")) {
                 dcHook.togglePvP(target, true);
                 sendMessage(sender, "You enabled " + target.getName() + "'s PVP!");
-                //sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                //sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                sendMessage(target, configHandler.getEnabledByOtherMessage());
                 return true;
             }
             if (newStatus.equalsIgnoreCase("disable")) {
                 dcHook.togglePvP(target, false);
                 sendMessage(sender, "You disabled " + target.getName() + "'s PVP!");
-                //sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                //sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                sendMessage(target, configHandler.getDisabledByOtherMessage());
                 return true;
             }
             else {
-                //dcHook.togglePvP(target, false);
                 sendMessage(sender, "&cError changing " + target.getName() + "'s PVP!");
                 return false;
             }
@@ -133,9 +118,7 @@ public class TogglePvpCmd implements TabExecutor {
                 boolean disabledGrace = sudoCommand(target, "grace disable");
                 if (disabledGrace) {
                     sendMessage(sender, "You disabled " + target.getName() + "'s newbie protection (aka grace period)!");
-                    //sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                    //sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
-                    sendMessage(target, "&cYour newbie protection has been disabled!");
+                    sendMessage(target, configHandler.getDisabledGraceByOtherMessage());
                     return true;
                 } else {
                     sendMessage(sender, "&cError disabling " + target.getName() + "'s newbie protection!");
@@ -148,14 +131,13 @@ public class TogglePvpCmd implements TabExecutor {
             if (currentPvpStatus) { // if enabled, disable it
                 dcHook.togglePvP(target, false);
                 sendMessage(sender, "You disabled " + target.getName() + "'s PVP!");
-                //sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                //sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                sendMessage(target, configHandler.getDisabledByOtherMessage());
+                
                 return true;
             } else { // if disabled, enable it
                 dcHook.togglePvP(target, true);
                 sendMessage(sender, "You enabled " + target.getName() + "'s PVP!");
-                //sendMessage(sender, "&f2: &e" + target.getName() + "'s pvp status is: " + dcHook.hasPvPEnabled(target));
-                //sendMessage(sender, "&f2: &e" + target.getName() + "'s prot status is: " + dcHook.hasProtection(target));
+                sendMessage(target, configHandler.getEnabledByOtherMessage());
                 return true;
             }
         }
@@ -171,7 +153,7 @@ public class TogglePvpCmd implements TabExecutor {
 
     private boolean preventUsage(Player target) {
         // Prevent Usage if in Combat
-        if (dcHook.isInCombat(target)) {
+        if (dcHook.isInCombat(target) && configHandler.getDisabledInCombat()) {
             sendMessage(target, configHandler.getPreventedToggleInCombatMessage());
             return true;
         }

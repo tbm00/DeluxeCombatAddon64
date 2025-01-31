@@ -15,12 +15,16 @@ public class ConfigHandler {
     // "togglePvpCommand"
     private String chatPrefix = null;
     private String enabledMessage = null;
+    private String enabledByOtherMessage = null;
     private String disabledMessage = null;
+    private String disabledByOtherMessage = null;
     private String disabledGraceMessage = null;
+    private String disabledGraceByOtherMessage = null;
     private String preventedToggleWorldsMessage = null;
     private String preventedToggleInCombatMessage = null;
     private String preventedToggleAfterMessage = null;
     private Set<String> disabledWorlds = new HashSet<>();
+    private boolean disabledInCombat = false;
     private boolean disabledAfterJoin = false;
     private int disabledAfterJoinTicks = 0;
     private boolean disabledAfterCombat = false;
@@ -60,8 +64,11 @@ public class ConfigHandler {
         if (chatSection != null) {
             chatPrefix = chatSection.contains("prefix") ? chatSection.getString("prefix") : null;
             enabledMessage = chatSection.contains("enabledMessage") ? chatSection.getString("enabledMessage") : null;
+            enabledByOtherMessage = chatSection.contains("enabledByOtherMessage") ? chatSection.getString("enabledByOtherMessage") : null;
             disabledMessage = chatSection.contains("disabledMessage") ? chatSection.getString("disabledMessage") : null;
+            disabledByOtherMessage = chatSection.contains("disabledByOtherMessage") ? chatSection.getString("disabledByOtherMessage") : null;
             disabledGraceMessage = chatSection.contains("disabledGraceMessage") ? chatSection.getString("disabledGraceMessage") : null;
+            disabledGraceByOtherMessage = chatSection.contains("disabledGraceByOtherMessage") ? chatSection.getString("disabledGraceByOtherMessage") : null;
             preventedToggleWorldsMessage = chatSection.contains("preventedToggleWorldsMessage") ? chatSection.getString("preventedToggleWorldsMessage") : null;
             preventedToggleInCombatMessage = chatSection.contains("preventedToggleInCombatMessage") ? chatSection.getString("preventedToggleInCombatMessage") : null;
             preventedToggleAfterMessage = chatSection.contains("preventedToggleAfterMessage") ? chatSection.getString("preventedToggleAfterMessage") : null;
@@ -70,6 +77,9 @@ public class ConfigHandler {
         // Load Disabled Worlds
         List<String> worldsHolder = togglePvpSection.contains("disabledInWorlds") ? togglePvpSection.getStringList("disabledInWorlds") : null;
         disabledWorlds.addAll(worldsHolder);
+
+        // Load Disabled in Combat
+        checkAnchorExplosions = togglePvpSection.contains("disabledInCombat") ? togglePvpSection.getBoolean("disabledInCombat") : false;
 
         // Load disabledAfterJoin
         ConfigurationSection afterJoinSec = togglePvpSection.contains("disabledAfterJoin") ? togglePvpSection.getConfigurationSection("disabledAfterJoin") : null;
@@ -111,14 +121,26 @@ public class ConfigHandler {
         return enabledMessage;
     }
     
+    public String getEnabledByOtherMessage() {
+        return enabledByOtherMessage;
+    }
+
     public String getDisabledMessage() {
         return disabledMessage;
+    }
+
+    public String getDisabledByOtherMessage() {
+        return disabledByOtherMessage;
     }
     
     public String getDisabledGraceMessage() {
         return disabledGraceMessage;
     }
     
+    public String getDisabledGraceByOtherMessage() {
+        return disabledGraceByOtherMessage;
+    }
+
     public String getPreventedToggleWorldsMessage() {
         return preventedToggleWorldsMessage;
     }
@@ -137,6 +159,10 @@ public class ConfigHandler {
 
     public Set<String> getDisabledWorlds() {
         return disabledWorlds;
+    }
+
+    public boolean getDisabledInCombat() {
+        return disabledInCombat;
     }
 
     public boolean isDisabledAfterJoin() {
