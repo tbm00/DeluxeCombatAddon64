@@ -85,10 +85,12 @@ public class TogglePvpCmd implements TabExecutor {
         if (currentPvpStatus) { // if enabled, disable it
             dcHook.togglePvP(target, false);
             sendMessage(target, configHandler.getDisabledMessage());
+            if (configHandler.getCommandCooldown()) entryManager.updateMapTime(target, configHandler.getCommandCooldownTicks());
             return true;
         } else { // if disabled, enable it
             dcHook.togglePvP(target, true);
             sendMessage(target, configHandler.getEnabledMessage());
+            if (configHandler.getCommandCooldown()) entryManager.updateMapTime(target, configHandler.getCommandCooldownTicks());
             return true;
         }
     }
@@ -132,7 +134,6 @@ public class TogglePvpCmd implements TabExecutor {
                 dcHook.togglePvP(target, false);
                 sendMessage(sender, "You disabled " + target.getName() + "'s PVP!");
                 sendMessage(target, configHandler.getDisabledByOtherMessage());
-                
                 return true;
             } else { // if disabled, enable it
                 dcHook.togglePvP(target, true);
@@ -178,7 +179,7 @@ public class TogglePvpCmd implements TabExecutor {
         }
         if (current_map_time>current_play_time) {
             int time_difference = (current_map_time-current_play_time)/20;
-            String string = configHandler.getPreventedToggleAfterMessage().replace("<time_left>", getFormattedTime(time_difference));
+            String string = configHandler.getPreventedToggleTimerMessage().replace("<time_left>", getFormattedTime(time_difference));
             sendMessage(target, string);
             return true;
         } else return false;

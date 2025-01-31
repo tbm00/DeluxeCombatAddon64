@@ -18,7 +18,7 @@ togglePvpCommand:
     disabledGraceByOtherMessage: "&cYour newbie protection has been disabled!"
     preventedToggleWorldsMessage: "&cYou cannot toggle pvp in this world!"
     preventedToggleInCombatMessage: "&cYou cannot toggle pvp during combat!"
-    preventedToggleAfterMessage: "&4You cannot toggle pvp after recently joining the server or engaging in combat... &cYou can toggle pvp in &6<time_left>&c!"
+    preventedToggleTimerMessage: "&cYou can toggle pvp in &6<time_left>&c!"
   disabledInWorlds: []
     #- "world_nether"
   disabledInCombat: true
@@ -31,3 +31,6 @@ togglePvpCommand:
   disabledAfterMurder:
     enabled: true
     time: 600 # in seconds
+  commandCooldown:
+    enabled: true
+    time: 120 # in seconds

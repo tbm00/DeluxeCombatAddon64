@@ -22,7 +22,7 @@ public class ConfigHandler {
     private String disabledGraceByOtherMessage = null;
     private String preventedToggleWorldsMessage = null;
     private String preventedToggleInCombatMessage = null;
-    private String preventedToggleAfterMessage = null;
+    private String preventedToggleTimerMessage = null;
     private Set<String> disabledWorlds = new HashSet<>();
     private boolean disabledInCombat = false;
     private boolean disabledAfterJoin = false;
@@ -31,6 +31,8 @@ public class ConfigHandler {
     private int disabledAfterCombatTicks = 0;
     private boolean disabledAfterMurder = false;
     private int disabledAfterMurderTicks = 0;
+    private boolean commandCooldown = false;
+    private int commandCooldownTicks = 0;
 
     public ConfigHandler(DeluxeCombatAddon64 javaPlugin) {
         try {
@@ -71,7 +73,7 @@ public class ConfigHandler {
             disabledGraceByOtherMessage = chatSection.contains("disabledGraceByOtherMessage") ? chatSection.getString("disabledGraceByOtherMessage") : null;
             preventedToggleWorldsMessage = chatSection.contains("preventedToggleWorldsMessage") ? chatSection.getString("preventedToggleWorldsMessage") : null;
             preventedToggleInCombatMessage = chatSection.contains("preventedToggleInCombatMessage") ? chatSection.getString("preventedToggleInCombatMessage") : null;
-            preventedToggleAfterMessage = chatSection.contains("preventedToggleAfterMessage") ? chatSection.getString("preventedToggleAfterMessage") : null;
+            preventedToggleTimerMessage = chatSection.contains("preventedToggleTimerMessage") ? chatSection.getString("preventedToggleTimerMessage") : null;
         }
         
         // Load Disabled Worlds
@@ -105,6 +107,15 @@ public class ConfigHandler {
             disabledAfterMurder = afterMurderSec.contains("enabled") ? afterMurderSec.getBoolean("enabled") : false;
             if (disabledAfterMurder) {
                 disabledAfterMurderTicks = afterMurderSec.contains("time") ? afterMurderSec.getInt("time")*20 : 0;
+            }
+        }
+
+        // Load commandCooldown
+        ConfigurationSection cmdCooldownSec = togglePvpSection.contains("commandCooldown") ? togglePvpSection.getConfigurationSection("commandCooldown") : null;
+        if (cmdCooldownSec != null) {
+            commandCooldown = cmdCooldownSec.contains("enabled") ? cmdCooldownSec.getBoolean("enabled") : false;
+            if (commandCooldown) {
+                commandCooldownTicks = cmdCooldownSec.contains("time") ? cmdCooldownSec.getInt("time")*20 : 0;
             }
         }
     }
@@ -149,8 +160,8 @@ public class ConfigHandler {
         return preventedToggleInCombatMessage;
     }
     
-    public String getPreventedToggleAfterMessage() {
-        return preventedToggleAfterMessage;
+    public String getPreventedToggleTimerMessage() {
+        return preventedToggleTimerMessage;
     }    
 
     public boolean getCheckAnchorExplosions() {
@@ -181,12 +192,19 @@ public class ConfigHandler {
         return disabledAfterCombatTicks;
     }
 
-
     public boolean isDisabledAfterMurder() {
         return disabledAfterMurder;
     }
 
     public int getDisabledAfterMurderTicks() {
         return disabledAfterMurderTicks;
+    }
+
+    public boolean getCommandCooldown() {
+        return commandCooldown;
+    }
+
+    public int getCommandCooldownTicks() {
+        return commandCooldownTicks;
     }
 }
