@@ -9,11 +9,11 @@ import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
 import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
 import dev.tbm00.spigot.deluxecombataddon64.EntryManager;
 
-public class PlayerConnection implements Listener {
+public class PlayerJoin implements Listener {
     private final EntryManager entryManager;
     private final ConfigHandler configHandler;
 
-    public PlayerConnection(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, EntryManager entryManager) {
+    public PlayerJoin(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, EntryManager entryManager) {
         this.entryManager = entryManager;
         this.configHandler = configHandler;
     }
@@ -21,7 +21,7 @@ public class PlayerConnection implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        int additional_time = configHandler.isPreventedAfterJoin() ? configHandler.getPreventedAfterJoinTicks() : 0;
+        int additional_time = configHandler.getPreventedAfterJoinTicks();
         entryManager.setMapTime(player, "JOIN", additional_time);
     }
 }

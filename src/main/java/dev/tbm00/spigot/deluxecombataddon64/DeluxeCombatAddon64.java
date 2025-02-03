@@ -22,6 +22,7 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
 		log(
             ChatColor.DARK_PURPLE + "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-",
             pdf.getName() + " v" + pdf.getVersion() + " created by tbm00",
+            pdf.getDescription(),
             ChatColor.DARK_PURPLE + "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 		);
 
@@ -31,17 +32,24 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                 
                 setupHooks();
                 if (configHandler.isTogglePvpCommandEnabled()) {
-                    // Connect LogManager
+                    // Connect EntryManager
                     entryManager = new EntryManager(this);
 
-                    // Register commands and listeners
+                    // Register toggle pvp command
                     getCommand("togglepvp").setExecutor(new TogglePvpCmd(this, configHandler, entryManager, dcHook));
-                    getServer().getPluginManager().registerEvents(new PlayerConnection(this, configHandler, entryManager), this);
+
+                    // Register listeners based on config
+                    if (configHandler.isPreventedAfterCombat())
+                        getServer().getPluginManager().registerEvents(new PlayerCombat(this, configHandler, entryManager), this);
+                    if (configHandler.isPreventedAfterMurder())
+                        getServer().getPluginManager().registerEvents(new PlayerMurder(this, configHandler, entryManager), this);
+                    if (configHandler.isPreventedAfterJoin())
+                        getServer().getPluginManager().registerEvents(new PlayerJoin(this, configHandler, entryManager), this);
                 }
 
-                // respawn anchor explosion check listener
+                // Register respawn anchor explosion listener based on config
                 if (configHandler.getCheckAnchorExplosions())
-                    getServer().getPluginManager().registerEvents(new PreventUsage(this, configHandler, dcHook), this);
+                    getServer().getPluginManager().registerEvents(new PlayerAnchorInteraction(this, configHandler, dcHook), this);
                 
             } else {
                 logYellow("Either config.enabled is false, or there was an error in config... disabling plugin!");

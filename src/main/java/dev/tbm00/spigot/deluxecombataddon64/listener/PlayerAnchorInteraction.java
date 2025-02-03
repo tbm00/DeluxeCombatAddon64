@@ -17,19 +17,16 @@ import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
 import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
 import dev.tbm00.spigot.deluxecombataddon64.hook.*;
 
-public class PreventUsage implements Listener {
+public class PlayerAnchorInteraction implements Listener {
     private final DCHook dcHook;
-    private final boolean checkAnchorExplosions;
 
-    public PreventUsage(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, DCHook dcHook) {
-        checkAnchorExplosions = configHandler.getCheckAnchorExplosions();
+    public PlayerAnchorInteraction(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, DCHook dcHook) {
         this.dcHook = dcHook;
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getClickedBlock() == null || event.getClickedBlock().getType() != Material.RESPAWN_ANCHOR) return;
-        if (dcHook==null || !checkAnchorExplosions) return;
         if (!(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) return;
 
         Player player = event.getPlayer();
@@ -47,7 +44,6 @@ public class PreventUsage implements Listener {
     }
 
     private boolean passDCPvpLocCheck(Location location, double radius) {
-        if (dcHook==null) return true;
         return location.getWorld().getNearbyEntities(location, radius, radius, radius).stream()
             .filter(entity -> entity instanceof Player)
             .map(entity -> (Player) entity)
@@ -55,8 +51,7 @@ public class PreventUsage implements Listener {
     }
     
     private boolean passDCPvpPlayerCheck(Player player) {
-        if (dcHook==null) return true;
-        else if (dcHook.hasProtection(player) || !dcHook.hasPvPEnabled(player)) return false;
-        return true;
+        if (dcHook.hasProtection(player) || !dcHook.hasPvPEnabled(player)) return false;
+        else return true;
     }
 }

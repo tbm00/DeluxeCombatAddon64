@@ -97,7 +97,7 @@ public class ConfigHandler {
         preventedWorlds.addAll(worldsHolder);
 
         // Load Disabled in Combat
-        checkAnchorExplosions = togglePvpSection.contains("preventedInCombat") ? togglePvpSection.getBoolean("preventedInCombat") : false;
+        preventedInCombat = togglePvpSection.contains("preventedInCombat") ? togglePvpSection.getBoolean("preventedInCombat") : false;
 
         // Load preventedAfterCombat
         ConfigurationSection afterCombatSec = togglePvpSection.contains("preventedAfterCombat") ? togglePvpSection.getConfigurationSection("preventedAfterCombat") : null;
@@ -206,7 +206,7 @@ public class ConfigHandler {
         return preventedWorlds;
     }
 
-    public boolean getPreventedInCombat() {
+    public boolean isPreventedInCombat() {
         return preventedInCombat;
     }
     

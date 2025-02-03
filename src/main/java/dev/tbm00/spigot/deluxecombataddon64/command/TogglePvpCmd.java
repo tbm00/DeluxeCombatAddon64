@@ -153,7 +153,7 @@ public class TogglePvpCmd implements TabExecutor {
 
     private boolean preventUsage(Player target) {
         // Prevent Usage if in Combat
-        if (dcHook.isInCombat(target) && configHandler.getPreventedInCombat()) {
+        if (dcHook.isInCombat(target) && configHandler.isPreventedInCombat()) {
             sendMessage(target, configHandler.getPreventedToggleInCombatMessage());
             return true;
         }
@@ -177,13 +177,12 @@ public class TogglePvpCmd implements TabExecutor {
         String preventedMessage = configHandler.getPreventedMessage(pair[1]);
         Integer highest_map_time = Integer.parseInt(pair[0]);
 
-        if (highest_map_time==null || highest_map_time==0) {
+        if (highest_map_time==null || highest_map_time==0 || preventedMessage.equalsIgnoreCase("none")) {
             entryManager.saveEntry(target.getName(), "BONUS", current_play_time);
             return false;
         } else if (highest_map_time>current_play_time) {
             int time_difference = (highest_map_time-current_play_time)/20;
             String string = preventedMessage.replace("<time_left>", getFormattedTime(time_difference));
-            string.replace("<initial_time>", getFormattedTime(highest_map_time));
             sendMessage(target, string);
             return true;
         } else return false;
