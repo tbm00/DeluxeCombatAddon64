@@ -1,5 +1,6 @@
 package dev.tbm00.spigot.deluxecombataddon64;
 
+
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -36,7 +37,7 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                     entryManager = new EntryManager(this);
 
                     // Register toggle pvp command
-                    getCommand("togglepvp").setExecutor(new TogglePvpCmd(this, configHandler, entryManager, dcHook));
+                    getCommand("pvp").setExecutor(new TogglePvpCmd(this, configHandler, entryManager, dcHook));
 
                     // Register listeners based on config
                     if (configHandler.isPreventedAfterCombat())

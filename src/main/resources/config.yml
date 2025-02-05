@@ -1,4 +1,4 @@
-# DeluxeCombatAddon64 v0.0.0-beta by @tbm00
+# DeluxeCombatAddon64 v0.0.1-beta by @tbm00
 # https://github.com/tbm00/DeluxeCombatAddon64
 
 enabled: true
@@ -38,7 +38,7 @@ togglePvpCommand:
     time: 120 # seconds
   preventedAfterEnable:
     enabled: true
-    time: 120 # seconds
+    time: 30 # seconds
   preventedAfterDisable:
     enabled: true
     time: 15 # seconds

@@ -4,14 +4,14 @@ description: ${project.description}
 author: tbm00
 main: dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64
 api-version: 1.17
-harddepend: [DeluxeCombat]
+depend: [DeluxeCombat]
 commands:
-  togglepvp:
+  pvp:
     description: Base command for DeluxeCombatAddon64
 permissions:
   deluxecombataddon64.toggle.self:
-    description: Ability to use /togglepvp
+    description: Ability to use /pvp
     default: true
   deluxecombataddon64.toggle.others:
-    description: Ability to use /togglepvp on others
+    description: Ability to use /pvp on others
     default: op
