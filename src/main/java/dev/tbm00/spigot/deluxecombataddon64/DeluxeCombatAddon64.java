@@ -35,7 +35,7 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                 
                 setupHooks();
                 if (configHandler.isTogglePvpCommandEnabled()) {
-                    // Connect JSON
+                    // Connect jsonHandler
                     try {
                         jsonHandler = new JSONHandler(this);
                         log(ChatColor.GREEN, "JSON connected.");
@@ -45,10 +45,10 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                         return;
                     }
 
-                    // Connect EntryManager
+                    // Connect entryManager
                     entryManager = new EntryManager(this, jsonHandler);
 
-                    // Register toggle pvp command
+                    // Register TogglePvpCmd
                     getCommand("pvp").setExecutor(new TogglePvpCmd(this, configHandler, entryManager, dcHook));
 
                     // Register listeners based on config
@@ -74,6 +74,10 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
         }
     }
 
+    /**
+     * Sets up the required hooks for plugin integration.
+     * Disables the plugin if any required hook fails.
+     */
     private void setupHooks() {
         if (!setupDeluxeCombat()) {
             getLogger().severe("DeluxeCombat hook failed -- disabling plugin!");
@@ -82,6 +86,11 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
         }
     }
 
+    /**
+     * Attempts to hook into the DeluxeCombat plugin.
+     *
+     * @return true if the hook was successful, false otherwise.
+     */
     private boolean setupDeluxeCombat() {
         if (getServer().getPluginManager().getPlugin("DeluxeCombat")==null) return false;
 
@@ -91,21 +100,40 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
         return true;
     }
 
+    /**
+     * Checks if the specified plugin is available and enabled on the server.
+     *
+     * @param pluginName the name of the plugin to check
+     * @return true if the plugin is available and enabled, false otherwise.
+     */
     private boolean isPluginAvailable(String pluginName) {
 		final Plugin plugin = getServer().getPluginManager().getPlugin(pluginName);
 		return plugin != null && plugin.isEnabled();
 	}
 
+    /**
+     * Logs one or more messages to the server console with the prefix & specified chat color.
+     *
+     * @param chatColor the chat color to use for the log messages
+     * @param strings one or more message strings to log
+     */
     public void log(ChatColor chatColor, String... strings) {
 		for (String s : strings)
             getServer().getConsoleSender().sendMessage("[DeluxeCombatAddon64] " + chatColor + s);
 	}
 
+    /**
+     * Disables the plugin.
+     */
     private void disablePlugin() {
         getServer().getPluginManager().disablePlugin(this);
         log(ChatColor.RED, "DeluxeCombatAddon64 disabled..!");
     }
 
+    /**
+     * Called when the plugin is disabled.
+     * Saves plugin data if the config specifies to do so.
+     */
     @Override
     public void onDisable() {
         if (configHandler.isDataSavedOnDisable()) entryManager.saveDataToJson();

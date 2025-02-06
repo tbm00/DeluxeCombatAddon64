@@ -23,6 +23,12 @@ public class PlayerAnchorInteraction implements Listener {
         this.dcHook = dcHook;
     }
 
+    /**
+     * Handles the player interaction with a respawn anchor.
+     * Cancels the interaction if the player or location does not pass the PvP protection check.
+     *
+     * @param event the PlayerInteractEvent
+     */
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getClickedBlock() == null || event.getClickedBlock().getType() != Material.RESPAWN_ANCHOR) return;
@@ -41,6 +47,13 @@ public class PlayerAnchorInteraction implements Listener {
         }
     }
 
+    /**
+     * Checks if the location is within the PvP protection radius.
+     * 
+     * @param location the location to check
+     * @param radius the radius within which to check for players
+     * @return true if no protected players are found, false otherwise
+     */
     private boolean passDCPvpLocCheck(Location location, double radius) {
         return location.getWorld().getNearbyEntities(location, radius, radius, radius).stream()
             .filter(entity -> entity instanceof Player)
@@ -48,6 +61,12 @@ public class PlayerAnchorInteraction implements Listener {
             .noneMatch(player -> dcHook.hasProtection(player) || !dcHook.hasPvPEnabled(player));
     }
     
+    /**
+     * Checks if the player passes the PvP protection check.
+     * 
+     * @param player the player to check
+     * @return true if the player is not protected and PvP is enabled, false otherwise
+     */
     private boolean passDCPvpPlayerCheck(Player player) {
         if (dcHook.hasProtection(player) || !dcHook.hasPvPEnabled(player)) return false;
         else return true;

@@ -19,12 +19,24 @@ public class PlayerConnection implements Listener {
         this.configHandler = configHandler;
     }
 
+    /**
+     * Handles the player join event.
+     * Adds cooldown time for the player after they join, if configured.
+     *
+     * @param event the PlayerJoinEvent
+     */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (configHandler.isPreventedAfterJoin())
             entryManager.addMapTime(event.getPlayer(), "JOIN", configHandler.getPreventedAfterJoinTicks());
     }
 
+    /**
+     * Handles the combat log event.
+     * Adds cooldown time for the player who logged out during combat, if configured.
+     *
+     * @param event the CombatlogEvent
+     */
     @EventHandler
     public void onCombatLog(CombatlogEvent event) {
         if (configHandler.isPreventedAfterCombatLog())

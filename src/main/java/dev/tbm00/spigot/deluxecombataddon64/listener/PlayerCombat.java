@@ -19,6 +19,12 @@ public class PlayerCombat implements Listener {
         this.configHandler = configHandler;
     }
 
+    /**
+     * Handles the event when a player's combat state changes.
+     * Adds cooldown time for the player after they finish combat, if configured.
+     *
+     * @param event the CombatStateChangeEvent
+     */
     @EventHandler
     public void onCombatStateChange(CombatStateChangeEvent event) {
         // if the state changed to off/untagged

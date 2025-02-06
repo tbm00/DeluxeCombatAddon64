@@ -39,11 +39,16 @@ public class TogglePvpCmd implements TabExecutor {
         this.dcHook = dcHook;
     }
 
+    /**
+     * Handles the "/pvp" command for toggling PvP and giving/clearing cooldowns.
+     * 
+     * @param sender the command sender
+     * @param consoleCommand the command being executed
+     * @param label the label used for the command
+     * @param args the arguments passed to the command
+     * @return true if the command was handled successfully, false otherwise
+     */
     public boolean onCommand(CommandSender sender, Command consoleCommand, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sendMessage(sender, "&cThis command can only be run by a player!");
-            return false;
-        }
 
         // "/pvp <username> giveCooldown <type> <seconds>" - admin command 
         if ((args.length==4) && hasPermission(sender, PERMISSION_GIVE_COOLDOWNS)) {
@@ -82,6 +87,15 @@ public class TogglePvpCmd implements TabExecutor {
         return false;
     }
 
+    /**
+     * Handles the command for giving a cooldown to a player.
+     * 
+     * @param sender the command sender
+     * @param target the target player
+     * @param type the type of cooldown (e.g., "COMBAT")
+     * @param seconds the duration of the cooldown in seconds
+     * @return true if the cooldown was successfully given, false otherwise
+     */
     private boolean handleGiveCooldown(CommandSender sender, Player target, String type, Integer seconds) {
         if (target == null) {
             sendMessage(target, "&cCouldn't find target player!");
@@ -96,10 +110,17 @@ public class TogglePvpCmd implements TabExecutor {
 
         entryManager.addMapTime(target, type.toUpperCase(), seconds*20);
         sendMessage(sender, "&7Gave " + entryManager.getFormattedTime(seconds) + " " + type + " cooldown to " + target.getName()
-                    + ". Their highest cooldown is " + entryManager.getHighestTypeAndTick(target.getName()));
+                    + ". Their highest cooldown is " + entryManager.getHighestTypeAndTime(target.getName()));
         return true;
     }
 
+    /**
+     * Handles the command for clearing a player's cooldowns.
+     * 
+     * @param sender the command sender
+     * @param target the target player
+     * @return true if the cooldowns were successfully cleared, false otherwise
+     */
     private boolean handleClearCooldowns(CommandSender sender, Player target) {
         if (target == null) {
             sendMessage(target, "&cCouldn't find target player!");
@@ -108,15 +129,21 @@ public class TogglePvpCmd implements TabExecutor {
         
         if (entryManager.deletePlayerEntry(target.getName())) {
             sendMessage(sender, "&7Cleared " + target.getName() + "'s cooldown map. Their highest cooldown is " 
-                        + entryManager.getHighestTypeAndTick(target.getName()));
+                        + entryManager.getHighestTypeAndTime(target.getName()));
             return true;
         } else {
             sendMessage(sender, "&cError occured clearing " + target.getName() + "'s cooldown map. Their highest cooldown is " 
-                        + entryManager.getHighestTypeAndTick(target.getName()));
+                        + entryManager.getHighestTypeAndTime(target.getName()));
             return true;
         } 
     }
 
+    /**
+     * Handles the command for toggling PvP for the sender (self).
+     * 
+     * @param target the player sending the command
+     * @return true if PvP was successfully toggled, false otherwise
+     */
     private boolean handleTogglePvpSelf(Player target) {
         // Check if command should be prevented because player is in disabled world
         if (preventUsageInWorlds(target)) return true;
@@ -128,7 +155,7 @@ public class TogglePvpCmd implements TabExecutor {
         if (preventUsageInCombat(target)) return true;
 
         // Check if command should be prevented for all other reasons
-        if (preventUsageAfter(target)) return true;
+        if (preventUsageCooldown(target)) return true;
 
         // Switch pvp status
         boolean currentPvpStatus = dcHook.hasPvPEnabled(target);
@@ -147,6 +174,14 @@ public class TogglePvpCmd implements TabExecutor {
         }
     }
 
+    /**
+     * Handles the command for toggling PvP for another player.
+     * 
+     * @param sender the command sender
+     * @param target the target player
+     * @param newStatus the desired PvP status ("enable" or "disable")
+     * @return true if PvP was successfully toggled, false otherwise
+     */
     private boolean handleTogglePvpOthers(CommandSender sender, Player target, String newStatus) {
         if (newStatus!=null) {
             if (newStatus.equalsIgnoreCase("enable")) {
@@ -183,7 +218,12 @@ public class TogglePvpCmd implements TabExecutor {
         }
     }
 
-    // Disable player's own grace (newbie protection)
+    /**
+     * Disables the grace protection (newbie protection) for the given player.
+     * 
+     * @param target the player to disable grace protection for
+     * @return 1 if grace protection was removed, 2 if there was an error, or 0 if no protection was present
+     */
     private int disableGraceProtection(Player target) {
         if (dcHook.hasProtection(target)) {
             boolean disabledGrace = sudoCommand(target, "grace disable");
@@ -197,7 +237,13 @@ public class TogglePvpCmd implements TabExecutor {
         } else return 0; // 0 - had no newbie prot, did nothing
     }
 
-    // Disable other player's grace (newbie protection)
+    /**
+     * Disables the grace protection (newbie protection) for another player.
+     * 
+     * @param sender the command sender
+     * @param target the player whose grace protection will be disabled
+     * @return 1 if grace protection was removed, 2 if there was an error, or 0 if no protection was present
+     */
     private int disableGraceProtection(CommandSender sender, Player target) {
         if (dcHook.hasProtection(target)) {
             boolean disabledGrace = runCommand("grace disable " + target.getName());
@@ -212,7 +258,12 @@ public class TogglePvpCmd implements TabExecutor {
         } else return 0; // 0 - had no newbie prot, did nothing
     }
 
-    // Prevent Usage if in Disable World
+    /**
+     * Prevents the usage of the PvP toggle command if the player is in a disabled world.
+     * 
+     * @param target the player executing the command
+     * @return true if the command should be prevented, false otherwise
+     */
     private boolean preventUsageInWorlds(Player target) {
         if (configHandler.getPreventedWorlds().contains(target.getWorld().getName())) {
             sendMessage(target, configHandler.getPreventedToggleInWorldsMessage());
@@ -220,7 +271,12 @@ public class TogglePvpCmd implements TabExecutor {
         } return false;
     }
 
-    // Prevent Usage if in Combat
+    /**
+     * Prevents the usage of the PvP toggle command if the player is in combat.
+     * 
+     * @param target the player executing the command
+     * @return true if the command should be prevented, false otherwise
+     */
     private boolean preventUsageInCombat(Player target) {
         if (dcHook.isInCombat(target) && configHandler.isPreventedInCombat()) {
             sendMessage(target, configHandler.getPreventedToggleInCombatMessage());
@@ -228,8 +284,13 @@ public class TogglePvpCmd implements TabExecutor {
         } return false;
     }
 
-    // Prevent Usage if recently in "COMBAT", "MURDER", "DEATH", "COMBATLOG", "JOIN", "TOGGLE", "BONUS"
-    private boolean preventUsageAfter(Player target) {
+    /**
+     * Prevents the usage of the PvP toggle command if the player has an active cooldown.
+     * 
+     * @param target the player executing the command
+     * @return true if the command should be prevented, false otherwise
+     */
+    private boolean preventUsageCooldown(Player target) {
         String tickAndType = entryManager.getHighestTickAndType(target.getName());
         String[] pair = tickAndType.split("\\ ");
         Integer highest_map_ticks = Integer.parseInt(pair[0]);
@@ -259,19 +320,44 @@ public class TogglePvpCmd implements TabExecutor {
         }
     }
 
+    /**
+     * Retrieves a player by their name.
+     * 
+     * @param arg the name of the player to retrieve
+     * @return the Player object, or null if not found
+     */
     private Player getPlayer(String arg) {
         return javaPlugin.getServer().getPlayer(arg);
     }
 
+    /**
+     * Checks if the sender has a specific permission.
+     * 
+     * @param sender the command sender
+     * @param perm the permission string
+     * @return true if the sender has the permission, false otherwise
+     */
     private boolean hasPermission(CommandSender sender, String perm) {
         return sender.hasPermission(perm) || sender instanceof ConsoleCommandSender;
     }
 
+    /**
+     * Sends a message to a target CommandSender.
+     * 
+     * @param target the CommandSender to send the message to
+     * @param string the message to send
+     */
     private void sendMessage(CommandSender target, String string) {
         if (!string.isBlank())
             target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getChatPrefix() + string)));
     }
 
+    /**
+     * Executes a command as the console.
+     * 
+     * @param command the command to execute
+     * @return true if the command was successfully executed, false otherwise
+     */
     private boolean runCommand(String command) {
         ConsoleCommandSender console = javaPlugin.getServer().getConsoleSender();
         try {
@@ -282,6 +368,13 @@ public class TogglePvpCmd implements TabExecutor {
         }
     }
 
+    /**
+     * Executes a command as a specific player.
+     * 
+     * @param target the player to execute the command as
+     * @param command the command to execute
+     * @return true if the command was successfully executed, false otherwise
+     */
     private boolean sudoCommand(Player target, String command) {
         try {
             return Bukkit.dispatchCommand(target, command);
@@ -291,6 +384,9 @@ public class TogglePvpCmd implements TabExecutor {
         }
     }
 
+    /**
+     * Handles tab completion for the "/pvp" command.
+     */
     @Override
     public List<String> onTabComplete(CommandSender sender, Command consoleCommand, String alias, String[] args) {
         if (!(hasPermission(sender, PERMISSION_TOGGLE_OTHERS)||hasPermission(sender, PERMISSION_GIVE_COOLDOWNS))) return null;

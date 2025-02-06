@@ -47,6 +47,12 @@ public class ConfigHandler {
     private boolean preventedAfterDisable = false;
     private int preventedAfterDisableTicks = 0;
 
+    /**
+     * Constructs a ConfigHandler instance.
+     * Loads configuration values for the plugin, including settings for PvP toggling and fixes.
+     *
+     * @param javaPlugin the main plugin instance
+     */
     public ConfigHandler(DeluxeCombatAddon64 javaPlugin) {
         try {
             enabled = javaPlugin.getConfig().contains("enabled") ? javaPlugin.getConfig().getBoolean("enabled") : false;
@@ -70,15 +76,25 @@ public class ConfigHandler {
         }
     }
 
+    /**
+     * Loads the "fixes" section of the configuration.
+     * 
+     * @param fixSection the configuration section for "fixes"
+     */
     private void loadFixes(ConfigurationSection fixSection) {
         checkAnchorExplosions = fixSection.contains("anchorExplosionPvpCheck") ? fixSection.getBoolean("anchorExplosionPvpCheck") : false;
     }
 
+    /**
+     * Loads the "togglePvpCommand" section of the configuration.
+     * 
+     * @param togglePvpSection the configuration section for "togglePvpCommand"
+     */
     private void loadTogglePvp(ConfigurationSection togglePvpSection) {
-        // Load force enabled after death 
+        // Load saveMapOnPluginDisable
         saveDataOnDisable = togglePvpSection.contains("saveMapOnPluginDisable") ? togglePvpSection.getBoolean("saveMapOnPluginDisable") : true;
 
-        // Load Chat
+        // Load Chat Messages
         ConfigurationSection chatSection = togglePvpSection.getConfigurationSection("chat");
         if (chatSection != null) {
             chatPrefix = chatSection.contains("prefix") ? chatSection.getString("prefix") : null;
@@ -108,14 +124,14 @@ public class ConfigHandler {
                 savePreventedMessage("BONUS", chatSection.getString("preventedToggleAfterBonusMessage"));
         }
 
-        // Load force enabled after death 
+        // Load forceEnabledAfterDeath
         forceEnabledAfterDeath = togglePvpSection.contains("forceEnabledAfterDeath") ? togglePvpSection.getBoolean("forceEnabledAfterDeath") : false;
 
-        // Load Disabled Worlds
+        // Load preventedWorlds
         List<String> worldsHolder = togglePvpSection.contains("preventedInWorlds") ? togglePvpSection.getStringList("preventedInWorlds") : null;
         preventedWorlds.addAll(worldsHolder);
 
-        // Load Disabled in Combat
+        // Load preventedInCombat
         preventedInCombat = togglePvpSection.contains("preventedInCombat") ? togglePvpSection.getBoolean("preventedInCombat") : false;
 
         // Load preventedAfterCombat
@@ -182,13 +198,24 @@ public class ConfigHandler {
         }
     }
 
-    // preventedType can be "COMBAT", "MURDER", "DEATH", "COMBATLOG", "JOIN", "TOGGLE", "BONUS", "none"
-    public String getPreventedMessage(String preventedType) {
-        return preventedToggleAfterMessages.get(preventedType);
-    }
-
+    /**
+     * Saves the message associated with a prevented type.
+     *
+     * @param preventedType the type/reason of prevention (e.g., "COMBAT", "MURDER", etc.)
+     * @param preventedMessage the message to be saved
+     */
     public void savePreventedMessage(String preventedType, String preventedMessage) {
         preventedToggleAfterMessages.put(preventedType, preventedMessage);
+    }
+
+    /**
+     * Retrieves the message associated with a specific prevented type.
+     * 
+     * @param preventedType the type/reason of prevention (e.g., "COMBAT", "MURDER", etc.)
+     * @return the message associated with the provided prevented type, or null if not found
+     */
+    public String getPreventedMessage(String preventedType) {
+        return preventedToggleAfterMessages.get(preventedType);
     }
 
     public boolean isEnabled() {

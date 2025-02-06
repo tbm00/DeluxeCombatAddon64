@@ -17,13 +17,22 @@ public class EntryManager {
     private final JSONHandler db;
     private Map<String, SortedMap<Integer, String>> playerMap; // key1=<username>, value1=<cooldownMap>, key2=<ticks>, value2=<preventedType>
 
+    /**
+     * Constructs an EntryManager instance.
+     * Initializes the player map by loading data from the provided JSON handler.
+     *
+     * @param javaPlugin the main plugin instance
+     * @param db the JSON handler for loading and saving data
+     */
     public EntryManager(DeluxeCombatAddon64 javaPlugin, JSONHandler db) {
         this.javaPlugin = javaPlugin;
         this.db = db;
         this.playerMap = new ConcurrentHashMap<>(db.loadPlayerMap());
     }
 
-    // save playerMap to json on plugin disable
+    /**
+     * Saves the player map data to JSON when the plugin is disabled.
+     */
     public void saveDataToJson() {
         Map<String, SortedMap<Integer, String>> snapshot;
         synchronized (playerMap) {
@@ -32,7 +41,13 @@ public class EntryManager {
         db.savePlayerMap(snapshot);
     }
 
-    // clears player from playermap then re-adds it with new cooldown
+    /**
+     * Saves a new cooldown entry for a player, clearing any existing entry.
+     *
+     * @param username the name of the player
+     * @param preventedType the type of prevention
+     * @param ticks the cooldown time in ticks
+     */
     private void saveCooldownEntry(String username, String preventedType, Integer ticks) {
         if (playerMap.get(username)!=null)
             deletePlayerEntry(username);
@@ -42,7 +57,12 @@ public class EntryManager {
         playerMap.put(username, cooldownMap);
     }
 
-    // removes player entry from entries
+    /**
+     * Deletes a player's entry from the player map.
+     *
+     * @param username the name of the player to be removed
+     * @return true if the player entry was successfully deleted, false if an error occurred
+     */
     public boolean deletePlayerEntry(String username) {
         try {
             playerMap.get(username).clear();
@@ -54,8 +74,15 @@ public class EntryManager {
         }
     }
 
-    // adds cooldown to player's cooldownMap:<cooldown,prevented_type>
-    // (potential_cooldown == current_play_ticks + additional_ticks)
+    /**
+     * Adds cooldown time to the player's cooldown map.
+     * The cooldown time is calculated as the current play time + the additional time.
+     *
+     * @param player the player to add the cooldown for
+     * @param preventedType the type of prevention
+     * @param additional_ticks the additional cooldown time in ticks
+     * @return true if the cooldown was successfully added, false otherwise
+     */
     public boolean addMapTime(Player player, String preventedType, int additional_ticks) {
         String playerName = player.getName();
 
@@ -80,10 +107,12 @@ public class EntryManager {
         } return false;
     }
 
-    // returns Integer used by EntryManager.java for checking if current highest time is less than potential
-    // ...
-    // returns time (in ticks) that command is re-enabled, using player's cooldown map
-    // if not found returns null
+    /**
+     * Retrieves the highest cooldown ticks from the player's cooldown map.
+     *
+     * @param username the name of the player
+     * @return the highest cooldown time in ticks, or null if not found
+     */
     private Integer getHighestTick(String username) {
         SortedMap<Integer, String> cooldownMap = playerMap.get(username);
         if (cooldownMap == null || cooldownMap.isEmpty()) return null;
@@ -94,7 +123,12 @@ public class EntryManager {
         return highest_map_ticks;
     }
 
-    // returns String used by TogglePvpCmd.java for preventing togglepvp usage
+    /**
+     * Retrieves the highest cooldown ticks and its associated type from the player's cooldown map.
+     *
+     * @param username the name of the player
+     * @return a string containing the highest cooldown time and type
+     */
     public String getHighestTickAndType(String username) {
         SortedMap<Integer, String> cooldownMap = playerMap.get(username);
         if (cooldownMap == null || cooldownMap.isEmpty()) return "0 none";
@@ -110,8 +144,13 @@ public class EntryManager {
         return (highest_map_ticks + " " + highest_map_type);
     }
 
-    // returns String used by TogglePvpCmd.java for output to CommandSender
-    public String getHighestTypeAndTick(String username) {
+    /**
+     * Retrieves the highest cooldown type and its associated formatted time from the player's cooldown map.
+     * 
+     * @param username the name of the player
+     * @return a string containing the cooldown type and formatted time remaining
+     */
+    public String getHighestTypeAndTime(String username) {
         SortedMap<Integer, String> cooldownMap = playerMap.get(username);
         if (cooldownMap == null || cooldownMap.isEmpty()) return "(no cooldowns)";
 
@@ -133,7 +172,6 @@ public class EntryManager {
             } catch (Exception e2) {
                 javaPlugin.log(ChatColor.RED, "Caught exception getting player statistic PLAY_ONE_TICK: " + e2.getMessage());
                 current_play_ticks = 0;
-                return (highest_map_type + " " + getFormattedTime(highest_map_ticks) + " playtime");
             }
         }
 
@@ -141,6 +179,12 @@ public class EntryManager {
         return (highest_map_type + " " + getFormattedTime(time_difference));
     }
 
+    /**
+     * Formats a given amount of time in seconds into a human-readable string (e.g., "12 hours, 4 minutes, 3 seconds").
+     *
+     * @param totalSeconds the total time in seconds
+     * @return a formatted string representing the time
+     */
     public String getFormattedTime(int totalSeconds) {
         final int SECONDS_IN_WEEK = 604800;
         final int SECONDS_IN_DAY = 86400;

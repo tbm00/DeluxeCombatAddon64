@@ -25,6 +25,12 @@ public class PlayerDeath implements Listener {
         this.dcHook = dcHook;
     }
 
+    /**
+     * Handles the player death event.
+     * Adds cooldown time for the killer and/or victim, and forces PvP enable on the victim if configured.
+     *
+     * @param event the PlayerDeathEvent
+     */
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
@@ -43,6 +49,12 @@ public class PlayerDeath implements Listener {
         }
     }
 
+    /**
+     * Sends a message to a target CommandSender.
+     *
+     * @param target the CommandSender to send the message to
+     * @param string the message to send
+     */
     private void sendMessage(CommandSender target, String string) {
         if (!string.isBlank())
             target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getChatPrefix() + string)));
