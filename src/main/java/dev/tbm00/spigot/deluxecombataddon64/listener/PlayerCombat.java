@@ -1,6 +1,5 @@
 package dev.tbm00.spigot.deluxecombataddon64.listener;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -24,9 +23,7 @@ public class PlayerCombat implements Listener {
     public void onCombatStateChange(CombatStateChangeEvent event) {
         // if the state changed to off/untagged
         if (event.getState() == CombatState.UNTAGGED) {
-            Player player = event.getPlayer();
-            int additional_time = configHandler.getPreventedAfterCombatTicks();
-            entryManager.setMapTime(player, "COMBAT", additional_time);
+            entryManager.addMapTime(event.getPlayer(), "COMBAT", configHandler.getPreventedAfterCombatTicks());
         }
     }
 }

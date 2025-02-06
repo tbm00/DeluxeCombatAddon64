@@ -10,8 +10,11 @@ commands:
     description: Base command for DeluxeCombatAddon64
 permissions:
   deluxecombataddon64.toggle.self:
-    description: Ability to use /pvp
+    description: Ability to toggle your pvp and grace protection with /pvp
     default: true
   deluxecombataddon64.toggle.others:
-    description: Ability to use /pvp on others
+    description: Ability to toggle others' pvp and grace protection with /pvp
+    default: op
+  deluxecombataddon64.givecooldown:
+    description: Ability to give others toggle pvp cooldown timers with /pvp
     default: op

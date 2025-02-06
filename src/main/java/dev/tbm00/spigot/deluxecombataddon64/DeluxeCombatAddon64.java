@@ -42,8 +42,8 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                     // Register listeners based on config
                     if (configHandler.isPreventedAfterCombat())
                         getServer().getPluginManager().registerEvents(new PlayerCombat(this, configHandler, entryManager), this);
-                    if (configHandler.isPreventedAfterMurder())
-                        getServer().getPluginManager().registerEvents(new PlayerMurder(this, configHandler, entryManager), this);
+                    if (configHandler.isPreventedAfterMurder()||configHandler.isForceEnabledAfterDeath()||configHandler.isForceEnabledAfterDeath())
+                        getServer().getPluginManager().registerEvents(new PlayerDeath(this, configHandler, entryManager, dcHook), this);
                     if (configHandler.isPreventedAfterJoin())
                         getServer().getPluginManager().registerEvents(new PlayerJoin(this, configHandler, entryManager), this);
                 }

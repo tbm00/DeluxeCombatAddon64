@@ -22,8 +22,31 @@ public class EntryManager {
     public Integer getTickTime(String username) {
         SortedMap<Integer, String> userMap = entries.get(username);
         if (userMap != null && !userMap.isEmpty()) {
-            return userMap.lastKey();
+            Integer highest_map_time;
+            try {highest_map_time = userMap.lastKey();}
+            catch (Exception e) {
+                highest_map_time = 0;
+            }
+            
+            String highest_map_type;
+            try {highest_map_type = userMap.get(highest_map_time);}
+            catch (Exception e) {
+                highest_map_type = "null";
+            }
+
+            trimUserMap(username,  highest_map_type, highest_map_time);
+            return highest_map_time;
         } return null;
+    }
+
+    private void trimUserMap(String username, String highest_map_type, Integer highest_map_time) {
+        try {
+            entries.get(username).clear();
+            deleteEntry(username);
+            saveEntry(username, highest_map_type, highest_map_time);
+        } catch (Exception e) {
+            javaPlugin.logRed("Caught exception trimming user map: " + e.getMessage());
+        }
     }
 
     // creates player map if DNE
@@ -42,32 +65,8 @@ public class EntryManager {
         entries.remove(username);
     }
 
-    // updates map with current_play_time+additional_time
-    public boolean setMapTime(Player player, String preventedType, int additional_time) {
-        String playerName = player.getName();
-
-        int current_play_time;
-        try {
-            current_play_time = player.getStatistic(Statistic.valueOf("PLAY_ONE_MINUTE"));
-        } catch (Exception e) {
-            javaPlugin.logRed("Caught exception getting player statistic PLAY_ONE_MINUTE: " + e.getMessage());
-            try {
-                current_play_time = player.getStatistic(Statistic.valueOf("PLAY_ONE_TICK"));
-            } catch (Exception e2) {
-                javaPlugin.logRed("Caught exception getting player statistic PLAY_ONE_TICK: " + e2.getMessage());
-                return false;
-            }
-        }
-        Integer current_map_time = getTickTime(playerName);
-        int potential_time_play = current_play_time+additional_time;
-
-        if (current_map_time==null || current_map_time<potential_time_play) {
-            saveEntry(playerName, preventedType, potential_time_play);
-            return true;
-        } return false;
-    }
-
-    // updates map with current_map_time+additional_time
+    // adds entry to player's userMap:<map_time,prevented_type>
+    // map time == preventedTypes' time + additional time
     public boolean addMapTime(Player player, String preventedType, int additional_time) {
         String playerName = player.getName();
 
@@ -84,14 +83,10 @@ public class EntryManager {
             }
         }
         Integer current_map_time = getTickTime(playerName);
-        int potential_time_map = current_map_time + additional_time;
-        int potential_time_play = current_play_time + additional_time;
-        
-        if (current_map_time==null || potential_time_map<=potential_time_play) {
-            saveEntry(playerName, preventedType, potential_time_play);
-            return true;
-        } else if (potential_time_map>potential_time_play) {
-            saveEntry(playerName, preventedType, potential_time_map);
+        int potential_play_time = current_play_time+additional_time;
+
+        if (current_map_time==null || current_map_time<potential_play_time) {
+            saveEntry(playerName, preventedType, potential_play_time);
             return true;
         } return false;
     }
@@ -103,6 +98,16 @@ public class EntryManager {
             int highestTick = userMap.lastKey();
             String preventedType = userMap.get(highestTick);
             return (highestTick + " " + preventedType);
+        } return null;
+    }
+
+    public String getHighestTimeAndType(String username) {
+        SortedMap<Integer, String> userMap = entries.get(username);
+        if (userMap == null || userMap.isEmpty()) return "0 none";
+        if (userMap != null && !userMap.isEmpty()) {
+            int highestCooldown = userMap.lastKey()/20;
+            String preventedType = userMap.get(highestCooldown);
+            return (preventedType + " " + highestCooldown +"sec");
         } return null;
     }
 }

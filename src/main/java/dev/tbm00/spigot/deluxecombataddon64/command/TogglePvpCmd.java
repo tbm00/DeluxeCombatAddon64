@@ -1,5 +1,7 @@
 package dev.tbm00.spigot.deluxecombataddon64.command;
 
+import java.util.Set;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -24,8 +26,10 @@ public class TogglePvpCmd implements TabExecutor {
     private final ConfigHandler configHandler;
     private final EntryManager entryManager;
     private final DCHook dcHook;
+    private final String PERMISSION_GIVE_COOLDOWNS = "deluxecombataddon64.givecooldown";
     private final String PERMISSION_TOGGLE_OTHERS = "deluxecombataddon64.toggle.others";
     private final String PERMISSION_TOGGLE_SELF = "deluxecombataddon64.toggle.self";
+    private final Set<String> COOLDOWN_TYPES = new HashSet<>(Set.of("JOIN", "TOGGLE", "COMBAT", "MURDER", "DEATH", "BONUS"));
 
     public TogglePvpCmd(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, EntryManager entryManager, DCHook dcHook) {
         this.entryManager = entryManager;
@@ -40,23 +44,47 @@ public class TogglePvpCmd implements TabExecutor {
             return false;
         }
 
-        if (args.length==0 && (sender instanceof Player) && hasPermission(sender, PERMISSION_TOGGLE_SELF)) { // "/togglepvp" - player command
+        // "/togglepvp" - player command
+        if (args.length==0 && (sender instanceof Player) && hasPermission(sender, PERMISSION_TOGGLE_SELF)) { 
             Player target = (Player) sender;
             return handleTogglePvpSelf(target);
-        } else if ((args.length==1 || args.length == 2) && hasPermission(sender, PERMISSION_TOGGLE_OTHERS)) { // "/togglepvp <username> [on/off]" - admin command
+        } // "/togglepvp <username> [on/off]" - admin command
+        else if ((args.length==1 || args.length == 2) && hasPermission(sender, PERMISSION_TOGGLE_OTHERS)) { 
             String newStatus = null;
             if (args.length==2) {
                 if (args[1].equalsIgnoreCase("on")||args[1].equalsIgnoreCase("enable"))
                     newStatus = "enable";
                 else if (args[1].equalsIgnoreCase("off")||args[1].equalsIgnoreCase("disable"))
-                    newStatus = "disable";
+                    newStatus = "disable"; 
                 else {
                     sendMessage(sender, "&cSecond argument must be 'on' or 'off'!");
                     return false;
                 }
             }
             return handleTogglePvpOthers(sender, getPlayer(args[0]), newStatus);
-        } else return false;
+        }  // "/togglepvp <username> giveCooldown <type> <seconds>" - admin command 
+        else if ((args.length==4) && hasPermission(sender, PERMISSION_GIVE_COOLDOWNS)) {
+            if (args[1].equalsIgnoreCase("giveCooldown"))
+                return handleCooldownAdjustment(sender, getPlayer(args[0]), args[2].toUpperCase(), Integer.valueOf(args[3]));
+        } return false;
+    }
+
+    private boolean handleCooldownAdjustment(CommandSender sender, Player target, String type, Integer seconds) {
+        if (target == null) {
+            sendMessage(target, "&cCouldn't find target player!");
+            return false;
+        } else if (!COOLDOWN_TYPES.contains(type.toUpperCase())) {
+            sendMessage(target, "&cCouldn't find cooldown type!");
+            return false;
+        } else if (seconds==null) {
+            sendMessage(target, "&cCouldn't parse seconds integer!");
+            return false;
+        }
+
+        entryManager.addMapTime(target, type.toUpperCase(), seconds*20);
+        sendMessage(sender, "&7Added "+seconds+"sec to "+target.getName()+"'s "+type+" cooldown. Their highest cooldown is "
+                    + entryManager.getHighestTimeAndType(target.getName()));
+        return true;
     }
 
     private boolean handleTogglePvpSelf(Player target) {
@@ -84,12 +112,12 @@ public class TogglePvpCmd implements TabExecutor {
         if (currentPvpStatus) { // if enabled, disable it
             dcHook.togglePvP(target, false);
             sendMessage(target, configHandler.getDisabledMessage());
-            if (configHandler.isPreventedAfterDisable()) entryManager.setMapTime(target, "TOGGLE", configHandler.getPreventedAfterDisableTicks());
+            if (configHandler.isPreventedAfterDisable()) entryManager.addMapTime(target, "TOGGLE", configHandler.getPreventedAfterDisableTicks());
             return true;
         } else { // if disabled, enable it
             dcHook.togglePvP(target, true);
             sendMessage(target, configHandler.getEnabledMessage());
-            if (configHandler.isPreventedAfterEnable()) entryManager.setMapTime(target, "TOGGLE", configHandler.getPreventedAfterEnableTicks());
+            if (configHandler.isPreventedAfterEnable()) entryManager.addMapTime(target, "TOGGLE", configHandler.getPreventedAfterEnableTicks());
             return true;
         }
     }
@@ -158,7 +186,7 @@ public class TogglePvpCmd implements TabExecutor {
             return true;
         }
 
-        // Prevent Usage if recently in Combat, Murder, Join, Toggle, or Bonus
+        // Prevent Usage if recently in "JOIN", "TOGGLE", "COMBAT", "MURDER", "DEATH", "BONUS"
         int current_play_time;
         try {
             current_play_time = target.getStatistic(Statistic.valueOf("PLAY_ONE_MINUTE"));
@@ -266,13 +294,26 @@ public class TogglePvpCmd implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command consoleCommand, String alias, String[] args) {
-        if (!hasPermission(sender, PERMISSION_TOGGLE_OTHERS)) return null;
+        if (!(hasPermission(sender, PERMISSION_TOGGLE_OTHERS)||hasPermission(sender, PERMISSION_GIVE_COOLDOWNS))) return null;
         List<String> list = new ArrayList<>();
         if (args.length == 1) {
             Bukkit.getOnlinePlayers().forEach(player -> list.add(player.getName()));
         } else if (args.length == 2) {
             list.add("enable");
             list.add("disable");
+            list.add("giveCooldown");
+        } else if (args.length == 3) {
+            for (String type : COOLDOWN_TYPES) {
+                list.add(type);
+            }
+        } else if (args.length == 4) {
+            list.add("30");
+            list.add("60");
+            list.add("120");
+            list.add("180");
+            list.add("240");
+            list.add("300");
+            list.add("600");
         }
         return list;
     }

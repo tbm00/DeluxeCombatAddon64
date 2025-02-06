@@ -3,7 +3,6 @@ package dev.tbm00.spigot.deluxecombataddon64.listener;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
@@ -30,8 +29,7 @@ public class PlayerAnchorInteraction implements Listener {
         if (!(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) return;
 
         Player player = event.getPlayer();
-        Block clickedBlock = event.getClickedBlock();
-        Location location = clickedBlock.getLocation();
+        Location location = event.getClickedBlock().getLocation();
         boolean passDCPvpPlayerCheck = true, passDCPvpLocCheck = true;
 
         if (!passDCPvpLocCheck(location, 6.0)) passDCPvpLocCheck = false;

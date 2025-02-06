@@ -26,12 +26,16 @@ public class ConfigHandler {
     private String preventedToggleInWorldsMessage = null;
     private String preventedToggleInCombatMessage = null;
     private Map<String, String> preventedToggleAfterMessages;
+    private boolean forceEnabledAfterDeath = false;
+    private String forceEnabledAfterDeathMessage = null;
     private Set<String> preventedWorlds = new HashSet<>();
     private boolean preventedInCombat = false;
     private boolean preventedAfterCombat = false;
     private int preventedAfterCombatTicks = 0;
     private boolean preventedAfterMurder = false;
     private int preventedAfterMurderTicks = 0;
+    private boolean preventedAfterDeath = false;
+    private int preventedAfterDeathTicks = 0;
     private boolean preventedAfterJoin = false;
     private int preventedAfterJoinTicks = 0;
     private boolean preventedAfterEnable = false;
@@ -77,13 +81,16 @@ public class ConfigHandler {
             disabledByOtherMessage = chatSection.contains("disabledByOtherMessage") ? chatSection.getString("disabledByOtherMessage") : null;
             disabledGraceMessage = chatSection.contains("disabledGraceMessage") ? chatSection.getString("disabledGraceMessage") : null;
             disabledGraceByOtherMessage = chatSection.contains("disabledGraceByOtherMessage") ? chatSection.getString("disabledGraceByOtherMessage") : null;
-            preventedToggleInWorldsMessage = chatSection.contains("preventedToggleInWorldsMessage") ? chatSection.getString("preventedToggleInWorldsMessage") : null;
+            forceEnabledAfterDeathMessage = togglePvpSection.contains("forceEnabledAfterDeathMessage") ? togglePvpSection.getString("forceEnabledAfterDeathMessage") : null;
             preventedToggleInCombatMessage = chatSection.contains("preventedToggleInCombatMessage") ? chatSection.getString("preventedToggleInCombatMessage") : null;
+            preventedToggleInWorldsMessage = chatSection.contains("preventedToggleInWorldsMessage") ? chatSection.getString("preventedToggleInWorldsMessage") : null;
             preventedToggleAfterMessages = new ConcurrentHashMap<>();
             if (chatSection.contains("preventedToggleAfterCombatMessage"))
                 savePreventedMessage("COMBAT", chatSection.getString("preventedToggleAfterCombatMessage"));
             if (chatSection.contains("preventedToggleAfterMurderMessage"))
                 savePreventedMessage("MURDER", chatSection.getString("preventedToggleAfterMurderMessage"));
+            if (chatSection.contains("preventedToggleAfterDeathMessage"))
+                savePreventedMessage("DEATH", chatSection.getString("preventedToggleAfterDeathMessage"));
             if (chatSection.contains("preventedToggleAfterJoinMessage"))
                 savePreventedMessage("JOIN", chatSection.getString("preventedToggleAfterJoinMessage"));
             if (chatSection.contains("preventedToggleAfterToggleMessage"))
@@ -91,7 +98,10 @@ public class ConfigHandler {
             if (chatSection.contains("preventedToggleAfterBonusMessage"))
                 savePreventedMessage("BONUS", chatSection.getString("preventedToggleAfterBonusMessage"));
         }
-        
+
+        // Load force enabled after death 
+        forceEnabledAfterDeath = togglePvpSection.contains("forceEnabledAfterDeath") ? togglePvpSection.getBoolean("forceEnabledAfterDeath") : false;
+
         // Load Disabled Worlds
         List<String> worldsHolder = togglePvpSection.contains("preventedInWorlds") ? togglePvpSection.getStringList("preventedInWorlds") : null;
         preventedWorlds.addAll(worldsHolder);
@@ -114,6 +124,15 @@ public class ConfigHandler {
             preventedAfterMurder = afterMurderSec.contains("enabled") ? afterMurderSec.getBoolean("enabled") : false;
             if (preventedAfterMurder) {
                 preventedAfterMurderTicks = afterMurderSec.contains("time") ? afterMurderSec.getInt("time")*20 : 0;
+            }
+        }
+
+        // Load preventedAfterDeath
+        ConfigurationSection afterDeathSec = togglePvpSection.contains("preventedAfterDeath") ? togglePvpSection.getConfigurationSection("preventedAfterDeath") : null;
+        if (afterDeathSec != null) {
+            preventedAfterDeath = afterDeathSec.contains("enabled") ? afterDeathSec.getBoolean("enabled") : false;
+            if (preventedAfterDeath) {
+                preventedAfterDeathTicks = afterDeathSec.contains("time") ? afterDeathSec.getInt("time")*20 : 0;
             }
         }
 
@@ -145,7 +164,7 @@ public class ConfigHandler {
         }
     }
 
-    // preventedType can be "COMBAT","MURDER","JOIN","COMMAND", or "BONUS"
+    // preventedType can be "JOIN", "TOGGLE", "COMBAT", "MURDER", "DEATH", "BONUS"
     public String getPreventedMessage(String preventedType) {
         return preventedToggleAfterMessages.get(preventedType);
     }
@@ -202,6 +221,14 @@ public class ConfigHandler {
         return togglePvpCommandEnabled;
     }
 
+    public boolean isForceEnabledAfterDeath() {
+        return forceEnabledAfterDeath;
+    }
+
+    public String getForceEnabledAfterDeathMessage() {
+        return forceEnabledAfterDeathMessage;
+    }
+
     public Set<String> getPreventedWorlds() {
         return preventedWorlds;
     }
@@ -224,6 +251,14 @@ public class ConfigHandler {
 
     public int getPreventedAfterMurderTicks() {
         return preventedAfterMurderTicks;
+    }
+
+    public boolean isPreventedAfterDeath() {
+        return preventedAfterDeath;
+    }
+
+    public int getPreventedAfterDeathTicks() {
+        return preventedAfterDeathTicks;
     }
 
     public boolean isPreventedAfterJoin() {

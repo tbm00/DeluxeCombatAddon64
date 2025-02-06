@@ -5,7 +5,7 @@ Created by tbm00 for play.mc64.wtf.
 
 ## Features
 - Merge DeluxeCombat's `/grace disable` & `/togglepvp` command into `/pvp`.
-- Define use murder, combat, and join cooldowns toggling pvp.
+- Define join, combat, death, murder, combatlog, and more cooldowns for toggling pvp.
 - Prevent respawn anchor explosion while nearby players have pvp disabled.
 
 ## Dependencies
@@ -13,36 +13,38 @@ Created by tbm00 for play.mc64.wtf.
 - **Spigot 1.18.1+**: UNTESTED ON OLDER VERSIONS
 - **DeluxeCombat**: REQUIRED
 
-## Note for Admins
-This plugin leaves the original `/togglepvp` command offered by DeluxeCombat untouched. To disable/reroute it, add the following to your `commands.yml`: 
+## Commands
+#### Player Commands
+- `/pvp`
+    - 1st Ever Use: disables your newbie protection (if active)
+    - All Subsequent Uses: switches your PVP status (enabled<->disabled)
+
+#### Admin Commands
+- `/pvp <player>`
+    - 1st Ever Use: disables player's newbie protection (if active).
+    - All Subsequent Uses: switches player's PVP status (enabled<->disabled).
+- `/pvp <player> [on/off]` Turn player's PVP status on/enabled or off/disabled
+- `/pvp <player> giveCooldown <TYPE> <seconds>` Give player a cooldown of a particular type
+
+## Permissions
+#### Player Permissions
+- `deluxecombataddon64.toggle.self` Ability to toggle your pvp and grace protection with /pvp *(default: everyone)*.
+
+#### Admin Permissions
+- `deluxecombataddon64.toggle.others` Ability to toggle others' pvp and grace protection with /pvp *(default: op)*.
+- `deluxecombataddon64.givecooldown` Ability to give others toggle pvp cooldown timers with /pvp *(default: op)*.
+
+## Note for Server Admins
+This plugin leaves the original `/togglepvp` command offered by DeluxeCombat untouched. To disable/reroute it, add the following to your `<server_directory>/commands.yml`: 
 ```
 aliases:
   togglepvp:
   - pvp
 ```
 
-## Commands
-#### Player Commands
-- `/pvp`
-    - 1st Ever Use: disables your newbie protection (grace period)
-    - All Subsequent Uses: switches your PVP status (enabled<->disabled)
-
-#### Admin Commands
-- `/pvp <player>`
-    - 1st Ever Use: disables player's newbie protection (grace period)
-    - All Subsequent Uses: switches player's PVP status (enabled<->disabled)
-- `/pvp <player> [on/off]` Turn player's PVP status on/enabled or off/disabled
-
-## Permissions
-#### Player Permissions
-- `deluxecombataddon64.toggle.self` Ability to use /pvp command on yourself *(default: everyone)*.
-
-#### Admin Permissions
-- `deluxecombataddon64.toggle.others` Ability to use /pvp command on others *(default: op)*.
-
 ## Config
 ```
-# DeluxeCombatAddon64 v0.0.1-beta by @tbm00
+# DeluxeCombatAddon64 v0.0.2-beta by @tbm00
 # https://github.com/tbm00/DeluxeCombatAddon64
 
 enabled: true
@@ -60,14 +62,17 @@ togglePvpCommand:
     disabledMessage: "You &c&ndisabled&r your pvp!"
     disabledByOtherMessage: "Your pvp has been &c&ndisabled&r!"
     disabledGraceMessage: "" # "You &ndisabled&r your newbie protection, your PVP is &a&nenabled&r!"
-    disabledGraceByOtherMessage: "" # "&fYour newbie protection has been &ndisabled&r, your PVP is &a&nenabled&r!"
+    disabledGraceByOtherMessage: "" # "Your newbie protection has been &ndisabled&r, your PVP is &a&nenabled&r!"
     preventedToggleInWorldsMessage: "&cYou cannot toggle pvp in this world!"
     preventedToggleInCombatMessage: "&cYou cannot toggle pvp during combat!"
     preventedToggleAfterCombatMessage: "&cYou cannot toggle pvp after recent combat -- please wait &6<time_left>&c!"
     preventedToggleAfterMurderMessage: "&cYou cannot toggle pvp after killing someone -- please wait &6<time_left>&c!"
+    preventedToggleAfterDeathMessage: "&cYou cannot toggle pvp after recently dying -- please wait &6<time_left>&c!"
     preventedToggleAfterJoinMessage: "&cYou cannot toggle pvp after recently connecting -- please wait &6<time_left>&c!"
     preventedToggleAfterToggleMessage: "&cYou cannot toggle pvp after recently toggling -- please wait &6<time_left>&c!"
     preventedToggleAfterBonusMessage: "&cYou cannot toggle pvp -- please wait &6<time_left>&c!"
+    forceEnabledAfterDeathMessage: "You died and your pvp was &are-&nenabled&r!"
+  forceEnabledAfterDeath: true
   preventedInWorlds: []
     #- "world_nether"
   preventedInCombat: true
@@ -77,6 +82,9 @@ togglePvpCommand:
   preventedAfterMurder:
     enabled: true
     time: 300 # seconds
+  preventedAfterDeath:
+    enabled: true
+    time: 120 # seconds
   preventedAfterJoin:
     enabled: true
     time: 120 # seconds
