@@ -17,9 +17,9 @@ import org.bukkit.entity.Player;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
-import dev.tbm00.spigot.deluxecombataddon64.EntryManager;
-import dev.tbm00.spigot.deluxecombataddon64.hook.DCHook;
 import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
+import dev.tbm00.spigot.deluxecombataddon64.data.EntryManager;
+import dev.tbm00.spigot.deluxecombataddon64.hook.DCHook;
 
 public class TogglePvpCmd implements TabExecutor {
     private final DeluxeCombatAddon64 javaPlugin;
@@ -106,7 +106,7 @@ public class TogglePvpCmd implements TabExecutor {
             return false;
         } 
         
-        if (entryManager.clearUserMap(target.getName())) {
+        if (entryManager.deletePlayerEntry(target.getName())) {
             sendMessage(sender, "&7Cleared " + target.getName() + "'s cooldown map. Their highest cooldown is " 
                         + entryManager.getHighestTypeAndTick(target.getName()));
             return true;
@@ -233,6 +233,8 @@ public class TogglePvpCmd implements TabExecutor {
         String tickAndType = entryManager.getHighestTickAndType(target.getName());
         String[] pair = tickAndType.split("\\ ");
         Integer highest_map_ticks = Integer.parseInt(pair[0]);
+        if (highest_map_ticks<1) return false;
+
         int current_play_ticks;
         try {
             current_play_ticks = target.getStatistic(Statistic.valueOf("PLAY_ONE_MINUTE"));
@@ -251,7 +253,10 @@ public class TogglePvpCmd implements TabExecutor {
             String msg = configHandler.getPreventedMessage(pair[1]).replace("<time_left>", entryManager.getFormattedTime(time_difference));
             sendMessage(target, msg);
             return true;
-        } return false;
+        } else {
+            entryManager.deletePlayerEntry(target.getName());
+            return false;
+        }
     }
 
     private Player getPlayer(String arg) {

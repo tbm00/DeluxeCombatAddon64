@@ -1,5 +1,6 @@
-package dev.tbm00.spigot.deluxecombataddon64;
+package dev.tbm00.spigot.deluxecombataddon64.data;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -9,72 +10,53 @@ import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 import org.bukkit.ChatColor;
 
+import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
+
 public class EntryManager {
-    private DeluxeCombatAddon64 javaPlugin;
-    private Map<String, SortedMap<Integer, String>> entries; // key1=<username>, value1=<userMap>, key2=<ticks>, value2=<preventedType>
+    private final DeluxeCombatAddon64 javaPlugin;
+    private final JSONHandler db;
+    private Map<String, SortedMap<Integer, String>> playerMap; // key1=<username>, value1=<cooldownMap>, key2=<ticks>, value2=<preventedType>
 
-    public EntryManager(DeluxeCombatAddon64 javaPlugin) {
+    public EntryManager(DeluxeCombatAddon64 javaPlugin, JSONHandler db) {
         this.javaPlugin = javaPlugin;
-        this.entries = new ConcurrentHashMap<>();
+        this.db = db;
+        this.playerMap = new ConcurrentHashMap<>(db.loadPlayerMap());
     }
 
-    // creates player map if DNE
-    // adds cooldown entry in player map
-    private void saveCooldownEntry(String username, String preventedType, Integer ticks) {
-        SortedMap<Integer, String> userMap = entries.get(username);
-        if (userMap == null) {
-            userMap = new TreeMap<>();
-            entries.put(username, userMap);
+    // save playerMap to json on plugin disable
+    public void saveDataToJson() {
+        Map<String, SortedMap<Integer, String>> snapshot;
+        synchronized (playerMap) {
+            snapshot = new HashMap<>(playerMap);
         }
-        userMap.put(ticks, preventedType);
+        db.savePlayerMap(snapshot);
     }
 
-    // removes player map from entries
-    private void deleteEntry(String username) {
-        entries.remove(username);
+    // clears player from playermap then re-adds it with new cooldown
+    private void saveCooldownEntry(String username, String preventedType, Integer ticks) {
+        if (playerMap.get(username)!=null)
+            deletePlayerEntry(username);
+        
+        SortedMap<Integer, String> cooldownMap = new TreeMap<>();
+        cooldownMap.put(ticks, preventedType);
+        playerMap.put(username, cooldownMap);
     }
 
-    private void trimUserMap(String username, String highest_map_type, Integer highest_map_ticks) {
-        clearUserMap(username);
-        saveCooldownEntry(username, highest_map_type, highest_map_ticks);
-    }
-
-    public boolean clearUserMap(String username) {
+    // removes player entry from entries
+    public boolean deletePlayerEntry(String username) {
         try {
-            entries.get(username).clear();
-            deleteEntry(username);
+            playerMap.get(username).clear();
+            playerMap.remove(username);
             return true;
         } catch (Exception e) {
-            javaPlugin.log(ChatColor.RED, "Caught exception clearing user map: " + e.getMessage());
+            javaPlugin.log(ChatColor.RED, "Caught exception deleting player entry: " + e.getMessage());
             return false;
         }
     }
 
-    // returns time (in ticks) that command is re-enabled, using player's cooldown map
-    // if not found returns null
-    private Integer getTickTime(String username) {
-        SortedMap<Integer, String> userMap = entries.get(username);
-        if (userMap != null && !userMap.isEmpty()) {
-            Integer highest_map_ticks;
-            try {highest_map_ticks = userMap.lastKey();}
-            catch (Exception e) {
-                highest_map_ticks = 0;
-            }
-            
-            String highest_map_type;
-            try {highest_map_type = userMap.get(highest_map_ticks);}
-            catch (Exception e) {
-                highest_map_type = "null";
-            }
-
-            trimUserMap(username,  highest_map_type, highest_map_ticks);
-            return highest_map_ticks;
-        } return null;
-    }
-
-    // adds entry to player's userMap:<map_time,prevented_type>
-    // (map time == preventedTypes' time + additional time)
-    public boolean addMapTime(Player player, String preventedType, int additional_time) {
+    // adds cooldown to player's cooldownMap:<cooldown,prevented_type>
+    // (potential_cooldown == current_play_ticks + additional_ticks)
+    public boolean addMapTime(Player player, String preventedType, int additional_ticks) {
         String playerName = player.getName();
 
         int current_play_ticks;
@@ -89,34 +71,58 @@ public class EntryManager {
                 return false;
             }
         }
-        Integer highest_map_ticks = getTickTime(playerName);
-        int potential_play_time = current_play_ticks+additional_time;
+        Integer highest_map_ticks = getHighestTick(playerName);
+        int potential_cooldown = current_play_ticks+additional_ticks;
 
-        if (highest_map_ticks==null || highest_map_ticks<potential_play_time) {
-            saveCooldownEntry(playerName, preventedType, potential_play_time);
+        if (highest_map_ticks==null || highest_map_ticks<potential_cooldown) {
+            saveCooldownEntry(playerName, preventedType, potential_cooldown);
             return true;
         } return false;
     }
 
+    // returns Integer used by EntryManager.java for checking if current highest time is less than potential
+    // ...
+    // returns time (in ticks) that command is re-enabled, using player's cooldown map
+    // if not found returns null
+    private Integer getHighestTick(String username) {
+        SortedMap<Integer, String> cooldownMap = playerMap.get(username);
+        if (cooldownMap == null || cooldownMap.isEmpty()) return null;
 
+        int highest_map_ticks;
+        try {highest_map_ticks = cooldownMap.lastKey();}
+        catch (Exception e) {return null;}
+        return highest_map_ticks;
+    }
 
     // returns String used by TogglePvpCmd.java for preventing togglepvp usage
     public String getHighestTickAndType(String username) {
-        SortedMap<Integer, String> userMap = entries.get(username);
-        if (userMap == null || userMap.isEmpty()) return "0 none";
+        SortedMap<Integer, String> cooldownMap = playerMap.get(username);
+        if (cooldownMap == null || cooldownMap.isEmpty()) return "0 none";
 
-        int highest_map_ticks = userMap.lastKey();
-        String preventedType = userMap.get(highest_map_ticks);
-        return (highest_map_ticks + " " + preventedType);
+        int highest_map_ticks;
+        try {highest_map_ticks = cooldownMap.lastKey();}
+        catch (Exception e) {highest_map_ticks = 0;}
+        
+        String highest_map_type;
+        try {highest_map_type = cooldownMap.get(highest_map_ticks);}
+        catch (Exception e) {highest_map_type = "null";}
+
+        return (highest_map_ticks + " " + highest_map_type);
     }
 
     // returns String used by TogglePvpCmd.java for output to CommandSender
     public String getHighestTypeAndTick(String username) {
-        SortedMap<Integer, String> userMap = entries.get(username);
-        if (userMap == null || userMap.isEmpty()) return "(no cooldowns)";
+        SortedMap<Integer, String> cooldownMap = playerMap.get(username);
+        if (cooldownMap == null || cooldownMap.isEmpty()) return "(no cooldowns)";
 
-        int highest_map_ticks = userMap.lastKey();
-        String preventedType = userMap.get(highest_map_ticks);
+        int highest_map_ticks;
+        try {highest_map_ticks = cooldownMap.lastKey();}
+        catch (Exception e) {highest_map_ticks = 0;}
+        
+        String highest_map_type;
+        try {highest_map_type = cooldownMap.get(highest_map_ticks);}
+        catch (Exception e) {highest_map_type = "null";}
+
         int current_play_ticks;
         try {
             current_play_ticks = javaPlugin.getServer().getPlayer(username).getStatistic(Statistic.valueOf("PLAY_ONE_MINUTE"));
@@ -127,12 +133,12 @@ public class EntryManager {
             } catch (Exception e2) {
                 javaPlugin.log(ChatColor.RED, "Caught exception getting player statistic PLAY_ONE_TICK: " + e2.getMessage());
                 current_play_ticks = 0;
-                return (preventedType + " " + getFormattedTime(highest_map_ticks) + " playtime");
+                return (highest_map_type + " " + getFormattedTime(highest_map_ticks) + " playtime");
             }
         }
 
         int time_difference = (highest_map_ticks-current_play_ticks)/20;
-        return (preventedType + " " + getFormattedTime(time_difference));
+        return (highest_map_type + " " + getFormattedTime(time_difference));
     }
 
     public String getFormattedTime(int totalSeconds) {

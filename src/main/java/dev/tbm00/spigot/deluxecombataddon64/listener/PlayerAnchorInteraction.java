@@ -12,9 +12,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 
-import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
 import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
-import dev.tbm00.spigot.deluxecombataddon64.hook.*;
+import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
+import dev.tbm00.spigot.deluxecombataddon64.hook.DCHook;
 
 public class PlayerAnchorInteraction implements Listener {
     private final DCHook dcHook;

@@ -4,9 +4,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
 import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
-import dev.tbm00.spigot.deluxecombataddon64.EntryManager;
+import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
+import dev.tbm00.spigot.deluxecombataddon64.data.EntryManager;
 
 public class PlayerJoin implements Listener {
     private final EntryManager entryManager;

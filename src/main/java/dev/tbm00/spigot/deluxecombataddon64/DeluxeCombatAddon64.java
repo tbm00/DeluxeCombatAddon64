@@ -7,11 +7,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.ChatColor;
 
 import dev.tbm00.spigot.deluxecombataddon64.command.TogglePvpCmd;
-import dev.tbm00.spigot.deluxecombataddon64.hook.*;
+import dev.tbm00.spigot.deluxecombataddon64.data.EntryManager;
+import dev.tbm00.spigot.deluxecombataddon64.data.JSONHandler;
+import dev.tbm00.spigot.deluxecombataddon64.hook.DCHook;
 import dev.tbm00.spigot.deluxecombataddon64.listener.*;
 
 public class DeluxeCombatAddon64 extends JavaPlugin {
     private ConfigHandler configHandler;
+    private JSONHandler jsonHandler;
     private EntryManager entryManager;
     private DCHook dcHook;
 
@@ -32,8 +35,18 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                 
                 setupHooks();
                 if (configHandler.isTogglePvpCommandEnabled()) {
+                    // Connect JSON
+                    try {
+                        jsonHandler = new JSONHandler(this);
+                        log(ChatColor.GREEN, "JSON connected.");
+                    } catch (Exception e) {
+                        getLogger().severe("JSON connection failed -- disabling plugin!");
+                        disablePlugin();
+                        return;
+                    }
+
                     // Connect EntryManager
-                    entryManager = new EntryManager(this);
+                    entryManager = new EntryManager(this, jsonHandler);
 
                     // Register toggle pvp command
                     getCommand("pvp").setExecutor(new TogglePvpCmd(this, configHandler, entryManager, dcHook));
@@ -91,5 +104,10 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
     private void disablePlugin() {
         getServer().getPluginManager().disablePlugin(this);
         log(ChatColor.RED, "DeluxeCombatAddon64 disabled..!");
+    }
+
+    @Override
+    public void onDisable() {
+        if (configHandler.isDataSavedOnDisable()) entryManager.saveDataToJson();
     }
 }

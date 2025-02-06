@@ -6,9 +6,9 @@ import org.bukkit.event.Listener;
 import nl.marido.deluxecombat.events.CombatStateChangeEvent;
 import nl.marido.deluxecombat.events.CombatStateChangeEvent.CombatState;
 
-import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
 import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
-import dev.tbm00.spigot.deluxecombataddon64.EntryManager;
+import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
+import dev.tbm00.spigot.deluxecombataddon64.data.EntryManager;
 
 public class PlayerCombat implements Listener {
     private final EntryManager entryManager;

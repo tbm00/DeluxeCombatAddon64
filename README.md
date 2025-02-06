@@ -46,7 +46,7 @@ aliases:
 
 ## Config
 ```
-# DeluxeCombatAddon64 v0.0.2-beta by @tbm00
+# DeluxeCombatAddon64 v0.0.3-beta by @tbm00
 # https://github.com/tbm00/DeluxeCombatAddon64
 
 enabled: true
@@ -57,6 +57,7 @@ fixes:
 
 togglePvpCommand:
   enabled: true
+  saveMapOnPluginDisable: true
   chat:
     prefix: "&8[&f-&8] &f"
     enabledMessage: "You &a&nenabled&r your pvp!"

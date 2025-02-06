@@ -9,10 +9,9 @@ import org.bukkit.entity.Player;
 
 import net.md_5.bungee.api.chat.TextComponent;
 
-
-import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
 import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
-import dev.tbm00.spigot.deluxecombataddon64.EntryManager;
+import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
+import dev.tbm00.spigot.deluxecombataddon64.data.EntryManager;
 import dev.tbm00.spigot.deluxecombataddon64.hook.DCHook;
 
 public class PlayerDeath implements Listener {

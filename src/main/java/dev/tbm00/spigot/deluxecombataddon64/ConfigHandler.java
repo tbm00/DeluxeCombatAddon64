@@ -17,6 +17,7 @@ public class ConfigHandler {
     
     // "togglePvpCommand"
     private boolean togglePvpCommandEnabled = false;
+    private boolean saveDataOnDisable = false;
     private String chatPrefix = null;
     private String enabledMessage = null;
     private String enabledByOtherMessage = null;
@@ -72,6 +73,9 @@ public class ConfigHandler {
     }
 
     private void loadTogglePvp(ConfigurationSection togglePvpSection) {
+        // Load force enabled after death 
+        saveDataOnDisable = togglePvpSection.contains("saveMapOnPluginDisable") ? togglePvpSection.getBoolean("saveMapOnPluginDisable") : true;
+
         // Load Chat
         ConfigurationSection chatSection = togglePvpSection.getConfigurationSection("chat");
         if (chatSection != null) {
@@ -178,6 +182,14 @@ public class ConfigHandler {
         return enabled;
     }
 
+    public boolean isDataSavedOnDisable() {
+        return saveDataOnDisable;
+    }
+
+    public boolean isTogglePvpCommandEnabled() {
+        return togglePvpCommandEnabled;
+    }
+
     public String getChatPrefix() {
         return chatPrefix;
     }
@@ -216,10 +228,6 @@ public class ConfigHandler {
 
     public boolean getCheckAnchorExplosions() {
         return checkAnchorExplosions;
-    }
-
-    public boolean isTogglePvpCommandEnabled() {
-        return togglePvpCommandEnabled;
     }
 
     public boolean isForceEnabledAfterDeath() {
