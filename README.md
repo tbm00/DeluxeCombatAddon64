@@ -25,6 +25,7 @@ Created by tbm00 for play.mc64.wtf.
     - All Subsequent Uses: switches player's PVP status (enabled<->disabled).
 - `/pvp <player> [on/off]` Turn player's PVP status on/enabled or off/disabled
 - `/pvp <player> giveCooldown <TYPE> <seconds>` Give player a cooldown of a particular type
+- `/pvp <player> clearCooldowns` Clear a player's cooldown map
 
 ## Permissions
 #### Player Permissions
@@ -33,6 +34,7 @@ Created by tbm00 for play.mc64.wtf.
 #### Admin Permissions
 - `deluxecombataddon64.toggle.others` Ability to toggle others' pvp and grace protection with /pvp *(default: op)*.
 - `deluxecombataddon64.givecooldown` Ability to give others toggle pvp cooldown timers with /pvp *(default: op)*.
+- `deluxecombataddon64.clearcooldowns` Ability to clear players' toggle pvp cooldown timers with /pvp *(default: op)*.
 
 ## Note for Server Admins
 This plugin leaves the original `/togglepvp` command offered by DeluxeCombat untouched. To disable/reroute it, add the following to your `<server_directory>/commands.yml`: 

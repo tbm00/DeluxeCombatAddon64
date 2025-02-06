@@ -27,6 +27,7 @@ public class TogglePvpCmd implements TabExecutor {
     private final EntryManager entryManager;
     private final DCHook dcHook;
     private final String PERMISSION_GIVE_COOLDOWNS = "deluxecombataddon64.givecooldown";
+    private final String PERMISSION_CLEAR_COOLDOWNS = "deluxecombataddon64.clearcooldowns";
     private final String PERMISSION_TOGGLE_OTHERS = "deluxecombataddon64.toggle.others";
     private final String PERMISSION_TOGGLE_SELF = "deluxecombataddon64.toggle.self";
     private final Set<String> COOLDOWN_TYPES = new HashSet<>(Set.of("JOIN", "TOGGLE", "COMBAT", "MURDER", "DEATH", "BONUS"));
@@ -44,12 +45,20 @@ public class TogglePvpCmd implements TabExecutor {
             return false;
         }
 
-        // "/togglepvp" - player command
-        if (args.length==0 && (sender instanceof Player) && hasPermission(sender, PERMISSION_TOGGLE_SELF)) { 
-            Player target = (Player) sender;
-            return handleTogglePvpSelf(target);
-        } // "/togglepvp <username> [on/off]" - admin command
-        else if ((args.length==1 || args.length == 2) && hasPermission(sender, PERMISSION_TOGGLE_OTHERS)) { 
+        // "/pvp <username> giveCooldown <type> <seconds>" - admin command 
+        if ((args.length==4) && hasPermission(sender, PERMISSION_GIVE_COOLDOWNS)) {
+            if (args[1].equalsIgnoreCase("giveCooldown"))
+                return handleGiveCooldown(sender, getPlayer(args[0]), args[2].toUpperCase(), Integer.valueOf(args[3]));
+        } 
+        
+        // "/pvp <username> clearCooldowns" - admin command 
+        if ((args.length==2) && hasPermission(sender, PERMISSION_CLEAR_COOLDOWNS)) {
+            if (args[1].equalsIgnoreCase("clearCooldowns"))
+                return handleClearCooldowns(sender, getPlayer(args[0]));
+        } 
+
+        // "/pvp <username> [on/off]" - admin command
+        if ((args.length==1 || args.length == 2) && hasPermission(sender, PERMISSION_TOGGLE_OTHERS)) { 
             String newStatus = null;
             if (args.length==2) {
                 if (args[1].equalsIgnoreCase("on")||args[1].equalsIgnoreCase("enable"))
@@ -62,11 +71,50 @@ public class TogglePvpCmd implements TabExecutor {
                 }
             }
             return handleTogglePvpOthers(sender, getPlayer(args[0]), newStatus);
-        } // "/togglepvp <username> giveCooldown <type> <seconds>" - admin command 
-        else if ((args.length==4) && hasPermission(sender, PERMISSION_GIVE_COOLDOWNS)) {
-            if (args[1].equalsIgnoreCase("giveCooldown"))
-                return handleGiveCooldown(sender, getPlayer(args[0]), args[2].toUpperCase(), Integer.valueOf(args[3]));
-        } return false;
+        } 
+
+        // "/pvp" - player command
+        if (args.length==0 && (sender instanceof Player) && hasPermission(sender, PERMISSION_TOGGLE_SELF)) { 
+            Player target = (Player) sender;
+            return handleTogglePvpSelf(target);
+        } 
+    
+        return false;
+    }
+
+    private boolean handleGiveCooldown(CommandSender sender, Player target, String type, Integer seconds) {
+        if (target == null) {
+            sendMessage(target, "&cCouldn't find target player!");
+            return false;
+        } else if (!COOLDOWN_TYPES.contains(type.toUpperCase())) {
+            sendMessage(target, "&cCouldn't find cooldown type!");
+            return false;
+        } else if (seconds==null) {
+            sendMessage(target, "&cCouldn't parse seconds integer!");
+            return false;
+        }
+
+        entryManager.addMapTime(target, type.toUpperCase(), seconds*20);
+        sendMessage(sender, "&7Gave " + entryManager.getFormattedTime(seconds) + " " + type + " cooldown to " + target.getName()
+                    + ". Their highest cooldown is " + entryManager.getHighestTypeAndTick(target.getName()));
+        return true;
+    }
+
+    private boolean handleClearCooldowns(CommandSender sender, Player target) {
+        if (target == null) {
+            sendMessage(target, "&cCouldn't find target player!");
+            return false;
+        } 
+        
+        if (entryManager.clearUserMap(target.getName())) {
+            sendMessage(sender, "&7Cleared " + target.getName() + "'s cooldown map. Their highest cooldown is " 
+                        + entryManager.getHighestTypeAndTick(target.getName()));
+            return true;
+        } else {
+            sendMessage(sender, "&cError occured clearing " + target.getName() + "'s cooldown map. Their highest cooldown is " 
+                        + entryManager.getHighestTypeAndTick(target.getName()));
+            return true;
+        } 
     }
 
     private boolean handleTogglePvpSelf(Player target) {
@@ -133,24 +181,6 @@ public class TogglePvpCmd implements TabExecutor {
                 return true;
             }
         }
-    }
-
-    private boolean handleGiveCooldown(CommandSender sender, Player target, String type, Integer seconds) {
-        if (target == null) {
-            sendMessage(target, "&cCouldn't find target player!");
-            return false;
-        } else if (!COOLDOWN_TYPES.contains(type.toUpperCase())) {
-            sendMessage(target, "&cCouldn't find cooldown type!");
-            return false;
-        } else if (seconds==null) {
-            sendMessage(target, "&cCouldn't parse seconds integer!");
-            return false;
-        }
-
-        entryManager.addMapTime(target, type.toUpperCase(), seconds*20);
-        sendMessage(sender, "&7Gave " + entryManager.getFormattedTime(seconds) + " " + type + " cooldown to " + target.getName() + ". "
-                    + "Their highest cooldown is " + entryManager.getHighestTypeAndTick(target.getName()));
-        return true;
     }
 
     // Disable player's own gracee
@@ -266,6 +296,7 @@ public class TogglePvpCmd implements TabExecutor {
             list.add("enable");
             list.add("disable");
             list.add("giveCooldown");
+            list.add("clearCooldowns");
         } else if (args.length == 3) {
             for (String type : COOLDOWN_TYPES) {
                 list.add(type);

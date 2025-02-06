@@ -35,12 +35,18 @@ public class EntryManager {
     }
 
     private void trimUserMap(String username, String highest_map_type, Integer highest_map_ticks) {
+        clearUserMap(username);
+        saveCooldownEntry(username, highest_map_type, highest_map_ticks);
+    }
+
+    public boolean clearUserMap(String username) {
         try {
             entries.get(username).clear();
             deleteEntry(username);
-            saveCooldownEntry(username, highest_map_type, highest_map_ticks);
+            return true;
         } catch (Exception e) {
-            javaPlugin.log(ChatColor.RED, "Caught exception trimming user map: " + e.getMessage());
+            javaPlugin.log(ChatColor.RED, "Caught exception clearing user map: " + e.getMessage());
+            return false;
         }
     }
 
