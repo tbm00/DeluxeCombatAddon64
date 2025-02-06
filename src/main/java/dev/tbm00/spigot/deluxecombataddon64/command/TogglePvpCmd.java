@@ -62,62 +62,39 @@ public class TogglePvpCmd implements TabExecutor {
                 }
             }
             return handleTogglePvpOthers(sender, getPlayer(args[0]), newStatus);
-        }  // "/togglepvp <username> giveCooldown <type> <seconds>" - admin command 
+        } // "/togglepvp <username> giveCooldown <type> <seconds>" - admin command 
         else if ((args.length==4) && hasPermission(sender, PERMISSION_GIVE_COOLDOWNS)) {
             if (args[1].equalsIgnoreCase("giveCooldown"))
-                return handleCooldownAdjustment(sender, getPlayer(args[0]), args[2].toUpperCase(), Integer.valueOf(args[3]));
+                return handleGiveCooldown(sender, getPlayer(args[0]), args[2].toUpperCase(), Integer.valueOf(args[3]));
         } return false;
     }
 
-    private boolean handleCooldownAdjustment(CommandSender sender, Player target, String type, Integer seconds) {
-        if (target == null) {
-            sendMessage(target, "&cCouldn't find target player!");
-            return false;
-        } else if (!COOLDOWN_TYPES.contains(type.toUpperCase())) {
-            sendMessage(target, "&cCouldn't find cooldown type!");
-            return false;
-        } else if (seconds==null) {
-            sendMessage(target, "&cCouldn't parse seconds integer!");
-            return false;
-        }
-
-        entryManager.addMapTime(target, type.toUpperCase(), seconds*20);
-        sendMessage(sender, "&7Added "+seconds+"sec to "+target.getName()+"'s "+type+" cooldown. Their highest cooldown is "
-                    + entryManager.getHighestTimeAndType(target.getName()));
-        return true;
-    }
-
     private boolean handleTogglePvpSelf(Player target) {
-        // Check if command should be prevented because of world
-        if (preventUsageWorlds(target)) return true;
+        // Check if command should be prevented because player is in disabled world
+        if (preventUsageInWorlds(target)) return true;
 
         // Disable newbie protection (grace) if applied
-        boolean currentGraceStatus = dcHook.hasProtection(target);
-        if (currentGraceStatus) {
-            boolean disabledGrace = sudoCommand(target, "grace disable");
-            if (disabledGrace) {
-                sendMessage(target, configHandler.getDisabledGraceMessage());
-                return true;
-            } else {
-                sendMessage(target, "&cError occured while disabling your newbie protection!");
-                return false;
-            }
-        }
+        if (disableGraceProtection(target)==1) return true;
+
+        // Check if command should be prevented because player is in combat
+        if (preventUsageInCombat(target)) return true;
 
         // Check if command should be prevented for all other reasons
-        if (preventUsage(target)) return true;
+        if (preventUsageAfter(target)) return true;
 
         // Switch pvp status
         boolean currentPvpStatus = dcHook.hasPvPEnabled(target);
         if (currentPvpStatus) { // if enabled, disable it
             dcHook.togglePvP(target, false);
             sendMessage(target, configHandler.getDisabledMessage());
-            if (configHandler.isPreventedAfterDisable()) entryManager.addMapTime(target, "TOGGLE", configHandler.getPreventedAfterDisableTicks());
+            if (configHandler.isPreventedAfterDisable())
+                entryManager.addMapTime(target, "TOGGLE", configHandler.getPreventedAfterDisableTicks());
             return true;
         } else { // if disabled, enable it
             dcHook.togglePvP(target, true);
             sendMessage(target, configHandler.getEnabledMessage());
-            if (configHandler.isPreventedAfterEnable()) entryManager.addMapTime(target, "TOGGLE", configHandler.getPreventedAfterEnableTicks());
+            if (configHandler.isPreventedAfterEnable())
+                entryManager.addMapTime(target, "TOGGLE", configHandler.getPreventedAfterEnableTicks());
             return true;
         }
     }
@@ -129,31 +106,18 @@ public class TogglePvpCmd implements TabExecutor {
                 sendMessage(sender, "You enabled " + target.getName() + "'s PVP!");
                 sendMessage(target, configHandler.getEnabledByOtherMessage());
                 return true;
-            }
-            if (newStatus.equalsIgnoreCase("disable")) {
+            } if (newStatus.equalsIgnoreCase("disable")) {
                 dcHook.togglePvP(target, false);
                 sendMessage(sender, "You disabled " + target.getName() + "'s PVP!");
                 sendMessage(target, configHandler.getDisabledByOtherMessage());
                 return true;
-            }
-            else {
+            } else {
                 sendMessage(sender, "&cError changing " + target.getName() + "'s PVP!");
                 return false;
             }
         } else {
             // Disable newbie protection (grace) if applied
-            boolean currentGraceStatus = dcHook.hasProtection(target);
-            if (currentGraceStatus) {
-                boolean disabledGrace = runCommand("grace disable " + target.getName());
-                if (disabledGrace) {
-                    sendMessage(sender, "You disabled " + target.getName() + "'s newbie protection (aka grace period)!");
-                    sendMessage(target, configHandler.getDisabledGraceByOtherMessage());
-                    return true;
-                } else {
-                    sendMessage(sender, "&cError disabling " + target.getName() + "'s newbie protection!");
-                    return false;
-                }
-            }
+            if (disableGraceProtection(sender, target)==1) return true;
 
             // Switch pvp status
             boolean currentPvpStatus = dcHook.hasPvPEnabled(target);
@@ -171,117 +135,93 @@ public class TogglePvpCmd implements TabExecutor {
         }
     }
 
-    private boolean preventUsageWorlds(Player target) {
-        // Prevent Usage if in Disable World
+    private boolean handleGiveCooldown(CommandSender sender, Player target, String type, Integer seconds) {
+        if (target == null) {
+            sendMessage(target, "&cCouldn't find target player!");
+            return false;
+        } else if (!COOLDOWN_TYPES.contains(type.toUpperCase())) {
+            sendMessage(target, "&cCouldn't find cooldown type!");
+            return false;
+        } else if (seconds==null) {
+            sendMessage(target, "&cCouldn't parse seconds integer!");
+            return false;
+        }
+
+        entryManager.addMapTime(target, type.toUpperCase(), seconds*20);
+        sendMessage(sender, "&7Gave " + entryManager.getFormattedTime(seconds) + " " + type + " cooldown to " + target.getName() + ". "
+                    + "Their highest cooldown is " + entryManager.getHighestTypeAndTick(target.getName()));
+        return true;
+    }
+
+    // Disable player's own gracee
+    private int disableGraceProtection(Player target) {
+        if (dcHook.hasProtection(target)) {
+            boolean disabledGrace = sudoCommand(target, "grace disable");
+            if (disabledGrace) {
+                sendMessage(target, configHandler.getDisabledGraceMessage());
+                return 1; // 1 - had newbie prot, it was removed
+            } else {
+                sendMessage(target, "&cError occured while disabling your newbie protection!");
+                return 2; // 2 - had newbie prot, it was not removed due to error
+            }
+        } else return 0; // 0 - had no newbie prot, did nothing
+    }
+
+    // Disable other player's gracee
+    private int disableGraceProtection(CommandSender sender, Player target) {
+        if (dcHook.hasProtection(target)) {
+            boolean disabledGrace = runCommand("grace disable " + target.getName());
+            if (disabledGrace) {
+                sendMessage(sender, "You disabled " + target.getName() + "'s newbie protection (aka grace period)!");
+                sendMessage(target, configHandler.getDisabledGraceByOtherMessage());
+                return 1; // 1 - had newbie prot, it was removed
+            } else {
+                sendMessage(sender, "&cError occoured while disabling " + target.getName() + "'s newbie protection!");
+                return 2; // 2 - had newbie prot, it was not removed due to error
+            }
+        } else return 0; // 0 - had no newbie prot, did nothing
+    }
+
+    // Prevent Usage if in Disable World
+    private boolean preventUsageInWorlds(Player target) {
         if (configHandler.getPreventedWorlds().contains(target.getWorld().getName())) {
             sendMessage(target, configHandler.getPreventedToggleInWorldsMessage());
             return true;
         } return false;
     }
 
-    private boolean preventUsage(Player target) {
-        // Prevent Usage if in Combat
+    // Prevent Usage if in Combat
+    private boolean preventUsageInCombat(Player target) {
         if (dcHook.isInCombat(target) && configHandler.isPreventedInCombat()) {
             sendMessage(target, configHandler.getPreventedToggleInCombatMessage());
             return true;
-        }
+        } return false;
+    }
 
-        // Prevent Usage if recently in "JOIN", "TOGGLE", "COMBAT", "MURDER", "DEATH", "BONUS"
-        int current_play_time;
+    // Prevent Usage if recently in "JOIN", "TOGGLE", "COMBAT", "MURDER", "DEATH", "BONUS"
+    private boolean preventUsageAfter(Player target) {
+        String tickAndType = entryManager.getHighestTickAndType(target.getName());
+        String[] pair = tickAndType.split("\\ ");
+        Integer highest_map_ticks = Integer.parseInt(pair[0]);
+        int current_play_ticks;
         try {
-            current_play_time = target.getStatistic(Statistic.valueOf("PLAY_ONE_MINUTE"));
+            current_play_ticks = target.getStatistic(Statistic.valueOf("PLAY_ONE_MINUTE"));
         } catch (Exception e) {
-            javaPlugin.logRed("Caught exception getting player statistic PLAY_ONE_MINUTE: " + e.getMessage());
+            javaPlugin.log(ChatColor.RED, "Caught exception getting player statistic PLAY_ONE_MINUTE: " + e.getMessage());
             try {
-                current_play_time = target.getStatistic(Statistic.valueOf("PLAY_ONE_TICK"));
+                current_play_ticks = target.getStatistic(Statistic.valueOf("PLAY_ONE_TICK"));
             } catch (Exception e2) {
-                javaPlugin.logRed("Caught exception getting player statistic PLAY_ONE_TICK: " + e2.getMessage());
-                current_play_time = 0;
+                javaPlugin.log(ChatColor.RED, "Caught exception getting player statistic PLAY_ONE_TICK: " + e2.getMessage());
+                current_play_ticks = 0;
             }
         }
 
-        String tickAndType = entryManager.getHighestTickAndType(target.getName());
-        String[] pair = tickAndType.split("\\ ");
-        String preventedMessage = configHandler.getPreventedMessage(pair[1]);
-        Integer highest_map_time = Integer.parseInt(pair[0]);
-
-        if (highest_map_time==null || highest_map_time==0 || preventedMessage.equalsIgnoreCase("none")) {
-            entryManager.saveEntry(target.getName(), "BONUS", current_play_time);
-            return false;
-        } else if (highest_map_time>current_play_time) {
-            int time_difference = (highest_map_time-current_play_time)/20;
-            String string = preventedMessage.replace("<time_left>", getFormattedTime(time_difference));
-            sendMessage(target, string);
+        if (highest_map_ticks>current_play_ticks+1) {
+            int time_difference = (highest_map_ticks-current_play_ticks)/20;
+            String msg = configHandler.getPreventedMessage(pair[1]).replace("<time_left>", entryManager.getFormattedTime(time_difference));
+            sendMessage(target, msg);
             return true;
-        } else return false;
-    }
-
-    private boolean runCommand(String command) {
-        ConsoleCommandSender console = javaPlugin.getServer().getConsoleSender();
-        try {
-            return Bukkit.dispatchCommand(console, command);
-        } catch (Exception e) {
-            javaPlugin.logRed("Caught exception running command " + command + ": " + e.getMessage());
-            return false;
-        }
-    }
-
-    private boolean sudoCommand(Player target, String command) {
-        try {
-            return Bukkit.dispatchCommand(target, command);
-        } catch (Exception e) {
-            javaPlugin.logRed("Caught exception sudoing command: " + target.getName() + " : /" + command + ": " + e.getMessage());
-            return false;
-        }
-    }
-
-    private String getFormattedTime(int totalSeconds) {
-        final int SECONDS_IN_WEEK = 604800;
-        final int SECONDS_IN_DAY = 86400;
-        final int SECONDS_IN_HOUR = 3600;
-        final int SECONDS_IN_MINUTE = 60;
-
-        // Calculate each time unit
-        int weeks = totalSeconds / SECONDS_IN_WEEK;
-        totalSeconds %= SECONDS_IN_WEEK;
-
-        int days = totalSeconds / SECONDS_IN_DAY;
-        totalSeconds %= SECONDS_IN_DAY;
-
-        int hours = totalSeconds / SECONDS_IN_HOUR;
-        totalSeconds %= SECONDS_IN_HOUR;
-
-        int minutes = totalSeconds / SECONDS_IN_MINUTE;
-        int seconds = totalSeconds % SECONDS_IN_MINUTE;
-
-        // Build the formatted string
-        StringBuilder formattedTime = new StringBuilder();
-        if (weeks > 0) {
-            formattedTime.append(weeks).append(" week");
-            if (weeks > 1) formattedTime.append("s");
-            formattedTime.append(", ");
-        } if (days > 0) {
-            formattedTime.append(days).append(" day");
-            if (days > 1) formattedTime.append("s");
-            formattedTime.append(", ");
-        } if (hours > 0) {
-            formattedTime.append(hours).append(" hour");
-            if (hours > 1) formattedTime.append("s");
-            formattedTime.append(", ");
-        } if (minutes > 0) {
-            formattedTime.append(minutes).append(" minute");
-            if (minutes > 1) formattedTime.append("s");
-            formattedTime.append(", ");
-        } if (seconds > 0) {
-            formattedTime.append(seconds).append(" second");
-            if (seconds != 1) formattedTime.append("s");
-        }
-        return formattedTime.toString();
-    }
-
-    private void sendMessage(CommandSender target, String string) {
-        if (!string.isBlank())
-            target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getChatPrefix() + string)));
+        } return false;
     }
 
     private Player getPlayer(String arg) {
@@ -290,6 +230,30 @@ public class TogglePvpCmd implements TabExecutor {
 
     private boolean hasPermission(CommandSender sender, String perm) {
         return sender.hasPermission(perm) || sender instanceof ConsoleCommandSender;
+    }
+
+    private void sendMessage(CommandSender target, String string) {
+        if (!string.isBlank())
+            target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getChatPrefix() + string)));
+    }
+
+    private boolean runCommand(String command) {
+        ConsoleCommandSender console = javaPlugin.getServer().getConsoleSender();
+        try {
+            return Bukkit.dispatchCommand(console, command);
+        } catch (Exception e) {
+            javaPlugin.log(ChatColor.RED, "Caught exception running command " + command + ": " + e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean sudoCommand(Player target, String command) {
+        try {
+            return Bukkit.dispatchCommand(target, command);
+        } catch (Exception e) {
+            javaPlugin.log(ChatColor.RED, "Caught exception sudoing command: " + target.getName() + " : /" + command + ": " + e.getMessage());
+            return false;
+        }
     }
 
     @Override

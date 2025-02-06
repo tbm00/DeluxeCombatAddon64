@@ -20,10 +20,9 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
         saveDefaultConfig();
         final PluginDescriptionFile pdf = getDescription();
 
-		log(
+		log(ChatColor.LIGHT_PURPLE,
             ChatColor.DARK_PURPLE + "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-",
             pdf.getName() + " v" + pdf.getVersion() + " created by tbm00",
-            pdf.getDescription(),
             ChatColor.DARK_PURPLE + "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 		);
 
@@ -53,7 +52,7 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                     getServer().getPluginManager().registerEvents(new PlayerAnchorInteraction(this, configHandler, dcHook), this);
                 
             } else {
-                logYellow("Either config.enabled is false, or there was an error in config... disabling plugin!");
+                log(ChatColor.YELLOW, "Either config.enabled is false, or there was an error in config... disabling plugin!");
                 disablePlugin();
             }
         } else {
@@ -75,7 +74,7 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
 
         dcHook = new DCHook();
         
-        logGreen("DeluxeCombat hooked.");
+        log(ChatColor.GREEN, "DeluxeCombat hooked.");
         return true;
     }
 
@@ -84,28 +83,13 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
 		return plugin != null && plugin.isEnabled();
 	}
 
-    public void log(String... strings) {
+    public void log(ChatColor chatColor, String... strings) {
 		for (String s : strings)
-            getServer().getConsoleSender().sendMessage("[DeluxeCombatAddon64] " + ChatColor.LIGHT_PURPLE + s);
-	}
-
-    public void logGreen(String... strings) {
-		for (String s : strings)
-            getServer().getConsoleSender().sendMessage("[DeluxeCombatAddon64] " + ChatColor.GREEN + s);
-	}
-
-    public void logYellow(String... strings) {
-		for (String s : strings)
-            getServer().getConsoleSender().sendMessage("[DeluxeCombatAddon64] " + ChatColor.YELLOW + s);
-	}
-
-    public void logRed(String... strings) {
-		for (String s : strings)
-            getServer().getConsoleSender().sendMessage("[DeluxeCombatAddon64] " + ChatColor.RED + s);
+            getServer().getConsoleSender().sendMessage("[DeluxeCombatAddon64] " + chatColor + s);
 	}
 
     private void disablePlugin() {
         getServer().getPluginManager().disablePlugin(this);
-        logRed("DeluxeCombatAddon64 disabled..!");
+        log(ChatColor.RED, "DeluxeCombatAddon64 disabled..!");
     }
 }

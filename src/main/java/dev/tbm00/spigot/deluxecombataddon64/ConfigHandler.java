@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.ChatColor;
 
 public class ConfigHandler {
     private static boolean enabled = false;
@@ -60,7 +61,7 @@ public class ConfigHandler {
                 loadTogglePvp(togglePvpSection);
             }
         } catch (Exception e) {
-            javaPlugin.logRed("Caught exception loading config: ");
+            javaPlugin.log(ChatColor.RED, "Caught exception loading config: ");
             javaPlugin.getLogger().warning(e.getMessage());
             enabled = false;
         }
@@ -81,7 +82,7 @@ public class ConfigHandler {
             disabledByOtherMessage = chatSection.contains("disabledByOtherMessage") ? chatSection.getString("disabledByOtherMessage") : null;
             disabledGraceMessage = chatSection.contains("disabledGraceMessage") ? chatSection.getString("disabledGraceMessage") : null;
             disabledGraceByOtherMessage = chatSection.contains("disabledGraceByOtherMessage") ? chatSection.getString("disabledGraceByOtherMessage") : null;
-            forceEnabledAfterDeathMessage = togglePvpSection.contains("forceEnabledAfterDeathMessage") ? togglePvpSection.getString("forceEnabledAfterDeathMessage") : null;
+            forceEnabledAfterDeathMessage = chatSection.contains("forceEnabledAfterDeathMessage") ? chatSection.getString("forceEnabledAfterDeathMessage") : null;
             preventedToggleInCombatMessage = chatSection.contains("preventedToggleInCombatMessage") ? chatSection.getString("preventedToggleInCombatMessage") : null;
             preventedToggleInWorldsMessage = chatSection.contains("preventedToggleInWorldsMessage") ? chatSection.getString("preventedToggleInWorldsMessage") : null;
             preventedToggleAfterMessages = new ConcurrentHashMap<>();
@@ -164,7 +165,7 @@ public class ConfigHandler {
         }
     }
 
-    // preventedType can be "JOIN", "TOGGLE", "COMBAT", "MURDER", "DEATH", "BONUS"
+    // preventedType can be "JOIN", "TOGGLE", "COMBAT", "MURDER", "DEATH", "BONUS", "none"
     public String getPreventedMessage(String preventedType) {
         return preventedToggleAfterMessages.get(preventedType);
     }
