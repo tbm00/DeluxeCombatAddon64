@@ -46,7 +46,7 @@ aliases:
 
 ## Config
 ```
-# DeluxeCombatAddon64 v0.0.3-beta by @tbm00
+# DeluxeCombatAddon64 v0.0.4-beta by @tbm00
 # https://github.com/tbm00/DeluxeCombatAddon64
 
 enabled: true
@@ -71,6 +71,7 @@ togglePvpCommand:
     preventedToggleAfterCombatMessage: "&cYou cannot toggle pvp after recent combat -- please wait &6<time_left>&c!"
     preventedToggleAfterMurderMessage: "&cYou cannot toggle pvp after killing someone -- please wait &6<time_left>&c!"
     preventedToggleAfterDeathMessage: "&cYou cannot toggle pvp after recently dying -- please wait &6<time_left>&c!"
+    preventedToggleAfterCombatLogMessage: "&cYou cannot toggle pvp after combat-logging -- please wait &6<time_left>&c!"
     preventedToggleAfterJoinMessage: "&cYou cannot toggle pvp after recently connecting -- please wait &6<time_left>&c!"
     preventedToggleAfterToggleMessage: "&cYou cannot toggle pvp after recently toggling -- please wait &6<time_left>&c!"
     preventedToggleAfterBonusMessage: "&cYou cannot toggle pvp -- please wait &6<time_left>&c!"
@@ -88,6 +89,9 @@ togglePvpCommand:
   preventedAfterDeath:
     enabled: true
     time: 120 # seconds
+  preventedAfterCombatLog:
+    enabled: true
+    time: 300 # seconds
   preventedAfterJoin:
     enabled: true
     time: 120 # seconds

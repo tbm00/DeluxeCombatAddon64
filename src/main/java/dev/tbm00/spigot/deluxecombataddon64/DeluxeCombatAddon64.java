@@ -56,8 +56,8 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                         getServer().getPluginManager().registerEvents(new PlayerCombat(this, configHandler, entryManager), this);
                     if (configHandler.isPreventedAfterMurder()||configHandler.isForceEnabledAfterDeath()||configHandler.isForceEnabledAfterDeath())
                         getServer().getPluginManager().registerEvents(new PlayerDeath(this, configHandler, entryManager, dcHook), this);
-                    if (configHandler.isPreventedAfterJoin())
-                        getServer().getPluginManager().registerEvents(new PlayerJoin(this, configHandler, entryManager), this);
+                    if (configHandler.isPreventedAfterJoin()||configHandler.isPreventedAfterCombatLog())
+                        getServer().getPluginManager().registerEvents(new PlayerConnection(this, configHandler, entryManager), this);
                 }
 
                 // Register respawn anchor explosion listener based on config

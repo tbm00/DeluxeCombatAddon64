@@ -38,6 +38,8 @@ public class ConfigHandler {
     private int preventedAfterMurderTicks = 0;
     private boolean preventedAfterDeath = false;
     private int preventedAfterDeathTicks = 0;
+    private boolean preventedAfterCombatLog = false;
+    private int preventedAfterCombatLogTicks = 0;
     private boolean preventedAfterJoin = false;
     private int preventedAfterJoinTicks = 0;
     private boolean preventedAfterEnable = false;
@@ -96,6 +98,8 @@ public class ConfigHandler {
                 savePreventedMessage("MURDER", chatSection.getString("preventedToggleAfterMurderMessage"));
             if (chatSection.contains("preventedToggleAfterDeathMessage"))
                 savePreventedMessage("DEATH", chatSection.getString("preventedToggleAfterDeathMessage"));
+            if (chatSection.contains("preventedToggleAfterCombatLogMessage"))
+                savePreventedMessage("COMBATLOG", chatSection.getString("preventedToggleAfterCombatLogMessage"));
             if (chatSection.contains("preventedToggleAfterJoinMessage"))
                 savePreventedMessage("JOIN", chatSection.getString("preventedToggleAfterJoinMessage"));
             if (chatSection.contains("preventedToggleAfterToggleMessage"))
@@ -141,6 +145,15 @@ public class ConfigHandler {
             }
         }
 
+        // Load preventedAfterCombatLog
+        ConfigurationSection afterCombatLogSec = togglePvpSection.contains("preventedAfterCombatLog") ? togglePvpSection.getConfigurationSection("preventedAfterCombatLog") : null;
+        if (afterCombatLogSec != null) {
+            preventedAfterCombatLog = afterCombatLogSec.contains("enabled") ? afterCombatLogSec.getBoolean("enabled") : false;
+            if (preventedAfterCombatLog) {
+                preventedAfterCombatLogTicks = afterCombatLogSec.contains("time") ? afterCombatLogSec.getInt("time")*20 : 0;
+            }
+        }
+
         // Load preventedAfterJoin
         ConfigurationSection afterJoinSec = togglePvpSection.contains("preventedAfterJoin") ? togglePvpSection.getConfigurationSection("preventedAfterJoin") : null;
         if (afterJoinSec != null) { 
@@ -169,7 +182,7 @@ public class ConfigHandler {
         }
     }
 
-    // preventedType can be "JOIN", "TOGGLE", "COMBAT", "MURDER", "DEATH", "BONUS", "none"
+    // preventedType can be "COMBAT", "MURDER", "DEATH", "COMBATLOG", "JOIN", "TOGGLE", "BONUS", "none"
     public String getPreventedMessage(String preventedType) {
         return preventedToggleAfterMessages.get(preventedType);
     }
@@ -268,6 +281,14 @@ public class ConfigHandler {
 
     public int getPreventedAfterDeathTicks() {
         return preventedAfterDeathTicks;
+    }
+
+    public boolean isPreventedAfterCombatLog() {
+        return preventedAfterCombatLog;
+    }
+
+    public int getPreventedAfterCombatLogTicks() {
+        return preventedAfterCombatLogTicks;
     }
 
     public boolean isPreventedAfterJoin() {

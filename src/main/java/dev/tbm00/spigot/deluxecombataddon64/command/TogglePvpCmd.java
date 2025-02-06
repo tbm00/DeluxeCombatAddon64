@@ -30,7 +30,7 @@ public class TogglePvpCmd implements TabExecutor {
     private final String PERMISSION_CLEAR_COOLDOWNS = "deluxecombataddon64.clearcooldowns";
     private final String PERMISSION_TOGGLE_OTHERS = "deluxecombataddon64.toggle.others";
     private final String PERMISSION_TOGGLE_SELF = "deluxecombataddon64.toggle.self";
-    private final Set<String> COOLDOWN_TYPES = new HashSet<>(Set.of("JOIN", "TOGGLE", "COMBAT", "MURDER", "DEATH", "BONUS"));
+    private final Set<String> COOLDOWN_TYPES = new HashSet<>(Set.of("COMBAT", "MURDER", "DEATH", "COMBATLOG", "JOIN", "TOGGLE", "BONUS"));
 
     public TogglePvpCmd(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, EntryManager entryManager, DCHook dcHook) {
         this.entryManager = entryManager;
@@ -183,7 +183,7 @@ public class TogglePvpCmd implements TabExecutor {
         }
     }
 
-    // Disable player's own gracee
+    // Disable player's own grace (newbie protection)
     private int disableGraceProtection(Player target) {
         if (dcHook.hasProtection(target)) {
             boolean disabledGrace = sudoCommand(target, "grace disable");
@@ -197,7 +197,7 @@ public class TogglePvpCmd implements TabExecutor {
         } else return 0; // 0 - had no newbie prot, did nothing
     }
 
-    // Disable other player's gracee
+    // Disable other player's grace (newbie protection)
     private int disableGraceProtection(CommandSender sender, Player target) {
         if (dcHook.hasProtection(target)) {
             boolean disabledGrace = runCommand("grace disable " + target.getName());
@@ -228,7 +228,7 @@ public class TogglePvpCmd implements TabExecutor {
         } return false;
     }
 
-    // Prevent Usage if recently in "JOIN", "TOGGLE", "COMBAT", "MURDER", "DEATH", "BONUS"
+    // Prevent Usage if recently in "COMBAT", "MURDER", "DEATH", "COMBATLOG", "JOIN", "TOGGLE", "BONUS"
     private boolean preventUsageAfter(Player target) {
         String tickAndType = entryManager.getHighestTickAndType(target.getName());
         String[] pair = tickAndType.split("\\ ");
