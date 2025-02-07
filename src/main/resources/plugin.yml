@@ -15,9 +15,6 @@ permissions:
   deluxecombataddon64.toggle.others:
     description: Ability to toggle others' pvp and grace protection with /pvp
     default: op
-  deluxecombataddon64.givecooldown:
-    description: Ability to give players toggle pvp cooldown timers with /pvp
-    default: op
-  deluxecombataddon64.clearcooldowns:
-    description: Ability to clear players' toggle pvp cooldown timers with /pvp
+  deluxecombataddon64.managecooldowns:
+    description: Ability to get/give/clear players' toggle pvp cooldown timers with /pvp
     default: op

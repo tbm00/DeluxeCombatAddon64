@@ -36,8 +36,10 @@ public class ConfigHandler {
     private int preventedAfterCombatTicks = 0;
     private boolean preventedAfterMurder = false;
     private int preventedAfterMurderTicks = 0;
-    private boolean preventedAfterDeath = false;
-    private int preventedAfterDeathTicks = 0;
+    private boolean preventedAfterPVPDeath = false;
+    private int preventedAfterPVPDeathTicks = 0;
+    private boolean preventedAfterPVEDeath = false;
+    private int preventedAfterPVEDeathTicks = 0;
     private boolean preventedAfterCombatLog = false;
     private int preventedAfterCombatLogTicks = 0;
     private boolean preventedAfterJoin = false;
@@ -152,12 +154,21 @@ public class ConfigHandler {
             }
         }
 
-        // Load preventedAfterDeath
-        ConfigurationSection afterDeathSec = togglePvpSection.contains("preventedAfterDeath") ? togglePvpSection.getConfigurationSection("preventedAfterDeath") : null;
-        if (afterDeathSec != null) {
-            preventedAfterDeath = afterDeathSec.contains("enabled") ? afterDeathSec.getBoolean("enabled") : false;
-            if (preventedAfterDeath) {
-                preventedAfterDeathTicks = afterDeathSec.contains("time") ? afterDeathSec.getInt("time")*20 : 0;
+        // Load preventedAfterPVPDeath
+        ConfigurationSection afterPVPDeathSec = togglePvpSection.contains("preventedAfterPVPDeath") ? togglePvpSection.getConfigurationSection("preventedAfterPVPDeath") : null;
+        if (afterPVPDeathSec != null) {
+            preventedAfterPVPDeath = afterPVPDeathSec.contains("enabled") ? afterPVPDeathSec.getBoolean("enabled") : false;
+            if (preventedAfterPVPDeath) {
+                preventedAfterPVPDeathTicks = afterPVPDeathSec.contains("time") ? afterPVPDeathSec.getInt("time")*20 : 0;
+            }
+        }
+
+        // Load preventedAfterPVEDeath
+        ConfigurationSection afterPVEDeathSec = togglePvpSection.contains("preventedAfterPVEDeath") ? togglePvpSection.getConfigurationSection("preventedAfterPVEDeath") : null;
+        if (afterPVEDeathSec != null) {
+            preventedAfterPVEDeath = afterPVEDeathSec.contains("enabled") ? afterPVEDeathSec.getBoolean("enabled") : false;
+            if (preventedAfterPVEDeath) {
+                preventedAfterPVEDeathTicks = afterPVEDeathSec.contains("time") ? afterPVEDeathSec.getInt("time")*20 : 0;
             }
         }
 
@@ -302,12 +313,20 @@ public class ConfigHandler {
         return preventedAfterMurderTicks;
     }
 
-    public boolean isPreventedAfterDeath() {
-        return preventedAfterDeath;
+    public boolean isPreventedAfterPVPDeath() {
+        return preventedAfterPVPDeath;
     }
 
-    public int getPreventedAfterDeathTicks() {
-        return preventedAfterDeathTicks;
+    public int getPreventedAfterPVPDeathTicks() {
+        return preventedAfterPVPDeathTicks;
+    }
+
+    public boolean isPreventedAfterPVEDeath() {
+        return preventedAfterPVEDeath;
+    }
+
+    public int getPreventedAfterPVEDeathTicks() {
+        return preventedAfterPVEDeathTicks;
     }
 
     public boolean isPreventedAfterCombatLog() {

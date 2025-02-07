@@ -26,8 +26,7 @@ public class TogglePvpCmd implements TabExecutor {
     private final ConfigHandler configHandler;
     private final EntryManager entryManager;
     private final DCHook dcHook;
-    private final String PERMISSION_GIVE_COOLDOWNS = "deluxecombataddon64.givecooldown";
-    private final String PERMISSION_CLEAR_COOLDOWNS = "deluxecombataddon64.clearcooldowns";
+    private final String PERMISSION_MANAGE_COOLDOWNS = "deluxecombataddon64.managecooldowns";
     private final String PERMISSION_TOGGLE_OTHERS = "deluxecombataddon64.toggle.others";
     private final String PERMISSION_TOGGLE_SELF = "deluxecombataddon64.toggle.self";
     private final Set<String> COOLDOWN_TYPES = new HashSet<>(Set.of("COMBAT", "MURDER", "DEATH", "COMBATLOG", "JOIN", "TOGGLE", "BONUS"));
@@ -51,15 +50,17 @@ public class TogglePvpCmd implements TabExecutor {
     public boolean onCommand(CommandSender sender, Command consoleCommand, String label, String[] args) {
 
         // "/pvp <username> giveCooldown <type> <seconds>" - admin command 
-        if ((args.length==4) && hasPermission(sender, PERMISSION_GIVE_COOLDOWNS)) {
+        if ((args.length==4) && hasPermission(sender, PERMISSION_MANAGE_COOLDOWNS)) {
             if (args[1].equalsIgnoreCase("giveCooldown"))
                 return handleGiveCooldown(sender, getPlayer(args[0]), args[2].toUpperCase(), Integer.valueOf(args[3]));
         } 
         
-        // "/pvp <username> clearCooldowns" - admin command 
-        if ((args.length==2) && hasPermission(sender, PERMISSION_CLEAR_COOLDOWNS)) {
-            if (args[1].equalsIgnoreCase("clearCooldowns"))
-                return handleClearCooldowns(sender, getPlayer(args[0]));
+        // "/pvp <username> [clearCooldown/getCooldown]" - admin command 
+        if ((args.length==2) && hasPermission(sender, PERMISSION_MANAGE_COOLDOWNS)) {
+            if (args[1].equalsIgnoreCase("getCooldown"))
+                return handleGetCooldown(sender, getPlayer(args[0]));
+            if (args[1].equalsIgnoreCase("clearCooldown"))
+                return handleClearCooldown(sender, getPlayer(args[0]));
         } 
 
         // "/pvp <username> [on/off]" - admin command
@@ -109,8 +110,24 @@ public class TogglePvpCmd implements TabExecutor {
         }
 
         entryManager.addMapTime(target, type.toUpperCase(), seconds*20);
-        sendMessage(sender, "&7Gave " + entryManager.getFormattedTime(seconds) + " " + type + " cooldown to " + target.getName()
-                    + ". Their highest cooldown is " + entryManager.getHighestTypeAndTime(target.getName()));
+        sendMessage(sender, "&fGave " + entryManager.getFormattedTime(seconds) + " " + type + " cooldown to " + target.getName()
+                    + ". &7Their current cooldown: " + entryManager.getHighestTypeAndTime(target.getName()));
+        return true;
+    }
+
+    /**
+     * Handles the command for getting a player's cooldown.
+     * 
+     * @param sender the command sender
+     * @param target the target player
+     * @return true if the target was found and cooldown was sent, false otherwise
+     */
+    private boolean handleGetCooldown(CommandSender sender, Player target) {
+        if (target == null) {
+            sendMessage(target, "&cCouldn't find target player!");
+            return false;
+        } 
+        sendMessage(sender, target.getName() + "'s current cooldown: &a" + entryManager.getHighestTypeAndTime(target.getName()));
         return true;
     }
 
@@ -121,19 +138,19 @@ public class TogglePvpCmd implements TabExecutor {
      * @param target the target player
      * @return true if the cooldowns were successfully cleared, false otherwise
      */
-    private boolean handleClearCooldowns(CommandSender sender, Player target) {
+    private boolean handleClearCooldown(CommandSender sender, Player target) {
         if (target == null) {
             sendMessage(target, "&cCouldn't find target player!");
             return false;
         } 
         
         if (entryManager.deletePlayerEntry(target.getName())) {
-            sendMessage(sender, "&7Cleared " + target.getName() + "'s cooldown map. Their highest cooldown is " 
+            sendMessage(sender, "&fCleared " + target.getName() + "'s cooldown map. &7Their current cooldown: " 
                         + entryManager.getHighestTypeAndTime(target.getName()));
             return true;
         } else {
-            sendMessage(sender, "&cError occured clearing " + target.getName() + "'s cooldown map. Their highest cooldown is " 
-                        + entryManager.getHighestTypeAndTime(target.getName()));
+            sendMessage(sender, "&cError occured clearing " + target.getName() + "'s cooldown map. &7Their current cooldown: " 
+            + entryManager.getHighestTypeAndTime(target.getName()));
             return true;
         } 
     }
@@ -389,15 +406,16 @@ public class TogglePvpCmd implements TabExecutor {
      */
     @Override
     public List<String> onTabComplete(CommandSender sender, Command consoleCommand, String alias, String[] args) {
-        if (!(hasPermission(sender, PERMISSION_TOGGLE_OTHERS)||hasPermission(sender, PERMISSION_GIVE_COOLDOWNS))) return null;
+        if (!(hasPermission(sender, PERMISSION_TOGGLE_OTHERS)||hasPermission(sender, PERMISSION_MANAGE_COOLDOWNS))) return null;
         List<String> list = new ArrayList<>();
         if (args.length == 1) {
             Bukkit.getOnlinePlayers().forEach(player -> list.add(player.getName()));
         } else if (args.length == 2) {
             list.add("enable");
             list.add("disable");
+            list.add("getCooldown");
             list.add("giveCooldown");
-            list.add("clearCooldowns");
+            list.add("clearCooldown");
         } else if (args.length == 3) {
             for (String type : COOLDOWN_TYPES) {
                 list.add(type);

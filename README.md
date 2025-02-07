@@ -15,17 +15,18 @@ Created by tbm00 for play.mc64.wtf.
 
 ## Commands
 #### Player Commands
-- `/pvp`
+- `/pvp` - Toggle pvp with prevent checks
     - 1st Ever Use: disables your newbie protection (if active)
     - All Subsequent Uses: switches your PVP status (enabled<->disabled)
 
 #### Admin Commands
-- `/pvp <player>`
+- `/pvp <player>` - Toggle pvp without prevent checks
     - 1st Ever Use: disables player's newbie protection (if active).
     - All Subsequent Uses: switches player's PVP status (enabled<->disabled).
 - `/pvp <player> [on/off]` Turn player's PVP status on/enabled or off/disabled
-- `/pvp <player> giveCooldown <TYPE> <seconds>` Give player a cooldown of a particular type
-- `/pvp <player> clearCooldowns` Clear a player's cooldown map
+- `/pvp <player> getCooldown` Get a player's cooldown
+- `/pvp <player> giveCooldown <TYPE> <seconds>` Give a player a cooldown
+- `/pvp <player> clearCooldown` Clear a player's cooldown
 
 ## Permissions
 #### Player Permissions
@@ -33,8 +34,7 @@ Created by tbm00 for play.mc64.wtf.
 
 #### Admin Permissions
 - `deluxecombataddon64.toggle.others` Ability to toggle others' pvp and grace protection with /pvp *(default: op)*.
-- `deluxecombataddon64.givecooldown` Ability to give others toggle pvp cooldown timers with /pvp *(default: op)*.
-- `deluxecombataddon64.clearcooldowns` Ability to clear players' toggle pvp cooldown timers with /pvp *(default: op)*.
+- `deluxecombataddon64.managecooldowns` Ability to get/give/clear players' toggle pvp cooldown timers with /pvp *(default: op)*.
 
 ## Note for Server Admins
 This plugin leaves the original `/togglepvp` command offered by DeluxeCombat untouched. To disable/reroute it, add the following to your `<server_directory>/commands.yml`: 
@@ -46,7 +46,7 @@ aliases:
 
 ## Config
 ```
-# DeluxeCombatAddon64 v0.0.4-beta by @tbm00
+# DeluxeCombatAddon64 v0.0.5-beta by @tbm00
 # https://github.com/tbm00/DeluxeCombatAddon64
 
 enabled: true
@@ -86,7 +86,10 @@ togglePvpCommand:
   preventedAfterMurder:
     enabled: true
     time: 300 # seconds
-  preventedAfterDeath:
+  preventedAfterPVPDeath:
+    enabled: true
+    time: 120 # seconds
+  preventedAfterPVEDeath:
     enabled: true
     time: 120 # seconds
   preventedAfterCombatLog:

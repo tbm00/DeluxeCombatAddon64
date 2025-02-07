@@ -1,4 +1,4 @@
-# DeluxeCombatAddon64 v0.0.4-beta by @tbm00
+# DeluxeCombatAddon64 v0.0.5-beta by @tbm00
 # https://github.com/tbm00/DeluxeCombatAddon64
 
 enabled: true
@@ -38,7 +38,10 @@ togglePvpCommand:
   preventedAfterMurder:
     enabled: true
     time: 300 # seconds
-  preventedAfterDeath:
+  preventedAfterPVPDeath:
+    enabled: true
+    time: 120 # seconds
+  preventedAfterPVEDeath:
     enabled: true
     time: 120 # seconds
   preventedAfterCombatLog:

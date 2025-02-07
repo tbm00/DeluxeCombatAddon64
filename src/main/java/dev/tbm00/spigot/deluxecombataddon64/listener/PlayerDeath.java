@@ -35,17 +35,20 @@ public class PlayerDeath implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
         Player killer = victim.getKiller();
-        if (killer!=null && configHandler.isPreventedAfterMurder()) {
-            entryManager.addMapTime(killer, "MURDER", configHandler.getPreventedAfterMurderTicks());
+
+        if (killer!=null) {
+            if (configHandler.isPreventedAfterMurder())
+                entryManager.addMapTime(killer, "MURDER", configHandler.getPreventedAfterMurderTicks());
+            if (configHandler.isPreventedAfterPVPDeath())
+                entryManager.addMapTime(victim, "DEATH", configHandler.getPreventedAfterPVPDeathTicks());
+        } else {
+            if (configHandler.isPreventedAfterPVEDeath())
+                entryManager.addMapTime(victim, "DEATH", configHandler.getPreventedAfterPVEDeathTicks());
         }
-        if (victim!=null) {
-            if (configHandler.isPreventedAfterDeath()) {
-                entryManager.addMapTime(victim, "DEATH", configHandler.getPreventedAfterDeathTicks());
-            }
-            if (configHandler.isForceEnabledAfterDeath() && !dcHook.hasPvPEnabled(victim)) {
-                dcHook.togglePvP(victim, true);
-                sendMessage(victim, configHandler.getForceEnabledAfterDeathMessage());
-            }
+
+        if (configHandler.isForceEnabledAfterDeath() && !dcHook.hasPvPEnabled(victim)) {
+            dcHook.togglePvP(victim, true);
+            sendMessage(victim, configHandler.getForceEnabledAfterDeathMessage());
         }
     }
 
