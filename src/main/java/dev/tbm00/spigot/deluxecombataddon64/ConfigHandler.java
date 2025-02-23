@@ -26,11 +26,13 @@ public class ConfigHandler {
     private String disabledGraceMessage = null;
     private String disabledGraceByOtherMessage = null;
     private String preventedToggleInWorldsMessage = null;
+    private String preventedToggleWithBountyMessage = null;
     private String preventedToggleInCombatMessage = null;
     private Map<String, String> preventedToggleAfterMessages;
     private boolean forceEnabledAfterDeath = false;
     private String forceEnabledAfterDeathMessage = null;
     private Set<String> preventedWorlds = new HashSet<>();
+    private boolean preventedWithBounty = false;
     private boolean preventedInCombat = false;
     private boolean preventedAfterCombat = false;
     private int preventedAfterCombatTicks = 0;
@@ -109,6 +111,7 @@ public class ConfigHandler {
             forceEnabledAfterDeathMessage = chatSection.contains("forceEnabledAfterDeathMessage") ? chatSection.getString("forceEnabledAfterDeathMessage") : null;
             preventedToggleInCombatMessage = chatSection.contains("preventedToggleInCombatMessage") ? chatSection.getString("preventedToggleInCombatMessage") : null;
             preventedToggleInWorldsMessage = chatSection.contains("preventedToggleInWorldsMessage") ? chatSection.getString("preventedToggleInWorldsMessage") : null;
+            preventedToggleWithBountyMessage = chatSection.contains("preventedToggleWithBountyMessage") ? chatSection.getString("preventedToggleWithBountyMessage") : null;
             preventedToggleAfterMessages = new ConcurrentHashMap<>();
             if (chatSection.contains("preventedToggleAfterCombatMessage"))
                 savePreventedMessage("COMBAT", chatSection.getString("preventedToggleAfterCombatMessage"));
@@ -132,6 +135,9 @@ public class ConfigHandler {
         // Load preventedWorlds
         List<String> worldsHolder = togglePvpSection.contains("preventedInWorlds") ? togglePvpSection.getStringList("preventedInWorlds") : null;
         preventedWorlds.addAll(worldsHolder);
+
+        // Load preventedWithBounty
+        preventedWithBounty = togglePvpSection.contains("preventedWithBounty") ? togglePvpSection.getBoolean("preventedWithBounty") : false;
 
         // Load preventedInCombat
         preventedInCombat = togglePvpSection.contains("preventedInCombat") ? togglePvpSection.getBoolean("preventedInCombat") : false;
@@ -272,6 +278,10 @@ public class ConfigHandler {
     public String getPreventedToggleInWorldsMessage() {
         return preventedToggleInWorldsMessage;
     }
+
+    public String getPreventedToggleWithBountyMessage() {
+        return preventedToggleWithBountyMessage;
+    }
     
     public String getPreventedToggleInCombatMessage() {
         return preventedToggleInCombatMessage;
@@ -291,6 +301,10 @@ public class ConfigHandler {
 
     public Set<String> getPreventedWorlds() {
         return preventedWorlds;
+    }
+
+    public boolean isPreventedWithBounty() {
+        return preventedWithBounty;
     }
 
     public boolean isPreventedInCombat() {

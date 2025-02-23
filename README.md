@@ -46,7 +46,7 @@ aliases:
 
 ## Config
 ```
-# DeluxeCombatAddon64 v0.0.5-beta by @tbm00
+# DeluxeCombatAddon64 v0.0.6-beta by @tbm00
 # https://github.com/tbm00/DeluxeCombatAddon64
 
 enabled: true

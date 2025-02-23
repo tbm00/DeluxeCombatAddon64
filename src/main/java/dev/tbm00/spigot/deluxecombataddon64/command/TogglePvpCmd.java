@@ -171,6 +171,9 @@ public class TogglePvpCmd implements TabExecutor {
         // Check if command should be prevented because player is in combat
         if (preventUsageInCombat(target)) return true;
 
+        // Check if command should be prevented because player has a bounty
+        if (preventUsageWithBounty(target)) return true;
+
         // Check if command should be prevented for all other reasons
         if (preventUsageCooldown(target)) return true;
 
@@ -284,6 +287,19 @@ public class TogglePvpCmd implements TabExecutor {
     private boolean preventUsageInWorlds(Player target) {
         if (configHandler.getPreventedWorlds().contains(target.getWorld().getName())) {
             sendMessage(target, configHandler.getPreventedToggleInWorldsMessage());
+            return true;
+        } return false;
+    }
+
+    /**
+     * Prevents the usage of the PvP toggle command if the player has a DeluxeCombat bounty.
+     * 
+     * @param target the player executing the command
+     * @return true if the command should be prevented, false otherwise
+     */
+    private boolean preventUsageWithBounty(Player target) {
+        if (dcHook.hasBounty(target) && configHandler.isPreventedWithBounty()) {
+            sendMessage(target, configHandler.getPreventedToggleWithBountyMessage());
             return true;
         } return false;
     }
