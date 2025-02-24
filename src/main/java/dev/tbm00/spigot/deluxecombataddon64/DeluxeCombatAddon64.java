@@ -6,16 +6,16 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.ChatColor;
 
-import dev.tbm00.spigot.deluxecombataddon64.command.TogglePvpCmd;
-import dev.tbm00.spigot.deluxecombataddon64.data.EntryManager;
-import dev.tbm00.spigot.deluxecombataddon64.data.JSONHandler;
-import dev.tbm00.spigot.deluxecombataddon64.hook.DCHook;
+import dev.tbm00.spigot.deluxecombataddon64.command.*;
+import dev.tbm00.spigot.deluxecombataddon64.data.*;
+import dev.tbm00.spigot.deluxecombataddon64.hook.*;
 import dev.tbm00.spigot.deluxecombataddon64.listener.*;
 
 public class DeluxeCombatAddon64 extends JavaPlugin {
     private ConfigHandler configHandler;
     private JSONHandler jsonHandler;
-    private EntryManager entryManager;
+    private CooldownManager cooldownManager;
+    private ProtectionManager protectionManager;
     private DCHook dcHook;
 
     @Override
@@ -34,34 +34,44 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
             if (configHandler.isEnabled()) {
                 
                 setupHooks();
-                if (configHandler.isTogglePvpCommandEnabled()) {
-                    // Connect jsonHandler
-                    try {
-                        jsonHandler = new JSONHandler(this);
-                        log(ChatColor.GREEN, "JSON connected.");
-                    } catch (Exception e) {
-                        getLogger().severe("JSON connection failed -- disabling plugin!");
-                        disablePlugin();
-                        return;
-                    }
 
-                    // Connect entryManager
-                    entryManager = new EntryManager(this, jsonHandler);
+                try { // Connect jsonHandler
+                    jsonHandler = new JSONHandler(this);
+                    log(ChatColor.GREEN, "JSON connected.");
+                } catch (Exception e) {
+                    getLogger().severe("JSON connection failed -- disabling plugin!");
+                    disablePlugin();
+                    return;
+                }
+                
+                if (configHandler.isBountyProtCommandEnabled()) {
+                    // Connect protectionManager
+                    protectionManager = new ProtectionManager(this, jsonHandler);
+
+                    // Register BountyProtCmd
+                    getCommand("bountyprot").setExecutor(new BountyProtCmd(this, configHandler, protectionManager));
+                }
+
+                if (configHandler.isTogglePVPCommandEnabled()) {
+                    // Connect cooldownManager
+                    cooldownManager = new CooldownManager(this, jsonHandler);
 
                     // Register TogglePvpCmd
-                    getCommand("pvp").setExecutor(new TogglePvpCmd(this, configHandler, entryManager, dcHook));
-                    //getCommand("togglepvp").setExecutor(new TogglePvpCmd(this, configHandler, entryManager, dcHook));
+                    getCommand("pvp").setExecutor(new TogglePvpCmd(this, configHandler, cooldownManager, dcHook));
+                    //getCommand("togglepvp").setExecutor(new TogglePvpCmd(this, configHandler, cooldownManager, dcHook));
 
                     // Register listeners based on config
                     if (configHandler.isPreventedAfterCombat())
-                        getServer().getPluginManager().registerEvents(new PlayerCombat(this, configHandler, entryManager), this);
+                        getServer().getPluginManager().registerEvents(new PlayerCombat(this, configHandler, cooldownManager), this);
                     if (configHandler.isPreventedAfterMurder()||configHandler.isForceEnabledAfterDeath()||configHandler.isForceEnabledAfterDeath())
-                        getServer().getPluginManager().registerEvents(new PlayerDeath(this, configHandler, entryManager, dcHook), this);
+                        getServer().getPluginManager().registerEvents(new PlayerDeath(this, configHandler, cooldownManager, dcHook), this);
                     if (configHandler.isPreventedAfterJoin()||configHandler.isPreventedAfterCombatLog())
-                        getServer().getPluginManager().registerEvents(new PlayerConnection(this, configHandler, entryManager), this);
-                    if (configHandler.isPreventedAfterSetBounty()||configHandler.isForceEnabledAfterSetBounty())
-                        getServer().getPluginManager().registerEvents(new PlayerSetBounty(this, configHandler, entryManager, dcHook), this);
+                        getServer().getPluginManager().registerEvents(new PlayerConnection(this, configHandler, cooldownManager), this);
                 }
+
+                // Register bounty listern if any part requires it
+                if (configHandler.isPreventedAfterSetBounty()||configHandler.isForceEnabledAfterSetBounty()||configHandler.isBountyProtCommandEnabled())
+                    getServer().getPluginManager().registerEvents(new PlayerSetBounty(this, configHandler, cooldownManager, protectionManager, dcHook), this);
 
                 // Register respawn anchor explosion listener based on config
                 if (configHandler.getCheckAnchorExplosions())
@@ -139,6 +149,7 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
      */
     @Override
     public void onDisable() {
-        if (configHandler.isDataSavedOnDisable()) entryManager.saveDataToJson();
+        if (configHandler.isPVPDataSavedOnDisable() && cooldownManager!=null) cooldownManager.saveDataToJson();
+        if (configHandler.isProtDataSavedOnDisable() && cooldownManager!=null) cooldownManager.saveDataToJson();
     }
 }

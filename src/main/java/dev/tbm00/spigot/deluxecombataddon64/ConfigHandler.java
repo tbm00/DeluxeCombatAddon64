@@ -15,10 +15,19 @@ public class ConfigHandler {
     // "fixes"
     private boolean checkAnchorExplosions = false;
     
-    // "togglePvpCommand"
-    private boolean togglePvpCommandEnabled = false;
-    private boolean saveDataOnDisable = false;
-    private String chatPrefix = null;
+    // "bountyProtectionCommand"
+    private boolean bountyProtCommandEnabled = false;
+    private boolean saveProtDataOnDisable = true;
+    private String protChatPrefix = null;
+    private String protectionEnabledMessage = null;
+    private String currentProtectionTimeMessage = null;
+    private String noCurrentProtectionMessage = null;
+    private String cannotSetBountyMessage = null;
+
+    // "togglePVPCommand"
+    private boolean togglePVPCommandEnabled = false;
+    private boolean savePVPDataOnDisable = false;
+    private String pvpChatPrefix = null;
     private String enabledMessage = null;
     private String enabledByOtherMessage = null;
     private String disabledMessage = null;
@@ -70,11 +79,18 @@ public class ConfigHandler {
                 loadFixes(fixSection);
             }
 
-            // Load TogglePvp Command Mechanics
-            ConfigurationSection togglePvpSection = javaPlugin.getConfig().getConfigurationSection("togglePvpCommand");
-            if (togglePvpSection.getBoolean("enabled")) {
-                togglePvpCommandEnabled = true;
-                loadTogglePvp(togglePvpSection);
+            // Load Bounty Protection Command Mechanics
+            ConfigurationSection bountyProtSection = javaPlugin.getConfig().getConfigurationSection("bountyProtectionCommand");
+            if (bountyProtSection.getBoolean("enabled")) {
+                bountyProtCommandEnabled = true;
+                loadBountyProt(bountyProtSection);
+            }
+
+            // Load TogglePVP Command Mechanics
+            ConfigurationSection togglePVPSection = javaPlugin.getConfig().getConfigurationSection("togglePvpCommand");
+            if (togglePVPSection.getBoolean("enabled")) {
+                togglePVPCommandEnabled = true;
+                loadTogglePVP(togglePVPSection);
             }
         } catch (Exception e) {
             javaPlugin.log(ChatColor.RED, "Caught exception loading config: ");
@@ -89,22 +105,42 @@ public class ConfigHandler {
      * @param fixSection the configuration section for "fixes"
      */
     private void loadFixes(ConfigurationSection fixSection) {
-        checkAnchorExplosions = fixSection.contains("anchorExplosionPvpCheck") ? fixSection.getBoolean("anchorExplosionPvpCheck") : false;
+        checkAnchorExplosions = fixSection.contains("anchorExplosionPVPCheck") ? fixSection.getBoolean("anchorExplosionPVPCheck") : false;
     }
 
     /**
-     * Loads the "togglePvpCommand" section of the configuration.
+     * Loads the "bountyProtectionCommand" section of the configuration.
      * 
-     * @param togglePvpSection the configuration section for "togglePvpCommand"
+     * @param bountyProtSection the configuration section for "bountyProtectionCommand"
      */
-    private void loadTogglePvp(ConfigurationSection togglePvpSection) {
+    private void loadBountyProt(ConfigurationSection bountyProtSection) {
         // Load saveMapOnPluginDisable
-        saveDataOnDisable = togglePvpSection.contains("saveMapOnPluginDisable") ? togglePvpSection.getBoolean("saveMapOnPluginDisable") : true;
+        savePVPDataOnDisable = bountyProtSection.contains("saveMapOnPluginDisable") ? bountyProtSection.getBoolean("saveMapOnPluginDisable") : true;
 
         // Load Chat Messages
-        ConfigurationSection chatSection = togglePvpSection.getConfigurationSection("chat");
+        ConfigurationSection chatSection = bountyProtSection.getConfigurationSection("chat");
         if (chatSection != null) {
-            chatPrefix = chatSection.contains("prefix") ? chatSection.getString("prefix") : null;
+            protChatPrefix = chatSection.contains("prefix") ? chatSection.getString("prefix") : null;
+            protectionEnabledMessage = chatSection.contains("protectionEnabledMessage") ? chatSection.getString("protectionEnabledMessage") : null;
+            currentProtectionTimeMessage = chatSection.contains("currentProtectionTimeMessage") ? chatSection.getString("currentProtectionTimeMessage") : null;
+            noCurrentProtectionMessage = chatSection.contains("noCurrentProtectionMessage") ? chatSection.getString("noCurrentProtectionMessage") : null;
+            cannotSetBountyMessage = chatSection.contains("cannotSetBountyMessage") ? chatSection.getString("cannotSetBountyMessage") : null;
+        }
+    }
+
+    /**
+     * Loads the "togglePVPCommand" section of the configuration.
+     * 
+     * @param togglePVPSection the configuration section for "togglePVPCommand"
+     */
+    private void loadTogglePVP(ConfigurationSection togglePVPSection) {
+        // Load saveMapOnPluginDisable
+        savePVPDataOnDisable = togglePVPSection.contains("saveMapOnPluginDisable") ? togglePVPSection.getBoolean("saveMapOnPluginDisable") : true;
+
+        // Load Chat Messages
+        ConfigurationSection chatSection = togglePVPSection.getConfigurationSection("chat");
+        if (chatSection != null) {
+            pvpChatPrefix = chatSection.contains("prefix") ? chatSection.getString("prefix") : null;
             enabledMessage = chatSection.contains("enabledMessage") ? chatSection.getString("enabledMessage") : null;
             enabledByOtherMessage = chatSection.contains("enabledByOtherMessage") ? chatSection.getString("enabledByOtherMessage") : null;
             disabledMessage = chatSection.contains("disabledMessage") ? chatSection.getString("disabledMessage") : null;
@@ -135,23 +171,23 @@ public class ConfigHandler {
         }
 
         // Load forceEnabledAfterDeath
-        forceEnabledAfterDeath = togglePvpSection.contains("forceEnabledAfterDeath") ? togglePvpSection.getBoolean("forceEnabledAfterDeath") : false;
+        forceEnabledAfterDeath = togglePVPSection.contains("forceEnabledAfterDeath") ? togglePVPSection.getBoolean("forceEnabledAfterDeath") : false;
 
         // Load forceEnabledAfterSetBounty
-        forceEnabledAfterSetBounty = togglePvpSection.contains("forceEnabledAfterSetBounty") ? togglePvpSection.getBoolean("forceEnabledAfterSetBounty") : false;
+        forceEnabledAfterSetBounty = togglePVPSection.contains("forceEnabledAfterSetBounty") ? togglePVPSection.getBoolean("forceEnabledAfterSetBounty") : false;
 
         // Load preventedWorlds
-        List<String> worldsHolder = togglePvpSection.contains("preventedInWorlds") ? togglePvpSection.getStringList("preventedInWorlds") : null;
+        List<String> worldsHolder = togglePVPSection.contains("preventedInWorlds") ? togglePVPSection.getStringList("preventedInWorlds") : null;
         preventedWorlds.addAll(worldsHolder);
 
         // Load preventedWithBounty
-        preventedWithBounty = togglePvpSection.contains("preventedWithBounty") ? togglePvpSection.getBoolean("preventedWithBounty") : false;
+        preventedWithBounty = togglePVPSection.contains("preventedWithBounty") ? togglePVPSection.getBoolean("preventedWithBounty") : false;
 
         // Load preventedInCombat
-        preventedInCombat = togglePvpSection.contains("preventedInCombat") ? togglePvpSection.getBoolean("preventedInCombat") : false;
+        preventedInCombat = togglePVPSection.contains("preventedInCombat") ? togglePVPSection.getBoolean("preventedInCombat") : false;
 
         // Load preventedAfterCombat
-        ConfigurationSection afterCombatSec = togglePvpSection.contains("preventedAfterCombat") ? togglePvpSection.getConfigurationSection("preventedAfterCombat") : null;
+        ConfigurationSection afterCombatSec = togglePVPSection.contains("preventedAfterCombat") ? togglePVPSection.getConfigurationSection("preventedAfterCombat") : null;
         if (afterCombatSec != null) {
             preventedAfterCombat = afterCombatSec.contains("enabled") ? afterCombatSec.getBoolean("enabled") : false;
             if (preventedAfterCombat) {
@@ -160,7 +196,7 @@ public class ConfigHandler {
         }
 
         // Load preventedAfterMurder
-        ConfigurationSection afterMurderSec = togglePvpSection.contains("preventedAfterMurder") ? togglePvpSection.getConfigurationSection("preventedAfterMurder") : null;
+        ConfigurationSection afterMurderSec = togglePVPSection.contains("preventedAfterMurder") ? togglePVPSection.getConfigurationSection("preventedAfterMurder") : null;
         if (afterMurderSec != null) {
             preventedAfterMurder = afterMurderSec.contains("enabled") ? afterMurderSec.getBoolean("enabled") : false;
             if (preventedAfterMurder) {
@@ -169,7 +205,7 @@ public class ConfigHandler {
         }
 
         // Load preventedAfterPVPDeath
-        ConfigurationSection afterPVPDeathSec = togglePvpSection.contains("preventedAfterPVPDeath") ? togglePvpSection.getConfigurationSection("preventedAfterPVPDeath") : null;
+        ConfigurationSection afterPVPDeathSec = togglePVPSection.contains("preventedAfterPVPDeath") ? togglePVPSection.getConfigurationSection("preventedAfterPVPDeath") : null;
         if (afterPVPDeathSec != null) {
             preventedAfterPVPDeath = afterPVPDeathSec.contains("enabled") ? afterPVPDeathSec.getBoolean("enabled") : false;
             if (preventedAfterPVPDeath) {
@@ -178,7 +214,7 @@ public class ConfigHandler {
         }
 
         // Load preventedAfterPVEDeath
-        ConfigurationSection afterPVEDeathSec = togglePvpSection.contains("preventedAfterPVEDeath") ? togglePvpSection.getConfigurationSection("preventedAfterPVEDeath") : null;
+        ConfigurationSection afterPVEDeathSec = togglePVPSection.contains("preventedAfterPVEDeath") ? togglePVPSection.getConfigurationSection("preventedAfterPVEDeath") : null;
         if (afterPVEDeathSec != null) {
             preventedAfterPVEDeath = afterPVEDeathSec.contains("enabled") ? afterPVEDeathSec.getBoolean("enabled") : false;
             if (preventedAfterPVEDeath) {
@@ -187,7 +223,7 @@ public class ConfigHandler {
         }
 
         // Load preventedAfterCombatLog
-        ConfigurationSection afterCombatLogSec = togglePvpSection.contains("preventedAfterCombatLog") ? togglePvpSection.getConfigurationSection("preventedAfterCombatLog") : null;
+        ConfigurationSection afterCombatLogSec = togglePVPSection.contains("preventedAfterCombatLog") ? togglePVPSection.getConfigurationSection("preventedAfterCombatLog") : null;
         if (afterCombatLogSec != null) {
             preventedAfterCombatLog = afterCombatLogSec.contains("enabled") ? afterCombatLogSec.getBoolean("enabled") : false;
             if (preventedAfterCombatLog) {
@@ -196,7 +232,7 @@ public class ConfigHandler {
         }
 
         // Load preventedAfterJoin
-        ConfigurationSection afterJoinSec = togglePvpSection.contains("preventedAfterJoin") ? togglePvpSection.getConfigurationSection("preventedAfterJoin") : null;
+        ConfigurationSection afterJoinSec = togglePVPSection.contains("preventedAfterJoin") ? togglePVPSection.getConfigurationSection("preventedAfterJoin") : null;
         if (afterJoinSec != null) { 
             preventedAfterJoin = afterJoinSec.contains("enabled") ? afterJoinSec.getBoolean("enabled") : false;
             if (preventedAfterJoin) {
@@ -205,7 +241,7 @@ public class ConfigHandler {
         }
 
         // Load preventedAfterEnable
-        ConfigurationSection afterEnableSec = togglePvpSection.contains("preventedAfterEnable") ? togglePvpSection.getConfigurationSection("preventedAfterEnable") : null;
+        ConfigurationSection afterEnableSec = togglePVPSection.contains("preventedAfterEnable") ? togglePVPSection.getConfigurationSection("preventedAfterEnable") : null;
         if (afterEnableSec != null) {
             preventedAfterEnable = afterEnableSec.contains("enabled") ? afterEnableSec.getBoolean("enabled") : false;
             if (preventedAfterEnable) {
@@ -214,7 +250,7 @@ public class ConfigHandler {
         }
 
         // Load preventedAfterDisable
-        ConfigurationSection afterDisableSec = togglePvpSection.contains("preventedAfterDisable") ? togglePvpSection.getConfigurationSection("preventedAfterDisable") : null;
+        ConfigurationSection afterDisableSec = togglePVPSection.contains("preventedAfterDisable") ? togglePVPSection.getConfigurationSection("preventedAfterDisable") : null;
         if (afterDisableSec != null) {
             preventedAfterDisable = afterDisableSec.contains("enabled") ? afterDisableSec.getBoolean("enabled") : false;
             if (preventedAfterDisable) {
@@ -223,7 +259,7 @@ public class ConfigHandler {
         }
 
         // Load preventedAfterSetBounty
-        ConfigurationSection afterSetBountySec = togglePvpSection.contains("preventedAfterSetBounty") ? togglePvpSection.getConfigurationSection("preventedAfterSetBounty") : null;
+        ConfigurationSection afterSetBountySec = togglePVPSection.contains("preventedAfterSetBounty") ? togglePVPSection.getConfigurationSection("preventedAfterSetBounty") : null;
         if (afterSetBountySec != null) { 
             preventedAfterSetBounty = afterSetBountySec.contains("enabled") ? afterSetBountySec.getBoolean("enabled") : false;
             if (preventedAfterSetBounty) {
@@ -256,16 +292,44 @@ public class ConfigHandler {
         return enabled;
     }
 
-    public boolean isDataSavedOnDisable() {
-        return saveDataOnDisable;
+    public boolean isProtDataSavedOnDisable() {
+        return saveProtDataOnDisable;
     }
 
-    public boolean isTogglePvpCommandEnabled() {
-        return togglePvpCommandEnabled;
+    public boolean isBountyProtCommandEnabled() {
+        return bountyProtCommandEnabled;
     }
 
-    public String getChatPrefix() {
-        return chatPrefix;
+    public String getProtChatPrefix() {
+        return protChatPrefix;
+    }
+
+    public String getProtectionEnabledMessage() {
+        return protectionEnabledMessage;
+    }
+
+    public String getCurrentProtectionTimeMessage() {
+        return currentProtectionTimeMessage;
+    }
+
+    public String getNoCurrentProtectionMessage() {
+        return noCurrentProtectionMessage;
+    }
+
+    public String getCannotSetBountyMessage() {
+        return cannotSetBountyMessage;
+    }
+
+    public boolean isPVPDataSavedOnDisable() {
+        return savePVPDataOnDisable;
+    }
+
+    public boolean isTogglePVPCommandEnabled() {
+        return togglePVPCommandEnabled;
+    }
+
+    public String getPVPChatPrefix() {
+        return pvpChatPrefix;
     }
 
     public String getEnabledMessage() {

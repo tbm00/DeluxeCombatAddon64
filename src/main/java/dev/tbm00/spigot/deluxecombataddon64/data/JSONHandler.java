@@ -16,9 +16,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class JSONHandler {
     private final JavaPlugin javaPlugin;
-    private final Object fileLock = new Object();
-    private File jsonFile;
-    private Gson gson;
+
+    private final Object cFileLock = new Object();
+    private File cooldownFile;
+    private Gson cooldownGson;
+
+    private final Object pFileLock = new Object();
+    private File protectionFile;
+    private Gson protectionGson;
 
     /**
      * Constructs a JSONHandler instance for managing player cooldown data.
@@ -28,22 +33,24 @@ public class JSONHandler {
      */
     public JSONHandler(JavaPlugin javaPlugin) {
         this.javaPlugin = javaPlugin;
-        this.gson = new Gson();
-        initializeDatabase();
+        this.cooldownGson = new Gson();
+        this.protectionGson = new Gson();
+        initializeCooldownDatabase();
+        initializeProtectionDatabase();
     }
 
     /**
-     * Initializes the database (JSON file).
+     * Initializes the cooldown database (JSON file).
      * Creates the file if it does not exist and saves an empty player map to it.
      */
-    private void initializeDatabase() {
-        synchronized (fileLock) {
-            jsonFile = new File(javaPlugin.getDataFolder(), "player_cooldowns.json");
-            if (!jsonFile.exists()) {
+    private void initializeCooldownDatabase() {
+        synchronized (cFileLock) {
+            cooldownFile = new File(javaPlugin.getDataFolder(), "player_cooldowns.json");
+            if (!cooldownFile.exists()) {
                 try {
-                    jsonFile.getParentFile().mkdirs();
-                    jsonFile.createNewFile();
-                    savePlayerMap(new HashMap<>());
+                    cooldownFile.getParentFile().mkdirs();
+                    cooldownFile.createNewFile();
+                    saveCooldownMap(new HashMap<>());
                 } catch (IOException e) {
                     javaPlugin.getLogger().severe("Exception when creating new JSON file!");
                     e.printStackTrace();
@@ -53,15 +60,15 @@ public class JSONHandler {
     }
 
     /**
-     * Loads and passes the player map from the JSON file.
+     * Loads and passes the cooldown player map from the JSON file.
      * 
      * @return the loaded player map, or an empty map if an error occurs
      */
-    public Map<String, SortedMap<Integer, String>> loadPlayerMap() {
-        synchronized (fileLock) {
-            try (FileReader reader = new FileReader(jsonFile)) {
+    public Map<String, SortedMap<Integer, String>> loadCooldownMap() {
+        synchronized (cFileLock) {
+            try (FileReader reader = new FileReader(cooldownFile)) {
                 Type type = new TypeToken<Map<String, SortedMap<Integer, String>>>() {}.getType();
-                Map<String, SortedMap<Integer, String>> playerMap = gson.fromJson(reader, type);
+                Map<String, SortedMap<Integer, String>> playerMap = cooldownGson.fromJson(reader, type);
                 if (playerMap == null) {
                     playerMap = new HashMap<>();
                 }
@@ -75,14 +82,72 @@ public class JSONHandler {
     }
     
     /**
-     * Saves the given player map to the JSON file.
+     * Saves the given cooldown player map to the JSON file.
      * 
      * @param playerMap the player map to save
      */
-    public void savePlayerMap(Map<String, SortedMap<Integer, String>> playerMap) {
-        synchronized (fileLock) {
-            try (FileWriter writer = new FileWriter(jsonFile)) {
-                gson.toJson(playerMap, writer);
+    public void saveCooldownMap(Map<String, SortedMap<Integer, String>> playerMap) {
+        synchronized (cFileLock) {
+            try (FileWriter writer = new FileWriter(cooldownFile)) {
+                cooldownGson.toJson(playerMap, writer);
+            } catch (IOException e) {
+                javaPlugin.getLogger().severe("Exception when saving JSON file!");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Initializes the protection database (JSON file).
+     * Creates the file if it does not exist and saves an empty player map to it.
+     */
+    private void initializeProtectionDatabase() {
+        synchronized (pFileLock) {
+            protectionFile = new File(javaPlugin.getDataFolder(), "player_protections.json");
+            if (!protectionFile.exists()) {
+                try {
+                    protectionFile.getParentFile().mkdirs();
+                    protectionFile.createNewFile();
+                    saveProtectionMap(new HashMap<>());
+                } catch (IOException e) {
+                    javaPlugin.getLogger().severe("Exception when creating new JSON file!");
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * Loads and passes the protection player map from the JSON file.
+     * 
+     * @return the loaded player map, or an empty map if an error occurs
+     */
+    public Map<String, Integer> loadProtectionMap() {
+        synchronized (pFileLock) {
+            try (FileReader reader = new FileReader(protectionFile)) {
+                Type type = new TypeToken<Map<String, Integer>>() {}.getType();
+                Map<String, Integer> playerMap = protectionGson.fromJson(reader, type);
+                if (playerMap == null) {
+                    playerMap = new HashMap<>();
+                }
+                return playerMap;
+            } catch (IOException e) {
+                javaPlugin.getLogger().severe("Exception when loading JSON file!");
+                e.printStackTrace();
+                return new HashMap<>();
+            }
+        }
+    }
+    
+    /**
+     * Saves the given protection player map to the JSON file.
+     * 
+     * @param playerMap the player map to save
+     */
+    public void saveProtectionMap(Map<String, Integer> playerMap) {
+        synchronized (pFileLock) {
+            try (FileWriter writer = new FileWriter(protectionFile)) {
+                protectionGson.toJson(playerMap, writer);
             } catch (IOException e) {
                 javaPlugin.getLogger().severe("Exception when saving JSON file!");
                 e.printStackTrace();

@@ -12,22 +12,22 @@ import org.bukkit.ChatColor;
 
 import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
 
-public class EntryManager {
+public class CooldownManager {
     private final DeluxeCombatAddon64 javaPlugin;
     private final JSONHandler db;
     private Map<String, SortedMap<Integer, String>> playerMap; // key1=<username>, value1=<cooldownMap>, key2=<ticks>, value2=<preventedType>
 
     /**
-     * Constructs an EntryManager instance.
+     * Constructs an cooldownManager instance.
      * Initializes the player map by loading data from the provided JSON handler.
      *
      * @param javaPlugin the main plugin instance
      * @param db the JSON handler for loading and saving data
      */
-    public EntryManager(DeluxeCombatAddon64 javaPlugin, JSONHandler db) {
+    public CooldownManager(DeluxeCombatAddon64 javaPlugin, JSONHandler db) {
         this.javaPlugin = javaPlugin;
         this.db = db;
-        this.playerMap = new ConcurrentHashMap<>(db.loadPlayerMap());
+        this.playerMap = new ConcurrentHashMap<>(db.loadCooldownMap());
     }
 
     /**
@@ -38,7 +38,7 @@ public class EntryManager {
         synchronized (playerMap) {
             snapshot = new HashMap<>(playerMap);
         }
-        db.savePlayerMap(snapshot);
+        db.saveCooldownMap(snapshot);
     }
 
     /**
@@ -83,7 +83,7 @@ public class EntryManager {
      * @param additional_ticks the additional cooldown time in ticks
      * @return true if the cooldown was successfully added, false otherwise
      */
-    public boolean addMapTime(Player player, String preventedType, int additional_ticks) {
+    public boolean setMapTime(Player player, String preventedType, int additional_ticks) {
         String playerName = player.getName();
 
         int current_play_ticks;
@@ -176,7 +176,7 @@ public class EntryManager {
         }
 
         int time_difference = (highest_map_ticks-current_play_ticks)/20;
-        return (highest_map_type + " " + getFormattedTime(time_difference));
+        return (highest_map_type + " " + formatTime(time_difference));
     }
 
     /**
@@ -185,7 +185,7 @@ public class EntryManager {
      * @param totalSeconds the total time in seconds
      * @return a formatted string representing the time
      */
-    public String getFormattedTime(int totalSeconds) {
+    public String formatTime(int totalSeconds) {
         final int SECONDS_IN_WEEK = 604800;
         final int SECONDS_IN_DAY = 86400;
         final int SECONDS_IN_HOUR = 3600;

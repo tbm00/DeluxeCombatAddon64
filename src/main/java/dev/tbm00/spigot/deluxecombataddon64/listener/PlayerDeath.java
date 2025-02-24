@@ -11,16 +11,16 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
 import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
-import dev.tbm00.spigot.deluxecombataddon64.data.EntryManager;
+import dev.tbm00.spigot.deluxecombataddon64.data.CooldownManager;
 import dev.tbm00.spigot.deluxecombataddon64.hook.DCHook;
 
 public class PlayerDeath implements Listener {
-    private final EntryManager entryManager;
+    private final CooldownManager cooldownManager;
     private final ConfigHandler configHandler;
     private final DCHook dcHook;
 
-    public PlayerDeath(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, EntryManager entryManager, DCHook dcHook) {
-        this.entryManager = entryManager;
+    public PlayerDeath(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, CooldownManager cooldownManager, DCHook dcHook) {
+        this.cooldownManager = cooldownManager;
         this.configHandler = configHandler;
         this.dcHook = dcHook;
     }
@@ -38,12 +38,12 @@ public class PlayerDeath implements Listener {
 
         if (killer!=null) {
             if (configHandler.isPreventedAfterMurder())
-                entryManager.addMapTime(killer, "MURDER", configHandler.getPreventedAfterMurderTicks());
+                cooldownManager.setMapTime(killer, "MURDER", configHandler.getPreventedAfterMurderTicks());
             if (configHandler.isPreventedAfterPVPDeath())
-                entryManager.addMapTime(victim, "DEATH", configHandler.getPreventedAfterPVPDeathTicks());
+                cooldownManager.setMapTime(victim, "DEATH", configHandler.getPreventedAfterPVPDeathTicks());
         } else {
             if (configHandler.isPreventedAfterPVEDeath())
-                entryManager.addMapTime(victim, "DEATH", configHandler.getPreventedAfterPVEDeathTicks());
+                cooldownManager.setMapTime(victim, "DEATH", configHandler.getPreventedAfterPVEDeathTicks());
         }
 
         if (configHandler.isForceEnabledAfterDeath() && !dcHook.hasPvPEnabled(victim)) {
@@ -60,6 +60,6 @@ public class PlayerDeath implements Listener {
      */
     private void sendMessage(CommandSender target, String string) {
         if (!string.isBlank())
-            target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getChatPrefix() + string)));
+            target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getPVPChatPrefix() + string)));
     }
 }

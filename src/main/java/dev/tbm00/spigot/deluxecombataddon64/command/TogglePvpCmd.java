@@ -18,21 +18,21 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
 import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
-import dev.tbm00.spigot.deluxecombataddon64.data.EntryManager;
+import dev.tbm00.spigot.deluxecombataddon64.data.CooldownManager;
 import dev.tbm00.spigot.deluxecombataddon64.hook.DCHook;
 
 public class TogglePvpCmd implements TabExecutor {
     private final DeluxeCombatAddon64 javaPlugin;
     private final ConfigHandler configHandler;
-    private final EntryManager entryManager;
+    private final CooldownManager cooldownManager;
     private final DCHook dcHook;
     private final String PERMISSION_MANAGE_COOLDOWNS = "deluxecombataddon64.managecooldowns";
     private final String PERMISSION_TOGGLE_OTHERS = "deluxecombataddon64.toggle.others";
     private final String PERMISSION_TOGGLE_SELF = "deluxecombataddon64.toggle.self";
     private final Set<String> COOLDOWN_TYPES = new HashSet<>(Set.of("COMBAT", "MURDER", "DEATH", "COMBATLOG", "JOIN", "TOGGLE", "SETBOUNTY", "BONUS"));
 
-    public TogglePvpCmd(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, EntryManager entryManager, DCHook dcHook) {
-        this.entryManager = entryManager;
+    public TogglePvpCmd(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, CooldownManager cooldownManager, DCHook dcHook) {
+        this.cooldownManager = cooldownManager;
         this.javaPlugin = javaPlugin;
         this.configHandler = configHandler;
         this.dcHook = dcHook;
@@ -109,9 +109,9 @@ public class TogglePvpCmd implements TabExecutor {
             return false;
         }
 
-        entryManager.addMapTime(target, type.toUpperCase(), seconds*20);
-        sendMessage(sender, "&fGave " + entryManager.getFormattedTime(seconds) + " " + type + " cooldown to " + target.getName()
-                    + ". &7Their current cooldown: " + entryManager.getHighestTypeAndTime(target.getName()));
+        cooldownManager.setMapTime(target, type.toUpperCase(), seconds*20);
+        sendMessage(sender, "&fSet " + cooldownManager.formatTime(seconds) + " " + type + " cooldown on " + target.getName()
+                    + ". &7Their current cooldown: " + cooldownManager.getHighestTypeAndTime(target.getName()));
         return true;
     }
 
@@ -127,7 +127,7 @@ public class TogglePvpCmd implements TabExecutor {
             sendMessage(target, "&cCouldn't find target player!");
             return false;
         } 
-        sendMessage(sender, target.getName() + "'s current cooldown: &a" + entryManager.getHighestTypeAndTime(target.getName()));
+        sendMessage(sender, target.getName() + "'s current cooldown: &a" + cooldownManager.getHighestTypeAndTime(target.getName()));
         return true;
     }
 
@@ -144,13 +144,13 @@ public class TogglePvpCmd implements TabExecutor {
             return false;
         } 
         
-        if (entryManager.deletePlayerEntry(target.getName())) {
+        if (cooldownManager.deletePlayerEntry(target.getName())) {
             sendMessage(sender, "&fCleared " + target.getName() + "'s cooldown map. &7Their current cooldown: " 
-                        + entryManager.getHighestTypeAndTime(target.getName()));
+                        + cooldownManager.getHighestTypeAndTime(target.getName()));
             return true;
         } else {
             sendMessage(sender, "&cError occured clearing " + target.getName() + "'s cooldown map. &7Their current cooldown: " 
-            + entryManager.getHighestTypeAndTime(target.getName()));
+            + cooldownManager.getHighestTypeAndTime(target.getName()));
             return true;
         } 
     }
@@ -183,13 +183,13 @@ public class TogglePvpCmd implements TabExecutor {
             dcHook.togglePvP(target, false);
             sendMessage(target, configHandler.getDisabledMessage());
             if (configHandler.isPreventedAfterDisable())
-                entryManager.addMapTime(target, "TOGGLE", configHandler.getPreventedAfterDisableTicks());
+                cooldownManager.setMapTime(target, "TOGGLE", configHandler.getPreventedAfterDisableTicks());
             return true;
         } else { // if disabled, enable it
             dcHook.togglePvP(target, true);
             sendMessage(target, configHandler.getEnabledMessage());
             if (configHandler.isPreventedAfterEnable())
-                entryManager.addMapTime(target, "TOGGLE", configHandler.getPreventedAfterEnableTicks());
+                cooldownManager.setMapTime(target, "TOGGLE", configHandler.getPreventedAfterEnableTicks());
             return true;
         }
     }
@@ -324,7 +324,7 @@ public class TogglePvpCmd implements TabExecutor {
      * @return true if the command should be prevented, false otherwise
      */
     private boolean preventUsageCooldown(Player target) {
-        String tickAndType = entryManager.getHighestTickAndType(target.getName());
+        String tickAndType = cooldownManager.getHighestTickAndType(target.getName());
         String[] pair = tickAndType.split("\\ ");
         Integer highest_map_ticks = Integer.parseInt(pair[0]);
         if (highest_map_ticks<1) return false;
@@ -344,11 +344,11 @@ public class TogglePvpCmd implements TabExecutor {
 
         if (highest_map_ticks>current_play_ticks+1) {
             int time_difference = (highest_map_ticks-current_play_ticks)/20;
-            String msg = configHandler.getPreventedMessage(pair[1]).replace("<time_left>", entryManager.getFormattedTime(time_difference));
+            String msg = configHandler.getPreventedMessage(pair[1]).replace("<time_left>", cooldownManager.formatTime(time_difference));
             sendMessage(target, msg);
             return true;
         } else {
-            entryManager.deletePlayerEntry(target.getName());
+            cooldownManager.deletePlayerEntry(target.getName());
             return false;
         }
     }
@@ -382,7 +382,7 @@ public class TogglePvpCmd implements TabExecutor {
      */
     private void sendMessage(CommandSender target, String string) {
         if (!string.isBlank())
-            target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getChatPrefix() + string)));
+            target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getPVPChatPrefix() + string)));
     }
 
     /**

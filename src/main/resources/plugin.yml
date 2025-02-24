@@ -7,7 +7,9 @@ api-version: 1.17
 depend: [DeluxeCombat]
 commands:
   pvp:
-    description: Base command for DeluxeCombatAddon64
+    description: Base command for DeluxeCombatAddon64's toggle pvp features
+  bountyprot:
+    description: Base command for DeluxeCombatAddon64's bounty protection feature
 permissions:
   deluxecombataddon64.toggle.self:
     description: Ability to toggle your pvp and grace protection with /pvp
@@ -17,4 +19,7 @@ permissions:
     default: op
   deluxecombataddon64.managecooldowns:
     description: Ability to get/give/clear players' toggle pvp cooldown timers with /pvp
+    default: op
+  deluxecombataddon64.manageprotections:
+    description: Ability to get/set/add/clear players' bounty protection timers with /bountyprot
     default: op

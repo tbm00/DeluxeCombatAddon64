@@ -12,17 +12,20 @@ import nl.marido.deluxecombat.events.BountyInitiateEvent;
 
 import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
 import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
-import dev.tbm00.spigot.deluxecombataddon64.data.EntryManager;
+import dev.tbm00.spigot.deluxecombataddon64.data.CooldownManager;
+import dev.tbm00.spigot.deluxecombataddon64.data.ProtectionManager;
 import dev.tbm00.spigot.deluxecombataddon64.hook.DCHook;
 
 public class PlayerSetBounty implements Listener {
-    private final EntryManager entryManager;
     private final ConfigHandler configHandler;
+    private final CooldownManager cooldownManager;
+    private final ProtectionManager protectionManager;
     private final DCHook dcHook;
 
-    public PlayerSetBounty(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, EntryManager entryManager, DCHook dcHook) {
-        this.entryManager = entryManager;
+    public PlayerSetBounty(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, CooldownManager cooldownManager, ProtectionManager protectionManager, DCHook dcHook) {
         this.configHandler = configHandler;
+        this.cooldownManager = cooldownManager;
+        this.protectionManager = protectionManager;
         this.dcHook = dcHook;
     }
 
@@ -37,8 +40,14 @@ public class PlayerSetBounty implements Listener {
     public void onBountySet(BountyInitiateEvent event) {
         Player sender = event.getInitiator();
 
+        if (configHandler.isBountyProtCommandEnabled() && protectionManager.hasActiveProtection(event.getTarget().getName())) {
+            sendMessage(sender, configHandler.getCannotSetBountyMessage().replace("<time_left>", protectionManager.getMapTime(event.getTarget().getName())));
+            event.setCancelled(true);
+            return;
+        }
+
         if (configHandler.isPreventedAfterSetBounty()) {
-            entryManager.addMapTime(sender, "SETBOUNTY", configHandler.getPreventedAfterSetBountyTicks());
+            cooldownManager.setMapTime(sender, "SETBOUNTY", configHandler.getPreventedAfterSetBountyTicks());
         }
 
         if (configHandler.isForceEnabledAfterSetBounty() && !dcHook.hasPvPEnabled(sender)) {
@@ -55,6 +64,6 @@ public class PlayerSetBounty implements Listener {
      */
     private void sendMessage(CommandSender target, String string) {
         if (!string.isBlank())
-            target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getChatPrefix() + string)));
+            target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getPVPChatPrefix() + string)));
     }
 }

@@ -8,14 +8,14 @@ import nl.marido.deluxecombat.events.CombatlogEvent;
 
 import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
 import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
-import dev.tbm00.spigot.deluxecombataddon64.data.EntryManager;
+import dev.tbm00.spigot.deluxecombataddon64.data.CooldownManager;
 
 public class PlayerConnection implements Listener {
-    private final EntryManager entryManager;
+    private final CooldownManager cooldownManager;
     private final ConfigHandler configHandler;
 
-    public PlayerConnection(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, EntryManager entryManager) {
-        this.entryManager = entryManager;
+    public PlayerConnection(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, CooldownManager cooldownManager) {
+        this.cooldownManager = cooldownManager;
         this.configHandler = configHandler;
     }
 
@@ -28,7 +28,7 @@ public class PlayerConnection implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (configHandler.isPreventedAfterJoin())
-            entryManager.addMapTime(event.getPlayer(), "JOIN", configHandler.getPreventedAfterJoinTicks());
+            cooldownManager.setMapTime(event.getPlayer(), "JOIN", configHandler.getPreventedAfterJoinTicks());
     }
 
     /**
@@ -40,6 +40,6 @@ public class PlayerConnection implements Listener {
     @EventHandler
     public void onCombatLog(CombatlogEvent event) {
         if (configHandler.isPreventedAfterCombatLog())
-            entryManager.addMapTime(event.getCombatlogger(), "COMBATLOG", configHandler.getPreventedAfterCombatLogTicks());
+            cooldownManager.setMapTime(event.getCombatlogger(), "COMBATLOG", configHandler.getPreventedAfterCombatLogTicks());
     }
 }
