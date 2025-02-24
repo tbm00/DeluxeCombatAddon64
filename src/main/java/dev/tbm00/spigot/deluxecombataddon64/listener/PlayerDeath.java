@@ -48,7 +48,7 @@ public class PlayerDeath implements Listener {
 
         if (configHandler.isForceEnabledAfterDeath() && !dcHook.hasPvPEnabled(victim)) {
             dcHook.togglePvP(victim, true);
-            sendMessage(victim, configHandler.getForceEnabledAfterDeathMessage());
+            sendMessage(victim, configHandler.getForceEnabledAfterMessage());
         }
     }
 

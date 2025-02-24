@@ -30,7 +30,8 @@ public class ConfigHandler {
     private String preventedToggleInCombatMessage = null;
     private Map<String, String> preventedToggleAfterMessages;
     private boolean forceEnabledAfterDeath = false;
-    private String forceEnabledAfterDeathMessage = null;
+    private boolean forceEnabledAfterSetBounty = false;
+    private String forceEnabledAfterMessage = null;
     private Set<String> preventedWorlds = new HashSet<>();
     private boolean preventedWithBounty = false;
     private boolean preventedInCombat = false;
@@ -46,6 +47,8 @@ public class ConfigHandler {
     private int preventedAfterCombatLogTicks = 0;
     private boolean preventedAfterJoin = false;
     private int preventedAfterJoinTicks = 0;
+    private boolean preventedAfterSetBounty = false;
+    private int preventedAfterSetBountyTicks = 0;
     private boolean preventedAfterEnable = false;
     private int preventedAfterEnableTicks = 0;
     private boolean preventedAfterDisable = false;
@@ -108,7 +111,7 @@ public class ConfigHandler {
             disabledByOtherMessage = chatSection.contains("disabledByOtherMessage") ? chatSection.getString("disabledByOtherMessage") : null;
             disabledGraceMessage = chatSection.contains("disabledGraceMessage") ? chatSection.getString("disabledGraceMessage") : null;
             disabledGraceByOtherMessage = chatSection.contains("disabledGraceByOtherMessage") ? chatSection.getString("disabledGraceByOtherMessage") : null;
-            forceEnabledAfterDeathMessage = chatSection.contains("forceEnabledAfterDeathMessage") ? chatSection.getString("forceEnabledAfterDeathMessage") : null;
+            forceEnabledAfterMessage = chatSection.contains("forceEnabledAfterMessage") ? chatSection.getString("forceEnabledAfterMessage") : null;
             preventedToggleInCombatMessage = chatSection.contains("preventedToggleInCombatMessage") ? chatSection.getString("preventedToggleInCombatMessage") : null;
             preventedToggleInWorldsMessage = chatSection.contains("preventedToggleInWorldsMessage") ? chatSection.getString("preventedToggleInWorldsMessage") : null;
             preventedToggleWithBountyMessage = chatSection.contains("preventedToggleWithBountyMessage") ? chatSection.getString("preventedToggleWithBountyMessage") : null;
@@ -125,12 +128,17 @@ public class ConfigHandler {
                 savePreventedMessage("JOIN", chatSection.getString("preventedToggleAfterJoinMessage"));
             if (chatSection.contains("preventedToggleAfterToggleMessage"))
                 savePreventedMessage("TOGGLE", chatSection.getString("preventedToggleAfterToggleMessage"));
+            if (chatSection.contains("preventedToggleAfterSetBountyMessage"))
+                savePreventedMessage("SETBOUNTY", chatSection.getString("preventedToggleAfterSetBountyMessage"));
             if (chatSection.contains("preventedToggleAfterBonusMessage"))
                 savePreventedMessage("BONUS", chatSection.getString("preventedToggleAfterBonusMessage"));
         }
 
         // Load forceEnabledAfterDeath
         forceEnabledAfterDeath = togglePvpSection.contains("forceEnabledAfterDeath") ? togglePvpSection.getBoolean("forceEnabledAfterDeath") : false;
+
+        // Load forceEnabledAfterSetBounty
+        forceEnabledAfterSetBounty = togglePvpSection.contains("forceEnabledAfterSetBounty") ? togglePvpSection.getBoolean("forceEnabledAfterSetBounty") : false;
 
         // Load preventedWorlds
         List<String> worldsHolder = togglePvpSection.contains("preventedInWorlds") ? togglePvpSection.getStringList("preventedInWorlds") : null;
@@ -211,6 +219,15 @@ public class ConfigHandler {
             preventedAfterDisable = afterDisableSec.contains("enabled") ? afterDisableSec.getBoolean("enabled") : false;
             if (preventedAfterDisable) {
                 preventedAfterDisableTicks = afterDisableSec.contains("time") ? afterDisableSec.getInt("time")*20 : 0;
+            }
+        }
+
+        // Load preventedAfterSetBounty
+        ConfigurationSection afterSetBountySec = togglePvpSection.contains("preventedAfterSetBounty") ? togglePvpSection.getConfigurationSection("preventedAfterSetBounty") : null;
+        if (afterSetBountySec != null) { 
+            preventedAfterSetBounty = afterSetBountySec.contains("enabled") ? afterSetBountySec.getBoolean("enabled") : false;
+            if (preventedAfterSetBounty) {
+                preventedAfterSetBountyTicks = afterSetBountySec.contains("time") ? afterSetBountySec.getInt("time")*20 : 0;
             }
         }
     }
@@ -295,8 +312,12 @@ public class ConfigHandler {
         return forceEnabledAfterDeath;
     }
 
-    public String getForceEnabledAfterDeathMessage() {
-        return forceEnabledAfterDeathMessage;
+    public boolean isForceEnabledAfterSetBounty() {
+        return forceEnabledAfterSetBounty;
+    }
+
+    public String getForceEnabledAfterMessage() {
+        return forceEnabledAfterMessage;
     }
 
     public Set<String> getPreventedWorlds() {
@@ -373,5 +394,13 @@ public class ConfigHandler {
 
     public int getPreventedAfterDisableTicks() {
         return preventedAfterDisableTicks;
+    }
+
+    public boolean isPreventedAfterSetBounty() {
+        return preventedAfterSetBounty;
+    }
+
+    public int getPreventedAfterSetBountyTicks() {
+        return preventedAfterSetBountyTicks;
     }
 }

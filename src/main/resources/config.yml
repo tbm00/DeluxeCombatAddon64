@@ -1,4 +1,4 @@
-# DeluxeCombatAddon64 v0.0.6-beta by @tbm00
+# DeluxeCombatAddon64 v0.0.7-beta by @tbm00
 # https://github.com/tbm00/DeluxeCombatAddon64
 
 enabled: true
@@ -27,9 +27,11 @@ togglePvpCommand:
     preventedToggleAfterCombatLogMessage: "&cYou cannot toggle pvp after combat-logging -- please wait &6<time_left>&c!"
     preventedToggleAfterJoinMessage: "&cYou cannot toggle pvp after recently connecting -- please wait &6<time_left>&c!"
     preventedToggleAfterToggleMessage: "&cYou cannot toggle pvp after recently toggling -- please wait &6<time_left>&c!"
+    preventedToggleAfterSetBountyMessage: "&cYou cannot toggle pvp after recently setting a bounty -- please wait &6<time_left>&c!"
     preventedToggleAfterBonusMessage: "&cYou cannot toggle pvp -- please wait &6<time_left>&c!"
-    forceEnabledAfterDeathMessage: "You died and your pvp was &are-&nenabled&r!"
+    forceEnabledAfterMessage: "Your pvp was &are-&nenabled&r!"
   forceEnabledAfterDeath: true
+  forceEnabledAfterSetBounty: true
   preventedInWorlds: []
     #- "world_nether"
   preventedWithBounty: true
@@ -58,3 +60,6 @@ togglePvpCommand:
   preventedAfterDisable:
     enabled: true
     time: 15 # seconds
+  preventedAfterSetBounty:
+    enabled: true
+    time: 600 # seconds

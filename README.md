@@ -46,7 +46,7 @@ aliases:
 
 ## Config
 ```
-# DeluxeCombatAddon64 v0.0.6-beta by @tbm00
+# DeluxeCombatAddon64 v0.0.7-beta by @tbm00
 # https://github.com/tbm00/DeluxeCombatAddon64
 
 enabled: true
@@ -67,6 +67,7 @@ togglePvpCommand:
     disabledGraceMessage: "" # "You &ndisabled&r your newbie protection, your PVP is &a&nenabled&r!"
     disabledGraceByOtherMessage: "" # "Your newbie protection has been &ndisabled&r, your PVP is &a&nenabled&r!"
     preventedToggleInWorldsMessage: "&cYou cannot toggle pvp in this world!"
+    preventedToggleWithBountyMessage: "&cYou cannot toggle pvp in with an active bounty!"
     preventedToggleInCombatMessage: "&cYou cannot toggle pvp during combat!"
     preventedToggleAfterCombatMessage: "&cYou cannot toggle pvp after recent combat -- please wait &6<time_left>&c!"
     preventedToggleAfterMurderMessage: "&cYou cannot toggle pvp after killing someone -- please wait &6<time_left>&c!"
@@ -74,11 +75,14 @@ togglePvpCommand:
     preventedToggleAfterCombatLogMessage: "&cYou cannot toggle pvp after combat-logging -- please wait &6<time_left>&c!"
     preventedToggleAfterJoinMessage: "&cYou cannot toggle pvp after recently connecting -- please wait &6<time_left>&c!"
     preventedToggleAfterToggleMessage: "&cYou cannot toggle pvp after recently toggling -- please wait &6<time_left>&c!"
+    preventedToggleAfterSetBountyMessage: "&cYou cannot toggle pvp after recently setting a bounty -- please wait &6<time_left>&c!"
     preventedToggleAfterBonusMessage: "&cYou cannot toggle pvp -- please wait &6<time_left>&c!"
-    forceEnabledAfterDeathMessage: "You died and your pvp was &are-&nenabled&r!"
+    forceEnabledAfterMessage: "Your pvp was &are-&nenabled&r!"
   forceEnabledAfterDeath: true
+  forceEnabledAfterSetBounty: true
   preventedInWorlds: []
     #- "world_nether"
+  preventedWithBounty: true
   preventedInCombat: true
   preventedAfterCombat:
     enabled: true
@@ -104,4 +108,7 @@ togglePvpCommand:
   preventedAfterDisable:
     enabled: true
     time: 15 # seconds
+  preventedAfterSetBounty:
+    enabled: true
+    time: 600 # seconds
 ```

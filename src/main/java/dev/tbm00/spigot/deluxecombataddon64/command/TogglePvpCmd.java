@@ -29,7 +29,7 @@ public class TogglePvpCmd implements TabExecutor {
     private final String PERMISSION_MANAGE_COOLDOWNS = "deluxecombataddon64.managecooldowns";
     private final String PERMISSION_TOGGLE_OTHERS = "deluxecombataddon64.toggle.others";
     private final String PERMISSION_TOGGLE_SELF = "deluxecombataddon64.toggle.self";
-    private final Set<String> COOLDOWN_TYPES = new HashSet<>(Set.of("COMBAT", "MURDER", "DEATH", "COMBATLOG", "JOIN", "TOGGLE", "BONUS"));
+    private final Set<String> COOLDOWN_TYPES = new HashSet<>(Set.of("COMBAT", "MURDER", "DEATH", "COMBATLOG", "JOIN", "TOGGLE", "SETBOUNTY", "BONUS"));
 
     public TogglePvpCmd(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, EntryManager entryManager, DCHook dcHook) {
         this.entryManager = entryManager;

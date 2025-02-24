@@ -50,6 +50,7 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
 
                     // Register TogglePvpCmd
                     getCommand("pvp").setExecutor(new TogglePvpCmd(this, configHandler, entryManager, dcHook));
+                    //getCommand("togglepvp").setExecutor(new TogglePvpCmd(this, configHandler, entryManager, dcHook));
 
                     // Register listeners based on config
                     if (configHandler.isPreventedAfterCombat())
@@ -58,6 +59,8 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                         getServer().getPluginManager().registerEvents(new PlayerDeath(this, configHandler, entryManager, dcHook), this);
                     if (configHandler.isPreventedAfterJoin()||configHandler.isPreventedAfterCombatLog())
                         getServer().getPluginManager().registerEvents(new PlayerConnection(this, configHandler, entryManager), this);
+                    if (configHandler.isPreventedAfterSetBounty()||configHandler.isForceEnabledAfterSetBounty())
+                        getServer().getPluginManager().registerEvents(new PlayerSetBounty(this, configHandler, entryManager, dcHook), this);
                 }
 
                 // Register respawn anchor explosion listener based on config
