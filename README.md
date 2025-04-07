@@ -91,7 +91,7 @@ togglePvpCommand:
     preventedToggleAfterDeathMessage: "&cYou cannot toggle pvp after recently dying -- please wait &6<time_left>&c!"
     preventedToggleAfterCombatLogMessage: "&cYou cannot toggle pvp after combat-logging -- please wait &6<time_left>&c!"
     preventedToggleAfterJoinMessage: "&cYou cannot toggle pvp after recently connecting -- please wait &6<time_left>&c!"
-    preventedToggleAfterToggleMessage: "&cYou cannot toggle pvp after recently toggling -- please wait &6<time_left>&c!"
+    preventedToggleAfterEnablingMessage: "&cYou cannot toggle pvp after recently toggling -- please wait &6<time_left>&c!"
     preventedToggleAfterSetBountyMessage: "&cYou cannot toggle pvp after recently setting a bounty -- please wait &6<time_left>&c!"
     preventedToggleAfterBonusMessage: "&cYou cannot toggle pvp -- please wait &6<time_left>&c!"
     forceEnabledAfterMessage: "Your pvp was &are-&nenabled&r!"
@@ -122,9 +122,6 @@ togglePvpCommand:
   preventedAfterEnable:
     enabled: true
     time: 30 # seconds
-  preventedAfterDisable:
-    enabled: true
-    time: 15 # seconds
   preventedAfterSetBounty:
     enabled: true
     time: 600 # seconds

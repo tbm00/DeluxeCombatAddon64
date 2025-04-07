@@ -28,7 +28,7 @@ public class TogglePvpCmd implements TabExecutor {
     private final String PERMISSION_MANAGE_COOLDOWNS = "deluxecombataddon64.managecooldowns";
     private final String PERMISSION_TOGGLE_OTHERS = "deluxecombataddon64.toggle.others";
     private final String PERMISSION_TOGGLE_SELF = "deluxecombataddon64.toggle.self";
-    private final Set<String> COOLDOWN_TYPES = new HashSet<>(Set.of("COMBAT", "MURDER", "DEATH", "COMBATLOG", "JOIN", "TOGGLE", "SETBOUNTY", "BONUS"));
+    private final Set<String> COOLDOWN_TYPES = new HashSet<>(Set.of("COMBAT", "MURDER", "DEATH", "COMBATLOG", "JOIN", "ENABLE", "SETBOUNTY", "BONUS"));
 
     public TogglePvpCmd(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, CooldownManager cooldownManager, DCHook dcHook) {
         this.cooldownManager = cooldownManager;
@@ -184,14 +184,12 @@ public class TogglePvpCmd implements TabExecutor {
         if (currentPvpEnabled) { // if enabled, disable it
             dcHook.togglePvP(target, false);
             sendMessage(target, configHandler.getDisabledMessage());
-            if (configHandler.isPreventedAfterDisable())
-                cooldownManager.setMapTime(target, "TOGGLE", configHandler.getPreventedAfterDisableTicks());
             return true;
         } else { // if disabled, enable it
             dcHook.togglePvP(target, true);
             sendMessage(target, configHandler.getEnabledMessage());
             if (configHandler.isPreventedAfterEnable())
-                cooldownManager.setMapTime(target, "TOGGLE", configHandler.getPreventedAfterEnableTicks());
+                cooldownManager.setMapTime(target, "ENABLE", configHandler.getPreventedAfterEnableTicks());
             return true;
         }
     }

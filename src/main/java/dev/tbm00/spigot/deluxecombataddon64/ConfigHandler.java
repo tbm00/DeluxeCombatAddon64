@@ -60,8 +60,6 @@ public class ConfigHandler {
     private int preventedAfterSetBountyTicks = 0;
     private boolean preventedAfterEnable = false;
     private int preventedAfterEnableTicks = 0;
-    private boolean preventedAfterDisable = false;
-    private int preventedAfterDisableTicks = 0;
 
     /**
      * Constructs a ConfigHandler instance.
@@ -162,8 +160,8 @@ public class ConfigHandler {
                 savePreventedMessage("COMBATLOG", chatSection.getString("preventedToggleAfterCombatLogMessage"));
             if (chatSection.contains("preventedToggleAfterJoinMessage"))
                 savePreventedMessage("JOIN", chatSection.getString("preventedToggleAfterJoinMessage"));
-            if (chatSection.contains("preventedToggleAfterToggleMessage"))
-                savePreventedMessage("TOGGLE", chatSection.getString("preventedToggleAfterToggleMessage"));
+            if (chatSection.contains("preventedToggleAfterEnablingMessage"))
+                savePreventedMessage("ENABLE", chatSection.getString("preventedToggleAfterEnablingMessage"));
             if (chatSection.contains("preventedToggleAfterSetBountyMessage"))
                 savePreventedMessage("SETBOUNTY", chatSection.getString("preventedToggleAfterSetBountyMessage"));
             if (chatSection.contains("preventedToggleAfterBonusMessage"))
@@ -246,15 +244,6 @@ public class ConfigHandler {
             preventedAfterEnable = afterEnableSec.contains("enabled") ? afterEnableSec.getBoolean("enabled") : false;
             if (preventedAfterEnable) {
                 preventedAfterEnableTicks = afterEnableSec.contains("time") ? afterEnableSec.getInt("time")*20 : 0;
-            }
-        }
-
-        // Load preventedAfterDisable
-        ConfigurationSection afterDisableSec = togglePVPSection.contains("preventedAfterDisable") ? togglePVPSection.getConfigurationSection("preventedAfterDisable") : null;
-        if (afterDisableSec != null) {
-            preventedAfterDisable = afterDisableSec.contains("enabled") ? afterDisableSec.getBoolean("enabled") : false;
-            if (preventedAfterDisable) {
-                preventedAfterDisableTicks = afterDisableSec.contains("time") ? afterDisableSec.getInt("time")*20 : 0;
             }
         }
 
@@ -450,14 +439,6 @@ public class ConfigHandler {
 
     public int getPreventedAfterEnableTicks() {
         return preventedAfterEnableTicks;
-    }
-
-    public boolean isPreventedAfterDisable() {
-        return preventedAfterDisable;
-    }
-
-    public int getPreventedAfterDisableTicks() {
-        return preventedAfterDisableTicks;
     }
 
     public boolean isPreventedAfterSetBounty() {
