@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -168,18 +167,21 @@ public class TogglePvpCmd implements TabExecutor {
         // Disable newbie protection (grace) if applied
         if (disableGraceProtection(target)==1) return true;
 
-        // Check if command should be prevented because player is in combat
-        if (preventUsageInCombat(target)) return true;
+        // Only preventing toggling from enabled->disabled
+        boolean currentPvpEnabled = dcHook.hasPvPEnabled(target);
+        if (currentPvpEnabled) {
+            // Check if command should be prevented because player is in combat
+            if (preventUsageInCombat(target)) return true;
 
-        // Check if command should be prevented because player has a bounty
-        if (preventUsageWithBounty(target)) return true;
+            // Check if command should be prevented because player has a bounty
+            if (preventUsageWithBounty(target)) return true;
 
-        // Check if command should be prevented for all other reasons
-        if (preventUsageCooldown(target)) return true;
-
+            // Check if command should be prevented for all other reasons
+            if (preventUsageCooldown(target)) return true;
+        }
+        
         // Switch pvp status
-        boolean currentPvpStatus = dcHook.hasPvPEnabled(target);
-        if (currentPvpStatus) { // if enabled, disable it
+        if (currentPvpEnabled) { // if enabled, disable it
             dcHook.togglePvP(target, false);
             sendMessage(target, configHandler.getDisabledMessage());
             if (configHandler.isPreventedAfterDisable())
@@ -324,33 +326,13 @@ public class TogglePvpCmd implements TabExecutor {
      * @return true if the command should be prevented, false otherwise
      */
     private boolean preventUsageCooldown(Player target) {
-        String tickAndType = cooldownManager.getHighestTickAndType(target.getName());
-        String[] pair = tickAndType.split("\\ ");
+        String[] pair = cooldownManager.getActiveCooldown(target);
         Integer highest_map_ticks = Integer.parseInt(pair[0]);
         if (highest_map_ticks<1) return false;
 
-        int current_play_ticks;
-        try {
-            current_play_ticks = target.getStatistic(Statistic.valueOf("PLAY_ONE_MINUTE"));
-        } catch (Exception e) {
-            javaPlugin.log(ChatColor.RED, "Caught exception getting player statistic PLAY_ONE_MINUTE: " + e.getMessage());
-            try {
-                current_play_ticks = target.getStatistic(Statistic.valueOf("PLAY_ONE_TICK"));
-            } catch (Exception e2) {
-                javaPlugin.log(ChatColor.RED, "Caught exception getting player statistic PLAY_ONE_TICK: " + e2.getMessage());
-                current_play_ticks = 0;
-            }
-        }
-
-        if (highest_map_ticks>current_play_ticks+1) {
-            int time_difference = (highest_map_ticks-current_play_ticks)/20;
-            String msg = configHandler.getPreventedMessage(pair[1]).replace("<time_left>", cooldownManager.formatTime(time_difference));
-            sendMessage(target, msg);
-            return true;
-        } else {
-            cooldownManager.deletePlayerEntry(target.getName());
-            return false;
-        }
+        String msg = configHandler.getPreventedMessage(pair[1]).replace("<time_left>", cooldownManager.formatTime(highest_map_ticks));
+        sendMessage(target, msg);
+        return true;
     }
 
     /**

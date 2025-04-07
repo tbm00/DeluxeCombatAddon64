@@ -180,6 +180,41 @@ public class CooldownManager {
     }
 
     /**
+     * Checks if the player has an active cooldown timer.
+     * 
+     * @param target the player executing the command
+     * @return `0,none/null` if no cooldown, other wise return `seconds,type`
+     */
+    public String[] getActiveCooldown(Player target) {
+        String tickAndType = getHighestTickAndType(target.getName());
+        String[] pair = tickAndType.split("\\ ");
+        Integer highest_map_ticks = Integer.parseInt(pair[0]);
+        if (highest_map_ticks<1) return pair;
+
+        int current_play_ticks;
+        try {
+            current_play_ticks = target.getStatistic(Statistic.valueOf("PLAY_ONE_MINUTE"));
+        } catch (Exception e) {
+            javaPlugin.log(ChatColor.RED, "Caught exception getting player statistic PLAY_ONE_MINUTE: " + e.getMessage());
+            try {
+                current_play_ticks = target.getStatistic(Statistic.valueOf("PLAY_ONE_TICK"));
+            } catch (Exception e2) {
+                javaPlugin.log(ChatColor.RED, "Caught exception getting player statistic PLAY_ONE_TICK: " + e2.getMessage());
+                current_play_ticks = 0;
+            }
+        }
+
+        if (highest_map_ticks>current_play_ticks+1) {
+            pair[0] = ((highest_map_ticks-current_play_ticks)/20)+"";
+            return pair;
+        } else {
+            deletePlayerEntry(target.getName());
+            pair[0] = "0";
+            return pair;
+        }
+    }
+
+    /**
      * Formats a given amount of time in seconds into a human-readable string (e.g., "12 hours, 4 minutes, 3 seconds").
      *
      * @param totalSeconds the total time in seconds

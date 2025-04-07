@@ -60,6 +60,9 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                     getCommand("pvp").setExecutor(new TogglePvpCmd(this, configHandler, cooldownManager, dcHook));
                     //getCommand("togglepvp").setExecutor(new TogglePvpCmd(this, configHandler, cooldownManager, dcHook));
 
+                    // Register world change listener
+                    getServer().getPluginManager().registerEvents(new PlayerWorldChange(this, dcHook, cooldownManager), this);
+
                     // Register listeners based on config
                     if (configHandler.isPreventedAfterCombat())
                         getServer().getPluginManager().registerEvents(new PlayerCombat(this, configHandler, cooldownManager), this);
@@ -67,11 +70,11 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                         getServer().getPluginManager().registerEvents(new PlayerDeath(this, configHandler, cooldownManager, dcHook), this);
                     if (configHandler.isPreventedAfterJoin()||configHandler.isPreventedAfterCombatLog())
                         getServer().getPluginManager().registerEvents(new PlayerConnection(this, configHandler, cooldownManager), this);
-                }
 
-                // Register bounty listern if any part requires it
-                if (configHandler.isPreventedAfterSetBounty()||configHandler.isForceEnabledAfterSetBounty()||configHandler.isBountyProtCommandEnabled())
-                    getServer().getPluginManager().registerEvents(new PlayerSetBounty(this, configHandler, cooldownManager, protectionManager, dcHook), this);
+                    // Register bounty listener if any part requires it
+                    if (configHandler.isPreventedAfterSetBounty()||configHandler.isForceEnabledAfterSetBounty()||configHandler.isBountyProtCommandEnabled())
+                        getServer().getPluginManager().registerEvents(new PlayerSetBounty(this, configHandler, cooldownManager, protectionManager, dcHook), this);
+                }
 
                 // Register respawn anchor explosion listener based on config
                 if (configHandler.getCheckAnchorExplosions())
