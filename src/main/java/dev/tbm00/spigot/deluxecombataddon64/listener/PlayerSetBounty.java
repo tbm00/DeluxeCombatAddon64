@@ -46,8 +46,8 @@ public class PlayerSetBounty implements Listener {
             return;
         }
 
-        if (configHandler.isPreventedAfterSetBounty()) {
-            cooldownManager.setMapTime(sender, "SETBOUNTY", configHandler.getPreventedAfterSetBountyTicks());
+        if (configHandler.getPreventDisableAfterSetBounty()) {
+            cooldownManager.setMapTime(sender, "SETBOUNTY", configHandler.getPreventDisableAfterSetBountyTicks());
         }
 
         if (configHandler.isForceEnabledAfterSetBounty() && !dcHook.hasPvPEnabled(sender)) {

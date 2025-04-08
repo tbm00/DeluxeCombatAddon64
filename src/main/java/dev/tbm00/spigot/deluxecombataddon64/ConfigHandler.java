@@ -34,33 +34,34 @@ public class ConfigHandler {
     private String disabledByOtherMessage = null;
     private String disabledGraceMessage = null;
     private String disabledGraceByOtherMessage = null;
-    private String preventedToggleInWorldsMessage = null;
-    private String preventedToggleWithBountyMessage = null;
-    private String preventedToggleInCombatMessage = null;
-    private Map<String, String> preventedToggleAfterMessages;
+    private String preventDisableInWorldsMessage = null;
+    private String preventDisableWithBountyMessage = null;
+    private String preventDisableInCombatMessage = null;
+    private Map<String, String> preventDisableAfterMessages;
     private boolean forceEnabledAfterDeath = false;
     private boolean forceEnabledAfterSetBounty = false;
     private String forceEnabledAfterMessage = null;
-    private boolean forceEnabledWorldChangeListener = false;
-    private Set<String> preventedWorlds = new HashSet<>();
-    private boolean preventedWithBounty = false;
-    private boolean preventedInCombat = false;
-    private boolean preventedAfterCombat = false;
-    private int preventedAfterCombatTicks = 0;
-    private boolean preventedAfterMurder = false;
-    private int preventedAfterMurderTicks = 0;
-    private boolean preventedAfterPVPDeath = false;
-    private int preventedAfterPVPDeathTicks = 0;
-    private boolean preventedAfterPVEDeath = false;
-    private int preventedAfterPVEDeathTicks = 0;
-    private boolean preventedAfterCombatLog = false;
-    private int preventedAfterCombatLogTicks = 0;
-    private boolean preventedAfterJoin = false;
-    private int preventedAfterJoinTicks = 0;
-    private boolean preventedAfterSetBounty = false;
-    private int preventedAfterSetBountyTicks = 0;
-    private boolean preventedAfterEnable = false;
-    private int preventedAfterEnableTicks = 0;
+    private boolean cooldownWorldChangeCheck = false;
+    private Set<String> preventDisableWorlds = new HashSet<>();
+    private Set<String> cooldownNotAppliedInWorlds = new HashSet<>();
+    private boolean preventDisableWithBounty = false;
+    private boolean preventDisableInCombat = false;
+    private boolean preventDisableAfterCombat = false;
+    private int preventDisableAfterCombatTicks = 0;
+    private boolean preventDisableAfterMurder = false;
+    private int preventDisableAfterMurderTicks = 0;
+    private boolean preventDisableAfterPVPDeath = false;
+    private int preventDisableAfterPVPDeathTicks = 0;
+    private boolean preventDisableAfterPVEDeath = false;
+    private int preventDisableAfterPVEDeathTicks = 0;
+    private boolean preventDisableAfterCombatLog = false;
+    private int preventDisableAfterCombatLogTicks = 0;
+    private boolean preventDisableAfterJoin = false;
+    private int preventDisableAfterJoinTicks = 0;
+    private boolean preventDisableAfterSetBounty = false;
+    private int preventDisableAfterSetBountyTicks = 0;
+    private boolean preventDisableAfterEnable = false;
+    private int preventDisableAfterEnableTicks = 0;
 
     /**
      * Constructs a ConfigHandler instance.
@@ -147,26 +148,26 @@ public class ConfigHandler {
             disabledGraceMessage = chatSection.contains("disabledGraceMessage") ? chatSection.getString("disabledGraceMessage") : null;
             disabledGraceByOtherMessage = chatSection.contains("disabledGraceByOtherMessage") ? chatSection.getString("disabledGraceByOtherMessage") : null;
             forceEnabledAfterMessage = chatSection.contains("forceEnabledAfterMessage") ? chatSection.getString("forceEnabledAfterMessage") : null;
-            preventedToggleInCombatMessage = chatSection.contains("preventedToggleInCombatMessage") ? chatSection.getString("preventedToggleInCombatMessage") : null;
-            preventedToggleInWorldsMessage = chatSection.contains("preventedToggleInWorldsMessage") ? chatSection.getString("preventedToggleInWorldsMessage") : null;
-            preventedToggleWithBountyMessage = chatSection.contains("preventedToggleWithBountyMessage") ? chatSection.getString("preventedToggleWithBountyMessage") : null;
-            preventedToggleAfterMessages = new ConcurrentHashMap<>();
-            if (chatSection.contains("preventedToggleAfterCombatMessage"))
-                savePreventedMessage("COMBAT", chatSection.getString("preventedToggleAfterCombatMessage"));
-            if (chatSection.contains("preventedToggleAfterMurderMessage"))
-                savePreventedMessage("MURDER", chatSection.getString("preventedToggleAfterMurderMessage"));
-            if (chatSection.contains("preventedToggleAfterDeathMessage"))
-                savePreventedMessage("DEATH", chatSection.getString("preventedToggleAfterDeathMessage"));
-            if (chatSection.contains("preventedToggleAfterCombatLogMessage"))
-                savePreventedMessage("COMBATLOG", chatSection.getString("preventedToggleAfterCombatLogMessage"));
-            if (chatSection.contains("preventedToggleAfterJoinMessage"))
-                savePreventedMessage("JOIN", chatSection.getString("preventedToggleAfterJoinMessage"));
-            if (chatSection.contains("preventedToggleAfterEnablingMessage"))
-                savePreventedMessage("ENABLE", chatSection.getString("preventedToggleAfterEnablingMessage"));
-            if (chatSection.contains("preventedToggleAfterSetBountyMessage"))
-                savePreventedMessage("SETBOUNTY", chatSection.getString("preventedToggleAfterSetBountyMessage"));
-            if (chatSection.contains("preventedToggleAfterBonusMessage"))
-                savePreventedMessage("BONUS", chatSection.getString("preventedToggleAfterBonusMessage"));
+            preventDisableInCombatMessage = chatSection.contains("preventDisableInCombatMessage") ? chatSection.getString("preventDisableInCombatMessage") : null;
+            preventDisableInWorldsMessage = chatSection.contains("preventDisableInWorldsMessage") ? chatSection.getString("preventDisableInWorldsMessage") : null;
+            preventDisableWithBountyMessage = chatSection.contains("preventDisableWithBountyMessage") ? chatSection.getString("preventDisableWithBountyMessage") : null;
+            preventDisableAfterMessages = new ConcurrentHashMap<>();
+            if (chatSection.contains("preventDisableAfterCombatMessage"))
+                savePreventDisableMessage("COMBAT", chatSection.getString("preventDisableAfterCombatMessage"));
+            if (chatSection.contains("preventDisableAfterMurderMessage"))
+                savePreventDisableMessage("MURDER", chatSection.getString("preventDisableAfterMurderMessage"));
+            if (chatSection.contains("preventDisableAfterDeathMessage"))
+                savePreventDisableMessage("DEATH", chatSection.getString("preventDisableAfterDeathMessage"));
+            if (chatSection.contains("preventDisableAfterCombatLogMessage"))
+                savePreventDisableMessage("COMBATLOG", chatSection.getString("preventDisableAfterCombatLogMessage"));
+            if (chatSection.contains("preventDisableAfterJoinMessage"))
+                savePreventDisableMessage("JOIN", chatSection.getString("preventDisableAfterJoinMessage"));
+            if (chatSection.contains("preventDisableAfterEnablingMessage"))
+                savePreventDisableMessage("ENABLE", chatSection.getString("preventDisableAfterEnablingMessage"));
+            if (chatSection.contains("preventDisableAfterSetBountyMessage"))
+                savePreventDisableMessage("SETBOUNTY", chatSection.getString("preventDisableAfterSetBountyMessage"));
+            if (chatSection.contains("preventDisableAfterBonusMessage"))
+                savePreventDisableMessage("BONUS", chatSection.getString("preventDisableAfterBonusMessage"));
         }
 
         // Load forceEnabledAfterDeath
@@ -175,88 +176,92 @@ public class ConfigHandler {
         // Load forceEnabledAfterSetBounty
         forceEnabledAfterSetBounty = togglePVPSection.contains("forceEnabledAfterSetBounty") ? togglePVPSection.getBoolean("forceEnabledAfterSetBounty") : false;
 
-        // Load forceEnabledWorldChangeListener
-        forceEnabledWorldChangeListener = togglePVPSection.contains("forceEnabledWorldChangeListener") ? togglePVPSection.getBoolean("forceEnabledWorldChangeListener") : false;
+        // Load cooldownWorldChangeCheck
+        cooldownWorldChangeCheck = togglePVPSection.contains("cooldownWorldChangeCheck") ? togglePVPSection.getBoolean("cooldownWorldChangeCheck") : false;
 
-        // Load preventedWorlds
-        List<String> worldsHolder = togglePVPSection.contains("preventedInWorlds") ? togglePVPSection.getStringList("preventedInWorlds") : null;
-        preventedWorlds.addAll(worldsHolder);
+        // Load preventDisableWorlds
+        List<String> worldsHolder = togglePVPSection.contains("preventDisableInWorlds") ? togglePVPSection.getStringList("preventDisableInWorlds") : null;
+        preventDisableWorlds.addAll(worldsHolder);
 
-        // Load preventedWithBounty
-        preventedWithBounty = togglePVPSection.contains("preventedWithBounty") ? togglePVPSection.getBoolean("preventedWithBounty") : false;
+        // Load preventDisableWorlds
+        List<String> worldsHolder2 = togglePVPSection.contains("cooldownNotAppliedInWorlds") ? togglePVPSection.getStringList("cooldownNotAppliedInWorlds") : null;
+        cooldownNotAppliedInWorlds.addAll(worldsHolder2);
 
-        // Load preventedInCombat
-        preventedInCombat = togglePVPSection.contains("preventedInCombat") ? togglePVPSection.getBoolean("preventedInCombat") : false;
+        // Load preventDisableWithBounty
+        preventDisableWithBounty = togglePVPSection.contains("preventDisableWithBounty") ? togglePVPSection.getBoolean("preventDisableWithBounty") : false;
 
-        // Load preventedAfterCombat
-        ConfigurationSection afterCombatSec = togglePVPSection.contains("preventedAfterCombat") ? togglePVPSection.getConfigurationSection("preventedAfterCombat") : null;
+        // Load preventDisableInCombat
+        preventDisableInCombat = togglePVPSection.contains("preventDisableInCombat") ? togglePVPSection.getBoolean("preventDisableInCombat") : false;
+
+        // Load preventDisableAfterCombat
+        ConfigurationSection afterCombatSec = togglePVPSection.contains("preventDisableAfterCombat") ? togglePVPSection.getConfigurationSection("preventDisableAfterCombat") : null;
         if (afterCombatSec != null) {
-            preventedAfterCombat = afterCombatSec.contains("enabled") ? afterCombatSec.getBoolean("enabled") : false;
-            if (preventedAfterCombat) {
-                preventedAfterCombatTicks = afterCombatSec.contains("time") ? afterCombatSec.getInt("time")*20 : 0;
+            preventDisableAfterCombat = afterCombatSec.contains("enabled") ? afterCombatSec.getBoolean("enabled") : false;
+            if (preventDisableAfterCombat) {
+                preventDisableAfterCombatTicks = afterCombatSec.contains("time") ? afterCombatSec.getInt("time")*20 : 0;
             }
         }
 
-        // Load preventedAfterMurder
-        ConfigurationSection afterMurderSec = togglePVPSection.contains("preventedAfterMurder") ? togglePVPSection.getConfigurationSection("preventedAfterMurder") : null;
+        // Load preventDisableAfterMurder
+        ConfigurationSection afterMurderSec = togglePVPSection.contains("preventDisableAfterMurder") ? togglePVPSection.getConfigurationSection("preventDisableAfterMurder") : null;
         if (afterMurderSec != null) {
-            preventedAfterMurder = afterMurderSec.contains("enabled") ? afterMurderSec.getBoolean("enabled") : false;
-            if (preventedAfterMurder) {
-                preventedAfterMurderTicks = afterMurderSec.contains("time") ? afterMurderSec.getInt("time")*20 : 0;
+            preventDisableAfterMurder = afterMurderSec.contains("enabled") ? afterMurderSec.getBoolean("enabled") : false;
+            if (preventDisableAfterMurder) {
+                preventDisableAfterMurderTicks = afterMurderSec.contains("time") ? afterMurderSec.getInt("time")*20 : 0;
             }
         }
 
-        // Load preventedAfterPVPDeath
-        ConfigurationSection afterPVPDeathSec = togglePVPSection.contains("preventedAfterPVPDeath") ? togglePVPSection.getConfigurationSection("preventedAfterPVPDeath") : null;
+        // Load preventDisableAfterPVPDeath
+        ConfigurationSection afterPVPDeathSec = togglePVPSection.contains("preventDisableAfterPVPDeath") ? togglePVPSection.getConfigurationSection("preventDisableAfterPVPDeath") : null;
         if (afterPVPDeathSec != null) {
-            preventedAfterPVPDeath = afterPVPDeathSec.contains("enabled") ? afterPVPDeathSec.getBoolean("enabled") : false;
-            if (preventedAfterPVPDeath) {
-                preventedAfterPVPDeathTicks = afterPVPDeathSec.contains("time") ? afterPVPDeathSec.getInt("time")*20 : 0;
+            preventDisableAfterPVPDeath = afterPVPDeathSec.contains("enabled") ? afterPVPDeathSec.getBoolean("enabled") : false;
+            if (preventDisableAfterPVPDeath) {
+                preventDisableAfterPVPDeathTicks = afterPVPDeathSec.contains("time") ? afterPVPDeathSec.getInt("time")*20 : 0;
             }
         }
 
-        // Load preventedAfterPVEDeath
-        ConfigurationSection afterPVEDeathSec = togglePVPSection.contains("preventedAfterPVEDeath") ? togglePVPSection.getConfigurationSection("preventedAfterPVEDeath") : null;
+        // Load preventDisableAfterPVEDeath
+        ConfigurationSection afterPVEDeathSec = togglePVPSection.contains("preventDisableAfterPVEDeath") ? togglePVPSection.getConfigurationSection("preventDisableAfterPVEDeath") : null;
         if (afterPVEDeathSec != null) {
-            preventedAfterPVEDeath = afterPVEDeathSec.contains("enabled") ? afterPVEDeathSec.getBoolean("enabled") : false;
-            if (preventedAfterPVEDeath) {
-                preventedAfterPVEDeathTicks = afterPVEDeathSec.contains("time") ? afterPVEDeathSec.getInt("time")*20 : 0;
+            preventDisableAfterPVEDeath = afterPVEDeathSec.contains("enabled") ? afterPVEDeathSec.getBoolean("enabled") : false;
+            if (preventDisableAfterPVEDeath) {
+                preventDisableAfterPVEDeathTicks = afterPVEDeathSec.contains("time") ? afterPVEDeathSec.getInt("time")*20 : 0;
             }
         }
 
-        // Load preventedAfterCombatLog
-        ConfigurationSection afterCombatLogSec = togglePVPSection.contains("preventedAfterCombatLog") ? togglePVPSection.getConfigurationSection("preventedAfterCombatLog") : null;
+        // Load preventDisableAfterCombatLog
+        ConfigurationSection afterCombatLogSec = togglePVPSection.contains("preventDisableAfterCombatLog") ? togglePVPSection.getConfigurationSection("preventDisableAfterCombatLog") : null;
         if (afterCombatLogSec != null) {
-            preventedAfterCombatLog = afterCombatLogSec.contains("enabled") ? afterCombatLogSec.getBoolean("enabled") : false;
-            if (preventedAfterCombatLog) {
-                preventedAfterCombatLogTicks = afterCombatLogSec.contains("time") ? afterCombatLogSec.getInt("time")*20 : 0;
+            preventDisableAfterCombatLog = afterCombatLogSec.contains("enabled") ? afterCombatLogSec.getBoolean("enabled") : false;
+            if (preventDisableAfterCombatLog) {
+                preventDisableAfterCombatLogTicks = afterCombatLogSec.contains("time") ? afterCombatLogSec.getInt("time")*20 : 0;
             }
         }
 
-        // Load preventedAfterJoin
-        ConfigurationSection afterJoinSec = togglePVPSection.contains("preventedAfterJoin") ? togglePVPSection.getConfigurationSection("preventedAfterJoin") : null;
+        // Load preventDisableAfterJoin
+        ConfigurationSection afterJoinSec = togglePVPSection.contains("preventDisableAfterJoin") ? togglePVPSection.getConfigurationSection("preventDisableAfterJoin") : null;
         if (afterJoinSec != null) { 
-            preventedAfterJoin = afterJoinSec.contains("enabled") ? afterJoinSec.getBoolean("enabled") : false;
-            if (preventedAfterJoin) {
-                preventedAfterJoinTicks = afterJoinSec.contains("time") ? afterJoinSec.getInt("time")*20 : 0;
+            preventDisableAfterJoin = afterJoinSec.contains("enabled") ? afterJoinSec.getBoolean("enabled") : false;
+            if (preventDisableAfterJoin) {
+                preventDisableAfterJoinTicks = afterJoinSec.contains("time") ? afterJoinSec.getInt("time")*20 : 0;
             }
         }
 
-        // Load preventedAfterEnable
-        ConfigurationSection afterEnableSec = togglePVPSection.contains("preventedAfterEnable") ? togglePVPSection.getConfigurationSection("preventedAfterEnable") : null;
+        // Load preventDisableAfterEnable
+        ConfigurationSection afterEnableSec = togglePVPSection.contains("preventDisableAfterEnable") ? togglePVPSection.getConfigurationSection("preventDisableAfterEnable") : null;
         if (afterEnableSec != null) {
-            preventedAfterEnable = afterEnableSec.contains("enabled") ? afterEnableSec.getBoolean("enabled") : false;
-            if (preventedAfterEnable) {
-                preventedAfterEnableTicks = afterEnableSec.contains("time") ? afterEnableSec.getInt("time")*20 : 0;
+            preventDisableAfterEnable = afterEnableSec.contains("enabled") ? afterEnableSec.getBoolean("enabled") : false;
+            if (preventDisableAfterEnable) {
+                preventDisableAfterEnableTicks = afterEnableSec.contains("time") ? afterEnableSec.getInt("time")*20 : 0;
             }
         }
 
-        // Load preventedAfterSetBounty
-        ConfigurationSection afterSetBountySec = togglePVPSection.contains("preventedAfterSetBounty") ? togglePVPSection.getConfigurationSection("preventedAfterSetBounty") : null;
+        // Load preventDisableAfterSetBounty
+        ConfigurationSection afterSetBountySec = togglePVPSection.contains("preventDisableAfterSetBounty") ? togglePVPSection.getConfigurationSection("preventDisableAfterSetBounty") : null;
         if (afterSetBountySec != null) { 
-            preventedAfterSetBounty = afterSetBountySec.contains("enabled") ? afterSetBountySec.getBoolean("enabled") : false;
-            if (preventedAfterSetBounty) {
-                preventedAfterSetBountyTicks = afterSetBountySec.contains("time") ? afterSetBountySec.getInt("time")*20 : 0;
+            preventDisableAfterSetBounty = afterSetBountySec.contains("enabled") ? afterSetBountySec.getBoolean("enabled") : false;
+            if (preventDisableAfterSetBounty) {
+                preventDisableAfterSetBountyTicks = afterSetBountySec.contains("time") ? afterSetBountySec.getInt("time")*20 : 0;
             }
         }
     }
@@ -264,21 +269,21 @@ public class ConfigHandler {
     /**
      * Saves the message associated with a prevented type.
      *
-     * @param preventedType the type/reason of prevention (e.g., "COMBAT", "MURDER", etc.)
-     * @param preventedMessage the message to be saved
+     * @param cooldownType the type/reason of prevention (e.g., "COMBAT", "MURDER", etc.)
+     * @param preventDisableMessage the message to be saved
      */
-    public void savePreventedMessage(String preventedType, String preventedMessage) {
-        preventedToggleAfterMessages.put(preventedType, preventedMessage);
+    public void savePreventDisableMessage(String cooldownType, String preventDisableMessage) {
+        preventDisableAfterMessages.put(cooldownType, preventDisableMessage);
     }
 
     /**
      * Retrieves the message associated with a specific prevented type.
      * 
-     * @param preventedType the type/reason of prevention (e.g., "COMBAT", "MURDER", etc.)
-     * @return the message associated with the provided prevented type, or null if not found
+     * @param cooldownType the type/reason of prevention (e.g., "COMBAT", "MURDER", etc.)
+     * @return the message associated with the provided preventDisable type, or null if not found
      */
-    public String getPreventedMessage(String preventedType) {
-        return preventedToggleAfterMessages.get(preventedType);
+    public String getPreventDisableMessage(String cooldownType) {
+        return preventDisableAfterMessages.get(cooldownType);
     }
 
     public boolean isEnabled() {
@@ -349,16 +354,16 @@ public class ConfigHandler {
         return disabledGraceByOtherMessage;
     }
 
-    public String getPreventedToggleInWorldsMessage() {
-        return preventedToggleInWorldsMessage;
+    public String getPreventDisableInWorldsMessage() {
+        return preventDisableInWorldsMessage;
     }
 
-    public String getPreventedToggleWithBountyMessage() {
-        return preventedToggleWithBountyMessage;
+    public String getPreventDisableWithBountyMessage() {
+        return preventDisableWithBountyMessage;
     }
     
-    public String getPreventedToggleInCombatMessage() {
-        return preventedToggleInCombatMessage;
+    public String getPreventDisableInCombatMessage() {
+        return preventDisableInCombatMessage;
     }
 
     public boolean getCheckAnchorExplosions() {
@@ -369,10 +374,6 @@ public class ConfigHandler {
         return forceEnabledAfterDeath;
     }
 
-    public boolean isForceEnabledWorldChangeListener() {
-        return forceEnabledWorldChangeListener;
-    }
-
     public boolean isForceEnabledAfterSetBounty() {
         return forceEnabledAfterSetBounty;
     }
@@ -381,79 +382,87 @@ public class ConfigHandler {
         return forceEnabledAfterMessage;
     }
 
-    public Set<String> getPreventedWorlds() {
-        return preventedWorlds;
+    public Set<String> getPreventDisableWorlds() {
+        return preventDisableWorlds;
     }
 
-    public boolean isPreventedWithBounty() {
-        return preventedWithBounty;
+    public boolean getCooldownWorldChangeCheck() {
+        return cooldownWorldChangeCheck;
     }
 
-    public boolean isPreventedInCombat() {
-        return preventedInCombat;
+    public Set<String> getColdownNotAppliedInWorlds() {
+        return cooldownNotAppliedInWorlds;
+    }
+
+    public boolean getPreventDisableWithBounty() {
+        return preventDisableWithBounty;
+    }
+
+    public boolean getPreventDisableInCombat() {
+        return preventDisableInCombat;
     }
     
-    public boolean isPreventedAfterCombat() {
-        return preventedAfterCombat;
+    public boolean getPreventDisableAfterCombat() {
+        return preventDisableAfterCombat;
     }
 
-    public int getPreventedAfterCombatTicks() {
-        return preventedAfterCombatTicks;
+    public int getPreventDisableAfterCombatTicks() {
+        return preventDisableAfterCombatTicks;
     }
 
-    public boolean isPreventedAfterMurder() {
-        return preventedAfterMurder;
+    public boolean getPreventDisableAfterMurder() {
+        return preventDisableAfterMurder;
     }
 
-    public int getPreventedAfterMurderTicks() {
-        return preventedAfterMurderTicks;
+    public int getPreventDisableAfterMurderTicks() {
+        return preventDisableAfterMurderTicks;
     }
 
-    public boolean isPreventedAfterPVPDeath() {
-        return preventedAfterPVPDeath;
+    public boolean getPreventDisableAfterPVPDeath() {
+        return preventDisableAfterPVPDeath;
     }
 
-    public int getPreventedAfterPVPDeathTicks() {
-        return preventedAfterPVPDeathTicks;
+    public int getPreventDisableAfterPVPDeathTicks() {
+        return preventDisableAfterPVPDeathTicks;
     }
 
-    public boolean isPreventedAfterPVEDeath() {
-        return preventedAfterPVEDeath;
+    public boolean getPreventDisableAfterPVEDeath() {
+        return preventDisableAfterPVEDeath;
     }
 
-    public int getPreventedAfterPVEDeathTicks() {
-        return preventedAfterPVEDeathTicks;
+    public int getPreventDisableAfterPVEDeathTicks() {
+        return preventDisableAfterPVEDeathTicks;
     }
 
-    public boolean isPreventedAfterCombatLog() {
-        return preventedAfterCombatLog;
+    public boolean getPreventDisableAfterCombatLog() {
+        return preventDisableAfterCombatLog;
     }
 
-    public int getPreventedAfterCombatLogTicks() {
-        return preventedAfterCombatLogTicks;
+    public int getPreventDisableAfterCombatLogTicks() {
+        return preventDisableAfterCombatLogTicks;
     }
 
-    public boolean isPreventedAfterJoin() {
-        return preventedAfterJoin;
+    public boolean getPreventDisableAfterJoin() {
+        return preventDisableAfterJoin;
     }
 
-    public int getPreventedAfterJoinTicks() {
-        return preventedAfterJoinTicks;
+    public int getPreventDisableAfterJoinTicks() {
+        return preventDisableAfterJoinTicks;
     }
 
-    public boolean isPreventedAfterEnable() {
-        return preventedAfterEnable;
+    public boolean getPreventDisableAfterEnable() {
+        return preventDisableAfterEnable;
     }
 
-    public int getPreventedAfterEnableTicks() {
-        return preventedAfterEnableTicks;
+    public int getPreventDisableAfterEnableTicks() {
+        return preventDisableAfterEnableTicks;
     }
 
-    public boolean isPreventedAfterSetBounty() {
-        return preventedAfterSetBounty;
+    public boolean getPreventDisableAfterSetBounty() {
+        return preventDisableAfterSetBounty;
     }
 
-    public int getPreventedAfterSetBountyTicks() {
-        return preventedAfterSetBountyTicks;
+    public int getPreventDisableAfterSetBountyTicks() {
+        return preventDisableAfterSetBountyTicks;
     }
 }

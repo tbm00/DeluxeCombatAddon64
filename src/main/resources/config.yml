@@ -1,4 +1,4 @@
-# DeluxeCombatAddon64 v0.0.8-beta by @tbm00
+# DeluxeCombatAddon64 v0.0.9-beta by @tbm00
 # https://github.com/tbm00/DeluxeCombatAddon64
 
 enabled: true
@@ -28,46 +28,48 @@ togglePvpCommand:
     disabledByOtherMessage: "Your pvp has been &c&ndisabled&r!"
     disabledGraceMessage: "" # "You &ndisabled&r your newbie protection, your PVP is &a&nenabled&r!"
     disabledGraceByOtherMessage: "" # "Your newbie protection has been &ndisabled&r, your PVP is &a&nenabled&r!"
-    preventedToggleInWorldsMessage: "&cYou cannot toggle pvp in this world!"
-    preventedToggleWithBountyMessage: "&cYou cannot toggle pvp with an active bounty!"
-    preventedToggleInCombatMessage: "&cYou cannot toggle pvp during combat!"
-    preventedToggleAfterCombatMessage: "&cYou cannot toggle pvp after recent combat -- please wait &6<time_left>&c!"
-    preventedToggleAfterMurderMessage: "&cYou cannot toggle pvp after killing someone -- please wait &6<time_left>&c!"
-    preventedToggleAfterDeathMessage: "&cYou cannot toggle pvp after recently dying -- please wait &6<time_left>&c!"
-    preventedToggleAfterCombatLogMessage: "&cYou cannot toggle pvp after combat-logging -- please wait &6<time_left>&c!"
-    preventedToggleAfterJoinMessage: "&cYou cannot toggle pvp after recently connecting -- please wait &6<time_left>&c!"
-    preventedToggleAfterEnablingMessage: "&cYou cannot toggle pvp after recently toggling -- please wait &6<time_left>&c!"
-    preventedToggleAfterSetBountyMessage: "&cYou cannot toggle pvp after recently setting a bounty -- please wait &6<time_left>&c!"
-    preventedToggleAfterBonusMessage: "&cYou cannot toggle pvp -- please wait &6<time_left>&c!"
+    preventDisableInWorldsMessage: "&cYou cannot toggle pvp in this world!"
+    preventDisableWithBountyMessage: "&cYou cannot toggle pvp with an active bounty!"
+    preventDisableInCombatMessage: "&cYou cannot toggle pvp during combat!"
+    preventDisableAfterCombatMessage: "&cYou cannot toggle pvp after recent combat -- please wait &6<time_left>&c!"
+    preventDisableAfterMurderMessage: "&cYou cannot toggle pvp after killing someone -- please wait &6<time_left>&c!"
+    preventDisableAfterDeathMessage: "&cYou cannot toggle pvp after recently dying -- please wait &6<time_left>&c!"
+    preventDisableAfterCombatLogMessage: "&cYou cannot toggle pvp after combat-logging -- please wait &6<time_left>&c!"
+    preventDisableAfterJoinMessage: "&cYou cannot toggle pvp after recently connecting -- please wait &6<time_left>&c!"
+    preventDisableAfterEnablingMessage: "&cYou cannot toggle pvp after recently enabling -- please wait &6<time_left>&c!"
+    preventDisableAfterSetBountyMessage: "&cYou cannot toggle pvp after recently setting a bounty -- please wait &6<time_left>&c!"
+    preventDisableAfterBonusMessage: "&cYou cannot toggle pvp -- please wait &6<time_left>&c!"
     forceEnabledAfterMessage: "Your pvp was &are-&nenabled&r!"
   forceEnabledAfterDeath: true
   forceEnabledAfterSetBounty: true
-  forceEnabledWorldChangeListener: true
-  preventedInWorlds: []
+  cooldownWorldChangeCheck: true
+  cooldownNotAppliedInWorlds: []
     #- "world_nether"
-  preventedWithBounty: true
-  preventedInCombat: true
-  preventedAfterCombat:
+  preventDisableInWorlds: []
+    #- "world_nether"
+  preventDisableWithBounty: true
+  preventDisableInCombat: true
+  preventDisableAfterCombat:
     enabled: true
     time: 30 # seconds
-  preventedAfterMurder:
+  preventDisableAfterMurder:
     enabled: true
     time: 600 # seconds
-  preventedAfterPVPDeath:
+  preventDisableAfterPVPDeath:
     enabled: true
     time: 120 # seconds
-  preventedAfterPVEDeath:
+  preventDisableAfterPVEDeath:
     enabled: true
     time: 120 # seconds
-  preventedAfterCombatLog:
+  preventDisableAfterCombatLog:
     enabled: true
     time: 300 # seconds
-  preventedAfterJoin:
+  preventDisableAfterJoin:
     enabled: true
     time: 120 # seconds
-  preventedAfterEnable:
+  preventDisableAfterEnable:
     enabled: true
     time: 30 # seconds
-  preventedAfterSetBounty:
+  preventDisableAfterSetBounty:
     enabled: true
     time: 600 # seconds

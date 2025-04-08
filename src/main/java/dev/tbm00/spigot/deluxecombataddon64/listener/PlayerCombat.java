@@ -27,9 +27,10 @@ public class PlayerCombat implements Listener {
      */
     @EventHandler
     public void onCombatStateChange(CombatStateChangeEvent event) {
-        // if the state changed to off/untagged
-        if (event.getState() == CombatState.UNTAGGED) {
-            cooldownManager.setMapTime(event.getPlayer(), "COMBAT", configHandler.getPreventedAfterCombatTicks());
-        }
+        if (event.getState() != CombatState.UNTAGGED) return;
+        
+        if (configHandler.getColdownNotAppliedInWorlds().contains(event.getPlayer().getWorld().getName())) return;
+
+        cooldownManager.setMapTime(event.getPlayer(), "COMBAT", configHandler.getPreventDisableAfterCombatTicks());
     }
 }

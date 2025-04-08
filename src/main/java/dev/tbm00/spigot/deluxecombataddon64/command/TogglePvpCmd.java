@@ -188,8 +188,8 @@ public class TogglePvpCmd implements TabExecutor {
         } else { // if disabled, enable it
             dcHook.togglePvP(target, true);
             sendMessage(target, configHandler.getEnabledMessage());
-            if (configHandler.isPreventedAfterEnable())
-                cooldownManager.setMapTime(target, "ENABLE", configHandler.getPreventedAfterEnableTicks());
+            if (configHandler.getPreventDisableAfterEnable())
+                cooldownManager.setMapTime(target, "ENABLE", configHandler.getPreventDisableAfterEnableTicks());
             return true;
         }
     }
@@ -285,8 +285,8 @@ public class TogglePvpCmd implements TabExecutor {
      * @return true if the command should be prevented, false otherwise
      */
     private boolean preventUsageInWorlds(Player target) {
-        if (configHandler.getPreventedWorlds().contains(target.getWorld().getName())) {
-            sendMessage(target, configHandler.getPreventedToggleInWorldsMessage());
+        if (configHandler.getPreventDisableWorlds().contains(target.getWorld().getName())) {
+            sendMessage(target, configHandler.getPreventDisableInWorldsMessage());
             return true;
         } return false;
     }
@@ -298,8 +298,8 @@ public class TogglePvpCmd implements TabExecutor {
      * @return true if the command should be prevented, false otherwise
      */
     private boolean preventUsageWithBounty(Player target) {
-        if (dcHook.hasBounty(target) && configHandler.isPreventedWithBounty()) {
-            sendMessage(target, configHandler.getPreventedToggleWithBountyMessage());
+        if (dcHook.hasBounty(target) && configHandler.getPreventDisableWithBounty()) {
+            sendMessage(target, configHandler.getPreventDisableWithBountyMessage());
             return true;
         } return false;
     }
@@ -311,8 +311,8 @@ public class TogglePvpCmd implements TabExecutor {
      * @return true if the command should be prevented, false otherwise
      */
     private boolean preventUsageInCombat(Player target) {
-        if (dcHook.isInCombat(target) && configHandler.isPreventedInCombat()) {
-            sendMessage(target, configHandler.getPreventedToggleInCombatMessage());
+        if (dcHook.isInCombat(target) && configHandler.getPreventDisableInCombat()) {
+            sendMessage(target, configHandler.getPreventDisableInCombatMessage());
             return true;
         } return false;
     }
@@ -328,7 +328,7 @@ public class TogglePvpCmd implements TabExecutor {
         Integer highest_map_ticks = Integer.parseInt(pair[0]);
         if (highest_map_ticks<1) return false;
 
-        String msg = configHandler.getPreventedMessage(pair[1]).replace("<time_left>", cooldownManager.formatTime(highest_map_ticks));
+        String msg = configHandler.getPreventDisableMessage(pair[1]).replace("<time_left>", cooldownManager.formatTime(highest_map_ticks));
         sendMessage(target, msg);
         return true;
     }

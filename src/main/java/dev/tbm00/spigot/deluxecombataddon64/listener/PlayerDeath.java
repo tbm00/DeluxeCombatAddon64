@@ -36,14 +36,17 @@ public class PlayerDeath implements Listener {
         Player victim = event.getEntity();
         Player killer = victim.getKiller();
 
+        if (configHandler.getColdownNotAppliedInWorlds().contains(victim.getWorld().getName())) return;
+        
         if (killer!=null) {
-            if (configHandler.isPreventedAfterMurder())
-                cooldownManager.setMapTime(killer, "MURDER", configHandler.getPreventedAfterMurderTicks());
-            if (configHandler.isPreventedAfterPVPDeath())
-                cooldownManager.setMapTime(victim, "DEATH", configHandler.getPreventedAfterPVPDeathTicks());
+            if (configHandler.getColdownNotAppliedInWorlds().contains(killer.getWorld().getName())) return;
+            if (configHandler.getPreventDisableAfterMurder())
+                cooldownManager.setMapTime(killer, "MURDER", configHandler.getPreventDisableAfterMurderTicks());
+            if (configHandler.getPreventDisableAfterPVPDeath())
+                cooldownManager.setMapTime(victim, "DEATH", configHandler.getPreventDisableAfterPVPDeathTicks());
         } else {
-            if (configHandler.isPreventedAfterPVEDeath())
-                cooldownManager.setMapTime(victim, "DEATH", configHandler.getPreventedAfterPVEDeathTicks());
+            if (configHandler.getPreventDisableAfterPVEDeath())
+                cooldownManager.setMapTime(victim, "DEATH", configHandler.getPreventDisableAfterPVEDeathTicks());
         }
 
         if (configHandler.isForceEnabledAfterDeath() && !dcHook.hasPvPEnabled(victim)) {

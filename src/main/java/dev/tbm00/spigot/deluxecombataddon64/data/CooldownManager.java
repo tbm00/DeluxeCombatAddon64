@@ -15,7 +15,7 @@ import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
 public class CooldownManager {
     private final DeluxeCombatAddon64 javaPlugin;
     private final JSONHandler db;
-    private Map<String, SortedMap<Integer, String>> playerMap; // key1=<username>, value1=<cooldownMap>, key2=<ticks>, value2=<preventedType>
+    private Map<String, SortedMap<Integer, String>> playerMap; // key1=<username>, value1=<cooldownMap>, key2=<ticks>, value2=<cooldownType>
 
     /**
      * Constructs an cooldownManager instance.
@@ -45,15 +45,15 @@ public class CooldownManager {
      * Saves a new cooldown entry for a player, clearing any existing entry.
      *
      * @param username the name of the player
-     * @param preventedType the type of prevention
+     * @param cooldownType the type of prevention
      * @param ticks the cooldown time in ticks
      */
-    private void saveCooldownEntry(String username, String preventedType, Integer ticks) {
+    private void saveCooldownEntry(String username, String cooldownType, Integer ticks) {
         if (playerMap.get(username)!=null)
             deletePlayerEntry(username);
         
         SortedMap<Integer, String> cooldownMap = new TreeMap<>();
-        cooldownMap.put(ticks, preventedType);
+        cooldownMap.put(ticks, cooldownType);
         playerMap.put(username, cooldownMap);
     }
 
@@ -79,11 +79,11 @@ public class CooldownManager {
      * The cooldown time is calculated as the current play time + the additional time.
      *
      * @param player the player to add the cooldown for
-     * @param preventedType the type of prevention
+     * @param cooldownType the type of prevention
      * @param additional_ticks the additional cooldown time in ticks
      * @return true if the cooldown was successfully added, false otherwise
      */
-    public boolean setMapTime(Player player, String preventedType, int additional_ticks) {
+    public boolean setMapTime(Player player, String cooldownType, int additional_ticks) {
         String playerName = player.getName();
 
         int current_play_ticks;
@@ -102,7 +102,7 @@ public class CooldownManager {
         int potential_cooldown = current_play_ticks+additional_ticks;
 
         if (highest_map_ticks==null || highest_map_ticks<potential_cooldown) {
-            saveCooldownEntry(playerName, preventedType, potential_cooldown);
+            saveCooldownEntry(playerName, cooldownType, potential_cooldown);
             return true;
         } return false;
     }

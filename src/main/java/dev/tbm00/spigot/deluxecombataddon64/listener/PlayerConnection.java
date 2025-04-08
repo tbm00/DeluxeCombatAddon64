@@ -27,8 +27,11 @@ public class PlayerConnection implements Listener {
      */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (configHandler.isPreventedAfterJoin())
-            cooldownManager.setMapTime(event.getPlayer(), "JOIN", configHandler.getPreventedAfterJoinTicks());
+        if (!configHandler.getPreventDisableAfterJoin()) return;
+
+        if (configHandler.getColdownNotAppliedInWorlds().contains(event.getPlayer().getWorld().getName())) return;
+
+        cooldownManager.setMapTime(event.getPlayer(), "JOIN", configHandler.getPreventDisableAfterJoinTicks());
     }
 
     /**
@@ -39,7 +42,10 @@ public class PlayerConnection implements Listener {
      */
     @EventHandler
     public void onCombatLog(CombatlogEvent event) {
-        if (configHandler.isPreventedAfterCombatLog())
-            cooldownManager.setMapTime(event.getCombatlogger(), "COMBATLOG", configHandler.getPreventedAfterCombatLogTicks());
+        if (!configHandler.getPreventDisableAfterCombatLog()) return;
+
+        //if (configHandler.getColdownNotAppliedInWorlds().contains(event.getCombatlogger().getWorld().getName())) return;
+
+        cooldownManager.setMapTime(event.getCombatlogger(), "COMBATLOG", configHandler.getPreventDisableAfterCombatLogTicks());
     }
 }

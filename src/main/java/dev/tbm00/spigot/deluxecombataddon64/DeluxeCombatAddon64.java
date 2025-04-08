@@ -61,19 +61,19 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                     //getCommand("togglepvp").setExecutor(new TogglePvpCmd(this, configHandler, cooldownManager, dcHook));
 
                     // Register world change listener
-                    if (configHandler.isForceEnabledWorldChangeListener())
+                    if (configHandler.getCooldownWorldChangeCheck())
                         getServer().getPluginManager().registerEvents(new PlayerWorldChange(this, dcHook, cooldownManager), this);
 
                     // Register listeners based on config
-                    if (configHandler.isPreventedAfterCombat())
+                    if (configHandler.getPreventDisableAfterCombat())
                         getServer().getPluginManager().registerEvents(new PlayerCombat(this, configHandler, cooldownManager), this);
-                    if (configHandler.isPreventedAfterMurder()||configHandler.isForceEnabledAfterDeath()||configHandler.isForceEnabledAfterDeath())
+                    if (configHandler.getPreventDisableAfterMurder()||configHandler.isForceEnabledAfterDeath()||configHandler.isForceEnabledAfterDeath())
                         getServer().getPluginManager().registerEvents(new PlayerDeath(this, configHandler, cooldownManager, dcHook), this);
-                    if (configHandler.isPreventedAfterJoin()||configHandler.isPreventedAfterCombatLog())
+                    if (configHandler.getPreventDisableAfterJoin()||configHandler.getPreventDisableAfterCombatLog())
                         getServer().getPluginManager().registerEvents(new PlayerConnection(this, configHandler, cooldownManager), this);
 
                     // Register bounty listener if any part requires it
-                    if (configHandler.isPreventedAfterSetBounty()||configHandler.isForceEnabledAfterSetBounty()||configHandler.isBountyProtCommandEnabled())
+                    if (configHandler.getPreventDisableAfterSetBounty()||configHandler.isForceEnabledAfterSetBounty()||configHandler.isBountyProtCommandEnabled())
                         getServer().getPluginManager().registerEvents(new PlayerSetBounty(this, configHandler, cooldownManager, protectionManager, dcHook), this);
                 }
 
