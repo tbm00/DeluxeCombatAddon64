@@ -41,6 +41,7 @@ public class ConfigHandler {
     private boolean forceEnabledAfterDeath = false;
     private boolean forceEnabledAfterSetBounty = false;
     private String forceEnabledAfterMessage = null;
+    private boolean forceEnabledWorldChangeListener = false;
     private Set<String> preventedWorlds = new HashSet<>();
     private boolean preventedWithBounty = false;
     private boolean preventedInCombat = false;
@@ -173,6 +174,9 @@ public class ConfigHandler {
 
         // Load forceEnabledAfterSetBounty
         forceEnabledAfterSetBounty = togglePVPSection.contains("forceEnabledAfterSetBounty") ? togglePVPSection.getBoolean("forceEnabledAfterSetBounty") : false;
+
+        // Load forceEnabledWorldChangeListener
+        forceEnabledWorldChangeListener = togglePVPSection.contains("forceEnabledWorldChangeListener") ? togglePVPSection.getBoolean("forceEnabledWorldChangeListener") : false;
 
         // Load preventedWorlds
         List<String> worldsHolder = togglePVPSection.contains("preventedInWorlds") ? togglePVPSection.getStringList("preventedInWorlds") : null;
@@ -363,6 +367,10 @@ public class ConfigHandler {
 
     public boolean isForceEnabledAfterDeath() {
         return forceEnabledAfterDeath;
+    }
+
+    public boolean isForceEnabledWorldChangeListener() {
+        return forceEnabledWorldChangeListener;
     }
 
     public boolean isForceEnabledAfterSetBounty() {

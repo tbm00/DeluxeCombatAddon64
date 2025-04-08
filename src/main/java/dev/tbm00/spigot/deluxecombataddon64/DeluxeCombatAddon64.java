@@ -61,7 +61,8 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                     //getCommand("togglepvp").setExecutor(new TogglePvpCmd(this, configHandler, cooldownManager, dcHook));
 
                     // Register world change listener
-                    getServer().getPluginManager().registerEvents(new PlayerWorldChange(this, dcHook, cooldownManager), this);
+                    if (configHandler.isForceEnabledWorldChangeListener())
+                        getServer().getPluginManager().registerEvents(new PlayerWorldChange(this, dcHook, cooldownManager), this);
 
                     // Register listeners based on config
                     if (configHandler.isPreventedAfterCombat())

@@ -42,6 +42,7 @@ togglePvpCommand:
     forceEnabledAfterMessage: "Your pvp was &are-&nenabled&r!"
   forceEnabledAfterDeath: true
   forceEnabledAfterSetBounty: true
+  forceEnabledWorldChangeListener: true
   preventedInWorlds: []
     #- "world_nether"
   preventedWithBounty: true
