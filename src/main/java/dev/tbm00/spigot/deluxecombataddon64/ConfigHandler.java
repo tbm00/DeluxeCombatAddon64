@@ -105,7 +105,7 @@ public class ConfigHandler {
      * @param fixSection the configuration section for "fixes"
      */
     private void loadFixes(ConfigurationSection fixSection) {
-        checkAnchorExplosions = fixSection.contains("anchorExplosionPVPCheck") ? fixSection.getBoolean("anchorExplosionPVPCheck") : false;
+        checkAnchorExplosions = fixSection.contains("anchorExplosionPvpCheck") ? fixSection.getBoolean("anchorExplosionPvpCheck") : false;
     }
 
     /**
