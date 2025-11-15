@@ -1,4 +1,4 @@
-# DeluxeCombatAddon64 v0.0.9-beta by @tbm00
+# DeluxeCombatAddon64 v0.0.10-beta by @tbm00
 # https://github.com/tbm00/DeluxeCombatAddon64
 
 enabled: true
@@ -7,13 +7,13 @@ enabled: true
 fixes:
   anchorExplosionPvpCheck: true
 
-bountyProtectionCommand:
+bountyExpansionCommand:
   enabled: true
   saveMapOnPluginDisable: true
   chat:
     prefix: "&8[&f-&8] &f"
     protectionEnabledMessage: "You are now protected from bounties for &a<time_left>&r!"
-    currentProtectionTimeMessage: "You are protected from bounties for &a<time_left>&r!"
+    currentProtectionTimeMessage: "&aYou are protected from bounties for &e<time_left>&a!"
     noCurrentProtectionMessage: "&cYou are not protected from bounties!"
     cannotSetBountyMessage: "&cThat player is protected from bounties for &6<time_left>&c!"
 

@@ -15,7 +15,7 @@ public class ConfigHandler {
     // "fixes"
     private boolean checkAnchorExplosions = false;
     
-    // "bountyProtectionCommand"
+    // "bountyExpansionCommand"
     private boolean bountyProtCommandEnabled = false;
     private boolean saveProtDataOnDisable = true;
     private String protChatPrefix = null;
@@ -80,10 +80,10 @@ public class ConfigHandler {
             }
 
             // Load Bounty Protection Command Mechanics
-            ConfigurationSection bountyProtSection = javaPlugin.getConfig().getConfigurationSection("bountyProtectionCommand");
-            if (bountyProtSection.getBoolean("enabled")) {
+            ConfigurationSection bountyExpansionSection = javaPlugin.getConfig().getConfigurationSection("bountyExpansionCommand");
+            if (bountyExpansionSection.getBoolean("enabled")) {
                 bountyProtCommandEnabled = true;
-                loadBountyProt(bountyProtSection);
+                loadBountyProt(bountyExpansionSection);
             }
 
             // Load TogglePVP Command Mechanics
@@ -109,16 +109,16 @@ public class ConfigHandler {
     }
 
     /**
-     * Loads the "bountyProtectionCommand" section of the configuration.
+     * Loads the "bountyExpansionCommand" section of the configuration.
      * 
-     * @param bountyProtSection the configuration section for "bountyProtectionCommand"
+     * @param bountyExpansionSection the configuration section for "bountyExpansionCommand"
      */
-    private void loadBountyProt(ConfigurationSection bountyProtSection) {
+    private void loadBountyProt(ConfigurationSection bountyExpansionSection) {
         // Load saveMapOnPluginDisable
-        savePVPDataOnDisable = bountyProtSection.contains("saveMapOnPluginDisable") ? bountyProtSection.getBoolean("saveMapOnPluginDisable") : true;
+        savePVPDataOnDisable = bountyExpansionSection.contains("saveMapOnPluginDisable") ? bountyExpansionSection.getBoolean("saveMapOnPluginDisable") : true;
 
         // Load Chat Messages
-        ConfigurationSection chatSection = bountyProtSection.getConfigurationSection("chat");
+        ConfigurationSection chatSection = bountyExpansionSection.getConfigurationSection("chat");
         if (chatSection != null) {
             protChatPrefix = chatSection.contains("prefix") ? chatSection.getString("prefix") : null;
             protectionEnabledMessage = chatSection.contains("protectionEnabledMessage") ? chatSection.getString("protectionEnabledMessage") : null;
@@ -294,7 +294,7 @@ public class ConfigHandler {
         return saveProtDataOnDisable;
     }
 
-    public boolean isBountyProtCommandEnabled() {
+    public boolean isBountyCommandEnabled() {
         return bountyProtCommandEnabled;
     }
 

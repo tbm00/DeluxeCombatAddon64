@@ -17,20 +17,20 @@ import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
 import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
 import dev.tbm00.spigot.deluxecombataddon64.data.ProtectionManager;
 
-public class BountyProtCmd implements TabExecutor {
+public class BountyCmd implements TabExecutor {
     private final DeluxeCombatAddon64 javaPlugin;
     private final ConfigHandler configHandler;
     private final ProtectionManager protectionManager;
     private final String PERMISSION_BOUNTYPROT_MANAGE = "deluxecombataddon64.manageprotections";
 
-    public BountyProtCmd(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, ProtectionManager protectionManager) {
+    public BountyCmd(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, ProtectionManager protectionManager) {
         this.protectionManager = protectionManager;
         this.javaPlugin = javaPlugin;
         this.configHandler = configHandler;
     }
 
     /**
-     * Handles the "/bountyprot" command for checking and setting bounty protections.
+     * Handles the "/bounty" command for checking and setting bounty protections.
      * 
      * @param sender the command sender
      * @param consoleCommand the command being executed
@@ -39,30 +39,76 @@ public class BountyProtCmd implements TabExecutor {
      * @return true if the command was handled successfully, false otherwise
      */
     public boolean onCommand(CommandSender sender, Command consoleCommand, String label, String[] args) {
-
-        // "/bountyprot <username> set <seconds>" - admin command 
-        if ((args.length==3) && hasPermission(sender, PERMISSION_BOUNTYPROT_MANAGE)) {
+        if (args.length==0) {
+            return handleBaseCmd(sender);
+        } else if (args.length==1) {
+            if (!(sender instanceof Player)) return true;
+            if (args[0].toLowerCase().equals("create")) {
+                return sudoDCCommand((Player) sender, "dcbounty create");
+            } else if (args[0].toLowerCase().equals("list")) {
+                return sudoDCCommand((Player) sender, "dcbounty list");
+            } else {
+                return handleBaseCmd(sender);
+            }
+        } else if ((args.length==2) && hasPermission(sender, PERMISSION_BOUNTYPROT_MANAGE)) {
+            // "/bountyprot <username> [clear/get]" - admin command 
+            if (args[1].equalsIgnoreCase("get"))
+                return handleGetOther(sender, getPlayer(args[0]));
+            if (args[1].equalsIgnoreCase("clear"))
+                return handleClearOther(sender, getPlayer(args[0]));
+        } else if ((args.length==3) && hasPermission(sender, PERMISSION_BOUNTYPROT_MANAGE)) {
+            // "/bountyprot <username> set <seconds>" - admin command 
             if (args[1].equalsIgnoreCase("set"))
                 return handleSetOther(sender, getPlayer(args[0]), Integer.valueOf(args[2]));
             if (args[1].equalsIgnoreCase("add"))
                 return handleAddOther(sender, getPlayer(args[0]), Integer.valueOf(args[2]));
         } 
         
-        // "/bountyprot <username> [clear/get]" - admin command 
-        if ((args.length==2) && hasPermission(sender, PERMISSION_BOUNTYPROT_MANAGE)) {
-            if (args[1].equalsIgnoreCase("get"))
-                return handleGetOther(sender, getPlayer(args[0]));
-            if (args[1].equalsIgnoreCase("clear"))
-                return handleClearOther(sender, getPlayer(args[0]));
-        } 
-
-        // "/bountyprot" - player command
-        if (args.length==0 && (sender instanceof Player)) { 
-            Player target = (Player) sender;
-            return handleGetSelf(target);
-        } 
-    
         return false;
+    }
+
+    /**
+     * Handles the command for adding protection on a player.
+     * 
+     * @param sender the command sender
+     * @param target the target player
+     * @param seconds the duration of the protection in seconds
+     * @return true if the protection was successfully given, false otherwise
+     */
+    private boolean handleBaseCmd(CommandSender sender) {
+        sendMessage(sender, false, "&5--- &dBounty Commands &5---");
+        sendMessage(sender, false, "&f/bounty create &7Place bounty on a player");
+        sendMessage(sender, false, "&f/bounty list &7Show active bounties");
+        if (protectionManager.hasActiveProtection(sender.getName())) {
+            String time = protectionManager.getMapTime(sender.getName());
+            String msg = configHandler.getCurrentProtectionTimeMessage().replace("<time_left>", time);
+            sendMessage(sender, false, "&2["+msg+"&2]");
+        } 
+        return true;
+    }
+
+    /**
+     * Sends a message to a target CommandSender.
+     * 
+     * @param target the CommandSender to send the message to
+     * @param string the message to send
+     */
+    private void sendMessage(CommandSender target, boolean prefixed, String string) {
+        if (!string.isBlank()) {
+            if (prefixed) target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getProtChatPrefix() + string)));
+            else target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', string)));
+        }
+    }
+
+    public boolean sudoDCCommand(Player target, String command) {
+        try {
+            String msg = command.startsWith("/") ? command : "/" + command;
+            target.chat(msg);  
+            return true;
+        } catch (Exception e) {
+            javaPlugin.log(ChatColor.RED, "Caught exception sudoing command: " + target.getName() + " : /" + command + ": " + e.getMessage());
+            return false;
+        }
     }
 
     /**
@@ -75,17 +121,17 @@ public class BountyProtCmd implements TabExecutor {
      */
     private boolean handleAddOther(CommandSender sender, Player target, Integer seconds) {
         if (target == null) {
-            sendMessage(target, "&cCouldn't find target player!");
+            sendMessage(target, true, "&cCouldn't find target player!");
             return false;
         } else if (seconds==null) {
-            sendMessage(target, "&cCouldn't parse seconds integer!");
+            sendMessage(target, true, "&cCouldn't parse seconds integer!");
             return false;
         }
 
         protectionManager.addMapTime(target, seconds*20);
-        sendMessage(sender, "&fAdded " + protectionManager.formatTime(seconds) + " protection to " + target.getName()
+        sendMessage(sender, true, "&fAdded " + protectionManager.formatTime(seconds) + " protection to " + target.getName()
                     + ". &7Their current protection: " + protectionManager.getMapTime(target.getName()));
-        sendMessage(target, configHandler.getProtectionEnabledMessage().replace("<time_left>", protectionManager.getMapTime(target.getName())));
+        sendMessage(target, true, configHandler.getProtectionEnabledMessage().replace("<time_left>", protectionManager.getMapTime(target.getName())));
         return true;
     }
 
@@ -99,17 +145,17 @@ public class BountyProtCmd implements TabExecutor {
      */
     private boolean handleSetOther(CommandSender sender, Player target, Integer seconds) {
         if (target == null) {
-            sendMessage(target, "&cCouldn't find target player!");
+            sendMessage(target, true, "&cCouldn't find target player!");
             return false;
         } else if (seconds==null) {
-            sendMessage(target, "&cCouldn't parse seconds integer!");
+            sendMessage(target, true, "&cCouldn't parse seconds integer!");
             return false;
         }
 
         protectionManager.setMapTime(target, seconds*20);
-        sendMessage(sender, "&fSet " + protectionManager.formatTime(seconds) + " protection on " + target.getName()
+        sendMessage(sender, true, "&fSet " + protectionManager.formatTime(seconds) + " protection on " + target.getName()
                     + ". &7Their current protection: " + protectionManager.getMapTime(target.getName()));
-        sendMessage(target, configHandler.getProtectionEnabledMessage().replace("<time_left>", protectionManager.getMapTime(target.getName())));
+        sendMessage(target, true, configHandler.getProtectionEnabledMessage().replace("<time_left>", protectionManager.getMapTime(target.getName())));
         return true;
     }
 
@@ -122,16 +168,16 @@ public class BountyProtCmd implements TabExecutor {
      */
     private boolean handleGetOther(CommandSender sender, Player target) {
         if (target == null) {
-            sendMessage(target, "&cCouldn't find target player!");
+            sendMessage(target, true, "&cCouldn't find target player!");
             return false;
         } 
 
         if (!protectionManager.hasActiveProtection(target.getName())) {
-            sendMessage(sender, target.getName() + " has no active bounty protection!");
+            sendMessage(sender, true, target.getName() + " has no active bounty protection!");
         } else {
             String time = protectionManager.getMapTime(target.getName());
             String msg = (target.getName() + " has bounty protection for <time_left>!").replace("<time_left>", time);
-            sendMessage(sender, msg);
+            sendMessage(sender, true, msg);
         } return true;
     }
 
@@ -144,35 +190,19 @@ public class BountyProtCmd implements TabExecutor {
      */
     private boolean handleClearOther(CommandSender sender, Player target) {
         if (target == null) {
-            sendMessage(target, "&cCouldn't find target player!");
+            sendMessage(target, true, "&cCouldn't find target player!");
             return false;
         } 
         
         if (protectionManager.deleteProtectionEntry(target.getName())) {
-            sendMessage(sender, "&fCleared " + target.getName() + "'s protection map. &7Their current protection: " 
+            sendMessage(sender, true, "&fCleared " + target.getName() + "'s protection map. &7Their current protection: " 
                         + protectionManager.getMapTime(target.getName()));
             return true;
         } else {
-            sendMessage(sender, "&cError occured clearing " + target.getName() + "'s protection map. &7Their current protection: " 
+            sendMessage(sender, true, "&cError occured clearing " + target.getName() + "'s protection map. &7Their current protection: " 
             + protectionManager.getMapTime(target.getName()));
             return true;
         } 
-    }
-
-    /**
-     * Handles the command for getting sender's protection (self).
-     * 
-     * @param sender the command sender
-     * @return true if the target was found and protection was sent, false otherwise
-     */
-    private boolean handleGetSelf(CommandSender sender) {
-        if (!protectionManager.hasActiveProtection(sender.getName())) {
-            sendMessage(sender, configHandler.getNoCurrentProtectionMessage());
-        } else {
-            String time = protectionManager.getMapTime(sender.getName());
-            String msg = configHandler.getCurrentProtectionTimeMessage().replace("<time_left>", time);
-            sendMessage(sender, msg);
-        } return true;
     }
 
     /**
@@ -197,26 +227,16 @@ public class BountyProtCmd implements TabExecutor {
     }
 
     /**
-     * Sends a message to a target CommandSender.
-     * 
-     * @param target the CommandSender to send the message to
-     * @param string the message to send
-     */
-    private void sendMessage(CommandSender target, String string) {
-        if (!string.isBlank())
-            target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getProtChatPrefix() + string)));
-    }
-
-    /**
-     * Handles tab completion for the "/bountyprot" command.
+     * Handles tab completion for the "/bounty" command.
      */
     @Override
     public List<String> onTabComplete(CommandSender sender, Command consoleCommand, String alias, String[] args) {
-        if (!hasPermission(sender, PERMISSION_BOUNTYPROT_MANAGE)) return null;
         List<String> list = new ArrayList<>();
         if (args.length == 1) {
-            Bukkit.getOnlinePlayers().forEach(player -> list.add(player.getName()));
-        } else if (args.length == 2) {
+            list.add("create");
+            list.add("list");
+            if (hasPermission(sender, PERMISSION_BOUNTYPROT_MANAGE)) Bukkit.getOnlinePlayers().forEach(player -> list.add(player.getName()));
+        } else if (args.length == 2 && hasPermission(sender, PERMISSION_BOUNTYPROT_MANAGE)) {
             list.add("get");
             list.add("set");
             list.add("add");

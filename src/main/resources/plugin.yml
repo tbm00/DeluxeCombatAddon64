@@ -8,8 +8,8 @@ depend: [DeluxeCombat]
 commands:
   pvp:
     description: Base command for DeluxeCombatAddon64's toggle pvp features
-  bountyprot:
-    description: Base command for DeluxeCombatAddon64's bounty protection feature
+  bounty:
+    description: Base command for DeluxeCombatAddon64's bounty expansion features
 permissions:
   deluxecombataddon64.toggle.self:
     description: Ability to toggle your pvp and grace protection with /pvp

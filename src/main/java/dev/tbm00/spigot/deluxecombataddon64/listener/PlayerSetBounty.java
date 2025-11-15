@@ -40,7 +40,7 @@ public class PlayerSetBounty implements Listener {
     public void onBountySet(BountyInitiateEvent event) {
         Player sender = event.getInitiator();
 
-        if (configHandler.isBountyProtCommandEnabled() && protectionManager.hasActiveProtection(event.getTarget().getName())) {
+        if (configHandler.isBountyCommandEnabled() && protectionManager.hasActiveProtection(event.getTarget().getName())) {
             sendMessage(sender, configHandler.getCannotSetBountyMessage().replace("<time_left>", protectionManager.getMapTime(event.getTarget().getName())));
             event.setCancelled(true);
             return;

@@ -44,12 +44,12 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                     return;
                 }
                 
-                if (configHandler.isBountyProtCommandEnabled()) {
+                if (configHandler.isBountyCommandEnabled()) {
                     // Connect protectionManager
                     protectionManager = new ProtectionManager(this, jsonHandler);
 
                     // Register BountyProtCmd
-                    getCommand("bountyprot").setExecutor(new BountyProtCmd(this, configHandler, protectionManager));
+                    getCommand("bounty").setExecutor(new BountyCmd(this, configHandler, protectionManager));
                 }
 
                 if (configHandler.isTogglePVPCommandEnabled()) {
@@ -73,7 +73,7 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                         getServer().getPluginManager().registerEvents(new PlayerConnection(this, configHandler, cooldownManager), this);
 
                     // Register bounty listener if any part requires it
-                    if (configHandler.getPreventDisableAfterSetBounty()||configHandler.isForceEnabledAfterSetBounty()||configHandler.isBountyProtCommandEnabled())
+                    if (configHandler.getPreventDisableAfterSetBounty()||configHandler.isForceEnabledAfterSetBounty()||configHandler.isBountyCommandEnabled())
                         getServer().getPluginManager().registerEvents(new PlayerSetBounty(this, configHandler, cooldownManager, protectionManager, dcHook), this);
                 }
 

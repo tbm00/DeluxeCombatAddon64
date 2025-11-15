@@ -53,7 +53,7 @@ aliases:
 
 ## Config
 ```
-# DeluxeCombatAddon64 v0.0.9-beta by @tbm00
+# DeluxeCombatAddon64 v0.0.10-beta by @tbm00
 # https://github.com/tbm00/DeluxeCombatAddon64
 
 enabled: true
@@ -62,7 +62,7 @@ enabled: true
 fixes:
   anchorExplosionPvpCheck: true
 
-bountyProtectionCommand:
+bountyExpansionCommand:
   enabled: true
   saveMapOnPluginDisable: true
   chat:
