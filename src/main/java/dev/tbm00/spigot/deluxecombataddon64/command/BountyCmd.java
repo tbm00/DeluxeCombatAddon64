@@ -16,17 +16,20 @@ import net.md_5.bungee.api.chat.TextComponent;
 import dev.tbm00.spigot.deluxecombataddon64.DeluxeCombatAddon64;
 import dev.tbm00.spigot.deluxecombataddon64.ConfigHandler;
 import dev.tbm00.spigot.deluxecombataddon64.data.ProtectionManager;
+import dev.tbm00.spigot.deluxecombataddon64.hook.DCHook;
 
 public class BountyCmd implements TabExecutor {
     private final DeluxeCombatAddon64 javaPlugin;
     private final ConfigHandler configHandler;
     private final ProtectionManager protectionManager;
     private final String PERMISSION_BOUNTYPROT_MANAGE = "deluxecombataddon64.manageprotections";
+    private final DCHook dcHook;
 
-    public BountyCmd(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, ProtectionManager protectionManager) {
+    public BountyCmd(DeluxeCombatAddon64 javaPlugin, ConfigHandler configHandler, ProtectionManager protectionManager,  DCHook dcHook) {
         this.protectionManager = protectionManager;
         this.javaPlugin = javaPlugin;
         this.configHandler = configHandler;
+        this.dcHook = dcHook;
     }
 
     /**
@@ -76,14 +79,23 @@ public class BountyCmd implements TabExecutor {
      * @return true if the protection was successfully given, false otherwise
      */
     private boolean handleBaseCmd(CommandSender sender) {
-        sendMessage(sender, false, "&5--- &dBounty Commands &5---");
-        sendMessage(sender, false, "&f/bounty create &7Place bounty on a player");
-        sendMessage(sender, false, "&f/bounty list &7Show active bounties");
-        if (protectionManager.hasActiveProtection(sender.getName())) {
+        sendMessage(sender, false, " ");
+        sendMessage(sender, false, " &6Bounty Commands");
+        sendMessage(sender, false, " &f/bounty create");
+        sendMessage(sender, false, " &f/bounty list");
+        sendMessage(sender, false, " ");
+
+        boolean activeProtection = protectionManager.hasActiveProtection(sender.getName());
+        boolean activeBounty = dcHook.hasBounty((Player) sender);
+        if (activeProtection) {
             String time = protectionManager.getMapTime(sender.getName());
             String msg = configHandler.getCurrentProtectionTimeMessage().replace("<time_left>", time);
-            sendMessage(sender, false, "&2["+msg+"&2]");
-        } 
+            sendMessage(sender, false, "&2 "+msg);
+        }
+        if (activeBounty) {
+            sendMessage(sender, false, "&c You currently have a bounty..!");
+        }
+        if (activeBounty || activeProtection) sendMessage(sender, false, " ");
         return true;
     }
 
@@ -94,10 +106,8 @@ public class BountyCmd implements TabExecutor {
      * @param string the message to send
      */
     private void sendMessage(CommandSender target, boolean prefixed, String string) {
-        if (!string.isBlank()) {
-            if (prefixed) target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getProtChatPrefix() + string)));
-            else target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', string)));
-        }
+        if (prefixed) target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', configHandler.getProtChatPrefix() + string)));
+        else target.spigot().sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', string)));
     }
 
     public boolean sudoDCCommand(Player target, String command) {

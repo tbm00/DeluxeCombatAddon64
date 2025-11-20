@@ -48,8 +48,8 @@ public class DeluxeCombatAddon64 extends JavaPlugin {
                     // Connect protectionManager
                     protectionManager = new ProtectionManager(this, jsonHandler);
 
-                    // Register BountyProtCmd
-                    getCommand("bounty").setExecutor(new BountyCmd(this, configHandler, protectionManager));
+                    // Register BountyCmd
+                    getCommand("bounty").setExecutor(new BountyCmd(this, configHandler, protectionManager, dcHook));
                 }
 
                 if (configHandler.isTogglePVPCommandEnabled()) {
